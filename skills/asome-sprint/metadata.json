@@ -1,0 +1,10 @@
+{
+  "version": "1.0.0",
+  "organization": "ASOME Lab",
+  "date": "June 2026",
+  "abstract": "Sprint board management for the ASOME Portal project: plan a sprint (assign issues + set To Do), move individual issue stages (In Progress / In Review / Blocked / Done), and report sprint velocity. Uses GitHub Project #6 GraphQL mutations.",
+  "references": [
+    "https://github.com/asomelab/asome-portal",
+    "https://docs.github.com/en/graphql"
+  ]
+}

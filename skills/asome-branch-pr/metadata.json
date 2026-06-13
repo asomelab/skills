@@ -1,0 +1,10 @@
+{
+  "version": "1.0.0",
+  "organization": "ASOME Lab",
+  "date": "June 2026",
+  "abstract": "Creates a conventional branch, validates commits, opens a PR with full body (summary, changes table, test plan checklist), and moves the linked issue's Stage to In Review on the GitHub Project #6 board via GraphQL mutations.",
+  "references": [
+    "https://github.com/asomelab/asome-portal",
+    "https://docs.github.com/en/graphql"
+  ]
+}

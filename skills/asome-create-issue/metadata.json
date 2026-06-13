@@ -1,0 +1,10 @@
+{
+  "version": "1.0.0",
+  "organization": "ASOME Lab",
+  "date": "June 2026",
+  "abstract": "Creates fully enriched GitHub issues in asomelab/asome-portal and adds them to Project #6 with all custom fields populated: Stage, Priority, Kind, Story Points, Area, Start/Target dates, and Sprint iteration. Includes gotcha documentation for silent GraphQL failures.",
+  "references": [
+    "https://github.com/asomelab/asome-portal",
+    "https://docs.github.com/en/graphql"
+  ]
+}

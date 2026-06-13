@@ -1,0 +1,10 @@
+{
+  "version": "1.0.0",
+  "organization": "ASOME Lab",
+  "date": "June 2026",
+  "abstract": "Generates a markdown daily standup digest from the ASOME Portal GitHub board in under 10 seconds. Shows In Progress, Blocked, In Review, recently Done (48h), and To Do issues with story points and sprint velocity. Read-only.",
+  "references": [
+    "https://github.com/asomelab/asome-portal",
+    "https://docs.github.com/en/graphql"
+  ]
+}

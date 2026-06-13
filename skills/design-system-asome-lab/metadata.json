@@ -1,0 +1,11 @@
+{
+  "version": "1.0.0",
+  "organization": "ASOME Lab",
+  "date": "June 2026",
+  "abstract": "Creates implementation-ready design system guidance for ASOME Lab projects: design tokens, component behavior specs, and accessibility standards. Outputs structured documentation that drives consistent UI across the ASOME portal stack (Tailwind v4 + shadcn/ui new-york).",
+  "references": [
+    "https://github.com/asomelab/asome-portal",
+    "https://ui.shadcn.com",
+    "https://tailwindcss.com"
+  ]
+}

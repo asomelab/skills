@@ -1,0 +1,31 @@
+{
+  "$schema": "https://skills.sh/schemas/skills.sh.schema.json",
+  "notGrouped": "bottom",
+  "groupings": [
+    {
+      "title": "Dev Workflow",
+      "description": "Skills for the ASOME Portal day-to-day development cycle: issues, commits, branches, PRs, and code review.",
+      "skills": [
+        "asome-create-issue",
+        "asome-commit",
+        "asome-branch-pr",
+        "asome-review"
+      ]
+    },
+    {
+      "title": "Sprint & Board",
+      "description": "Skills for managing the ASOME sprint board, tracking velocity, and generating daily standups.",
+      "skills": [
+        "asome-sprint",
+        "asome-standup"
+      ]
+    },
+    {
+      "title": "Design System",
+      "description": "Skills for generating design system documentation and component specs for ASOME Lab projects.",
+      "skills": [
+        "design-system-asome-lab"
+      ]
+    }
+  ]
+}
