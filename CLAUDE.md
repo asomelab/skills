@@ -21,6 +21,8 @@ skills/<name>/
 
 ## Conventions
 
-- All ASOME skills target `asomelab/asome-portal` — project constants are embedded in each SKILL.md
-- Version follows semver; bump `metadata.json` version on breaking changes
-- Skills execute directly — no preview/confirmation step unless the action is destructive
+- ASOME skills are **project-agnostic** — they work for any ASOME project.
+- Project constants (repo, project ID, field IDs) live in `.asome/config.json` inside each project. Skills read from there via `jq`. Run `/asome-setup` once per project to generate this file.
+- **SDD is mandatory** for Feature, Improvement, and Setup issues (SP ≥ 3). The `/asome-sdd` skill documents the full workflow and board-stage mapping.
+- Version follows semver; bump `metadata.json` version on breaking changes.
+- Skills execute directly — no preview/confirmation step unless the action is destructive.

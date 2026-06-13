@@ -1,11 +1,9 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "organization": "ASOME Lab",
   "date": "June 2026",
-  "abstract": "Code review checklist for asomelab/asome-portal PRs, validated against CLAUDE.md conventions. Reports CRITICAL (blocks merge), WARNING (should fix), and SUGGESTION (optional) findings for both NestJS backend and Vite/React frontend code.",
+  "abstract": "Code review checklist for any ASOME project PRs, validated against ASOME conventions. Reports CRITICAL (blocks merge), WARNING (should fix), and SUGGESTION (optional) findings. Includes SDD compliance check (verify passed, change name in PR body) plus backend and frontend convention checklists adaptable to the project's stack.",
   "references": [
-    "https://github.com/asomelab/asome-portal",
-    "https://nestjs.com",
-    "https://vitejs.dev"
+    "https://docs.github.com/en/graphql"
   ]
 }

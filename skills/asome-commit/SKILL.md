@@ -1,15 +1,14 @@
 ---
 name: asome-commit
 description: >
-  Create a conventional commit for asomelab/asome-portal: validate format, suggest type+scope
+  Create a conventional commit for any ASOME project: validate format, suggest type+scope
   from staged diff, and commit with co-author trailer.
   Trigger: "commit", "commitear", "hacer commit", "conventional commit",
   "qué tipo de commit va", "commit con mensaje", or any request to commit staged changes.
 license: Apache-2.0
 metadata:
   author: asome
-  version: "1.0"
-  project: asomelab/asome-portal
+  version: "1.1"
 ---
 
 # ASOME — Conventional Commit
@@ -50,15 +49,20 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 | `ci` | GitHub Actions, workflows |
 | `revert` | Reverts a previous commit |
 
-### Scope → NestJS module or web feature
+### Scope → module or feature
 
-| Area | Scope examples |
+Scope should match the module, feature folder, or cross-cutting area being changed.
+Infer it from the staged diff's file paths.
+
+| Kind | Scope examples |
 |---|---|
-| API modules | `auth`, `clients`, `projects`, `team`, `finance`, `dashboard`, `users` |
-| API cross-cutting | `prisma`, `config`, `common`, `main` |
-| Web features | `clients`, `projects`, `team`, `finance`, `dashboard`, `auth` |
-| Web infra | `api-client`, `query-keys`, `router`, `stores` |
-| Root / infra | `ci`, `docker`, `env`, `deps` |
+| Backend module | `auth`, `clients`, `projects`, `team`, `finance`, `users` |
+| Backend cross-cutting | `prisma`, `config`, `common`, `main` |
+| Frontend feature | `clients`, `projects`, `auth`, `dashboard` |
+| Frontend infra | `api-client`, `router`, `stores` |
+| Repo / CI | `ci`, `docker`, `env`, `deps` |
+
+Adapt scope names to the project's actual module structure.
 
 ---
 
@@ -69,8 +73,7 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 git diff --cached --stat
 
 # 2. Infer type + scope from the diff
-# (Claude reads the diff and suggests based on the table above)
-# Example output: "feat(clients): add paginated list endpoint"
+# (read the diff and suggest based on the tables above)
 
 # 3. Validate the message format before committing
 # Message must match: ^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\([a-z0-9._-]+\))?!?: .+
@@ -86,28 +89,25 @@ EOF
 
 ---
 
-## Multi-commit workflow (feature branch)
+## SDD-aligned commit workflow
 
-When implementing a full issue across multiple commits, follow this progression:
+When implementing a feature via SDD, each commit maps to one task from the task list:
 
 ```bash
-# Prisma schema + migration first
+# Example: implementing task "Add Client model and migration"
 git commit -m "feat(clients): add Client model and migration"
 
-# Service layer
+# Task: implement ClientsService
 git commit -m "feat(clients): implement ClientsService with CRUD methods"
 
-# Controller + DTOs
+# Task: add controller + DTOs
 git commit -m "feat(clients): add ClientsController with paginated list endpoint"
 
-# Tests
+# Task: tests
 git commit -m "test(clients): add unit tests for ClientsService"
-
-# Frontend
-git commit -m "feat(clients): add clients list page with search and filters"
 ```
 
-Each commit should be atomic — one coherent change that passes lint + typecheck on its own.
+Each commit should be atomic — one task, passes lint + typecheck on its own.
 
 ---
 
@@ -116,8 +116,8 @@ Each commit should be atomic — one coherent change that passes lint + typechec
 - **DON'T**: `git commit -m "changes"` — non-conventional
 - **DON'T**: `git commit -m "feat: add stuff"` — too vague, no scope
 - **DON'T**: `git commit -m "WIP"` — not allowed on `main` or PR branches
-- **DON'T**: Mix backend + frontend changes in one commit — split them
-- **DO**: `git commit -m "feat(auth): add CognitoJwtStrategy with JWKS validation"`
+- **DON'T**: Mix multiple unrelated changes in one commit — split them
+- **DO**: `git commit -m "feat(auth): add JWT strategy with JWKS validation"`
 - **DO**: `git commit -m "fix(prisma): handle P2002 unique constraint as 409 Conflict"`
 
 ---
@@ -125,9 +125,8 @@ Each commit should be atomic — one coherent change that passes lint + typechec
 ## If pre-commit hook fails
 
 ```bash
-# Run manually what the hook runs:
-cd api && npm run lint && tsc --noEmit
-cd web && npm run lint && tsc --noEmit
+# Run what the hook runs (adapt to project's lint/typecheck setup):
+npm run lint && tsc --noEmit
 
 # Fix issues, re-stage, then:
 git commit -m "<same message>"

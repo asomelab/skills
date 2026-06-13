@@ -3,8 +3,22 @@
   "notGrouped": "bottom",
   "groupings": [
     {
+      "title": "Setup",
+      "description": "One-time project initialization. Run /asome-setup once per project to discover GitHub Project constants and write .asome/config.json — required by all other board-aware skills.",
+      "skills": [
+        "asome-setup"
+      ]
+    },
+    {
+      "title": "SDD Workflow",
+      "description": "Spec-Driven Development for ASOME projects. Mandatory for Feature, Improvement, and Setup issues. Defines when SDD is required, maps SDD phases to board stages, and provides the full command sequence.",
+      "skills": [
+        "asome-sdd"
+      ]
+    },
+    {
       "title": "Dev Workflow",
-      "description": "Skills for the ASOME Portal day-to-day development cycle: issues, commits, branches, PRs, and code review.",
+      "description": "Skills for the ASOME day-to-day development cycle: issues, commits, branches, PRs, and code review.",
       "skills": [
         "asome-create-issue",
         "asome-commit",

@@ -1,34 +1,35 @@
 ---
 name: asome-branch-pr
 description: >
-  Create a branch and open an enriched PR for asomelab/asome-portal with test plan,
+  Create a branch and open an enriched PR for any ASOME project with test plan,
   changes table, and auto-move board stage to In Review.
   Trigger: "create PR", "open PR", "abrir PR", "crear PR", "branch and PR",
   "push and PR", "ready for review", or when implementation is done and needs review.
 license: Apache-2.0
 metadata:
   author: asome
-  version: "1.0"
-  project: asomelab/asome-portal
+  version: "1.1"
 ---
 
 # ASOME — Branch + PR
 
 Creates a conventional branch, validates commits, opens a PR with full body,
-and moves the linked issue's Stage to **In Review** on Project #6.
+and moves the linked issue's Stage to **In Review** on the project board.
 
 **Executes directly.**
 
+> **Prerequisite**: `.asome/config.json` must exist. If missing, run `/asome-setup` first.
+
 ---
 
-## Project constants
+## Resolve project context
 
-```
-REPO       = asomelab/asome-portal
-PROJECT_ID = PVT_kwDODNkJ584Bakec
-Stage field       PVTSSF_lADODNkJ584BakeczhVbLds
-In Review option  0e32ac74
-Done option       75d5718b
+```bash
+REPO=$(jq -r '.repo' .asome/config.json)
+PROJECT_ID=$(jq -r '.project_id' .asome/config.json)
+F_STAGE=$(jq -r '.fields.Stage.id' .asome/config.json)
+IN_REVIEW=$(jq -r '.fields.Stage.options["In Review"]' .asome/config.json)
+DONE=$(jq -r '.fields.Stage.options["Done"]' .asome/config.json)
 ```
 
 ---
@@ -36,11 +37,14 @@ Done option       75d5718b
 ## Pre-flight checks
 
 Before creating anything, verify:
-1. There is a linked issue number (ask if not provided)
-2. The issue exists: `gh issue view <N> --repo asomelab/asome-portal`
+
+1. Linked issue number (ask if not provided)
+2. Issue exists: `gh issue view <N> --repo "$REPO"`
 3. Working tree is clean OR staged changes are ready
-4. Tests pass: `cd api && npm test` + `cd web && npm test`
-5. Lint + typecheck: `npm run lint && tsc --noEmit` in both `api/` and `web/`
+4. **For Feature / Improvement / Setup issues**: `/sdd-verify` must have passed (no CRITICAL findings).
+   - If SDD verify has not been run, run it now before proceeding.
+5. Tests pass (adapt commands to the project's test setup)
+6. Lint + typecheck pass
 
 If any check fails → fix first, then proceed.
 
@@ -74,7 +78,7 @@ git checkout -b <type>/<slug> main
 ```
 
 - `type` — same list as branch types above
-- `scope` — optional, matches the NestJS module or web feature folder (e.g. `clients`, `auth`, `finance`, `dashboard`)
+- `scope` — matches the module or feature folder being changed
 - `description` — imperative, lowercase, no period
 
 ```bash
@@ -92,47 +96,13 @@ EOF
 
 Use `references/pr-template.md`. Every section is required.
 
+For Feature / Improvement / Setup PRs, add the SDD change reference at the top:
+
 ```markdown
+> SDD change: `<change-name>`
+
 Closes #<issue-number>
-
-## Summary
-- bullet 1
-- bullet 2
-- bullet 3 (max)
-
-## Changes
-
-| File | Change |
-|---|---|
-| `api/src/clients/clients.controller.ts` | Add GET /clients with pagination |
-| `api/src/clients/dto/paginated-clients.dto.ts` | New DTO |
-
-## Test plan
-
-### Automated
-- [ ] `cd api && npm test` — Jest passes (or `cd web && npm test` — Vitest passes)
-- [ ] `npm run lint` passes in api/ and web/
-- [ ] `tsc --noEmit` passes in api/ and web/
-
-### Manual
-- [ ] <specific thing to test manually, e.g. "GET /api/clients returns paginated list">
-- [ ] <another manual check>
-
-### API (if backend)
-\`\`\`bash
-# example curl or httpie call
-curl -H "Authorization: Bearer <token>" http://localhost:3000/api/clients
-\`\`\`
-
-## Checklist
-- [ ] Linked approved issue (`Closes #N`)
-- [ ] Conventional commit format
-- [ ] Tests written and passing
-- [ ] Lint + typecheck clean
-- [ ] `@ApiProperty` on all new DTOs
-- [ ] No `process.env` outside `src/config/` (api)
-- [ ] shadcn components in `src/components/ui/` (web)
-- [ ] No direct fetch/axios calls in components — always React Query (web)
+...
 ```
 
 ---
@@ -142,14 +112,16 @@ curl -H "Authorization: Bearer <token>" http://localhost:3000/api/clients
 ```bash
 # 1. Create and push branch
 git checkout -b <type>/<slug> main
-# ... make changes + commits ...
+# ... make changes + commits (use /asome-commit) ...
 git push -u origin <type>/<slug>
 
 # 2. Open PR
 PR_URL=$(gh pr create \
-  --repo asomelab/asome-portal \
+  --repo "$REPO" \
   --title "<type>(<scope>): <description>" \
   --body "$(cat <<'BODY'
+> SDD change: `<change-name>`    ← include for Feature/Improvement/Setup; omit for Bug/Chore
+
 Closes #<N>
 
 ## Summary
@@ -158,13 +130,13 @@ Closes #<N>
 ## Changes
 | File | Change |
 |---|---|
-| `path/to/file` | what changed |
+| `<path/to/file>` | what changed |
 
 ## Test plan
 ### Automated
-- [ ] Jest passes
+- [ ] Tests pass
 - [ ] Lint clean
-- [ ] tsc --noEmit clean
+- [ ] Type-check clean
 
 ### Manual
 - [ ] <check>
@@ -173,7 +145,7 @@ Closes #<N>
 - [ ] Linked issue
 - [ ] Conventional commits
 - [ ] Tests written
-- [ ] @ApiProperty on DTOs
+- [ ] SDD verify passed (Feature/Improvement/Setup)
 BODY
 )" \
   --base main)
@@ -181,11 +153,10 @@ echo "PR: $PR_URL"
 
 # 3. Add type label
 PR_NUM=$(echo "$PR_URL" | grep -oE '[0-9]+$')
-gh pr edit $PR_NUM --repo asomelab/asome-portal --add-label "type:<x>"
+gh pr edit $PR_NUM --repo "$REPO" --add-label "type:<x>"
 
 # 4. Move issue Stage → In Review on the board
-# Get the project item ID for issue #N
-ISSUE_NODE=$(gh api repos/asomelab/asome-portal/issues/<N> --jq .node_id)
+ISSUE_NODE=$(gh api repos/$REPO/issues/<N> --jq .node_id)
 ITEM_ID=$(gh api graphql -f query="
 {
   node(id:\"$ISSUE_NODE\"){
@@ -198,10 +169,10 @@ ITEM_ID=$(gh api graphql -f query="
 gh api graphql -f query="
 mutation{
   updateProjectV2ItemFieldValue(input:{
-    projectId:\"PVT_kwDODNkJ584Bakec\"
+    projectId:\"$PROJECT_ID\"
     itemId:\"$ITEM_ID\"
-    fieldId:\"PVTSSF_lADODNkJ584BakeczhVbLds\"
-    value:{singleSelectOptionId:\"0e32ac74\"}
+    fieldId:\"$F_STAGE\"
+    value:{singleSelectOptionId:\"$IN_REVIEW\"}
   }){projectV2Item{id}}
 }"
 echo "Stage → In Review"
@@ -211,22 +182,25 @@ echo "Stage → In Review"
 
 ## After merge
 
-When the PR is merged, run:
+When the PR is merged:
 
 ```bash
 # Move Stage → Done
 gh api graphql -f query="
 mutation{
   updateProjectV2ItemFieldValue(input:{
-    projectId:\"PVT_kwDODNkJ584Bakec\"
+    projectId:\"$PROJECT_ID\"
     itemId:\"$ITEM_ID\"
-    fieldId:\"PVTSSF_lADODNkJ584BakeczhVbLds\"
-    value:{singleSelectOptionId:\"75d5718b\"}
+    fieldId:\"$F_STAGE\"
+    value:{singleSelectOptionId:\"$DONE\"}
   }){projectV2Item{id}}
 }"
+
+# Archive the SDD change (for Feature/Improvement/Setup)
+# /sdd-archive <change-name>
 
 # Delete local branch
 git branch -d <type>/<slug>
 ```
 
-Or use `/asome-sprint move <issue> done` to do this automatically.
+Or use `/asome-sprint move <issue> done` to move stage automatically.

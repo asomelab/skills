@@ -1,6 +1,8 @@
-# PR template — ASOME Portal
+# PR template — ASOME
 
 ```markdown
+> SDD change: `<change-name>`    ← include for Feature/Improvement/Setup; omit for Bug/Chore/Docs
+
 Closes #<N>
 
 ## Summary
@@ -12,16 +14,15 @@ Closes #<N>
 
 | File | Change |
 |---|---|
-| `api/src/<module>/<file>` | <what changed> |
-| `web/src/<path>/<file>` | <what changed> |
+| `<area>/src/<module>/<file>` | <what changed> |
+| `<area>/src/<path>/<file>` | <what changed> |
 
 ## Test plan
 
 ### Automated
-- [ ] `cd api && npm test` — Jest passes
-- [ ] `cd web && npm test` — Vitest passes
-- [ ] `npm run lint` passes in api/ and web/
-- [ ] `tsc --noEmit` passes in api/ and web/
+- [ ] Tests pass
+- [ ] Lint clean
+- [ ] Type-check clean
 
 ### Manual
 - [ ] <specific manual check 1>
@@ -29,21 +30,19 @@ Closes #<N>
 
 ### API smoke test (backend changes)
 ```bash
-# Replace with actual endpoint
+# Replace with actual endpoint + auth header
 curl -H "Authorization: Bearer <token>" \
-     http://localhost:3000/api/<endpoint>
+     http://localhost:<port>/api/<endpoint>
 ```
 
 ## Checklist
 - [ ] Issue linked with `Closes #N`
 - [ ] Conventional commit format (`type(scope): desc`)
-- [ ] Tests written (Jest / Vitest)
+- [ ] Tests written and passing
 - [ ] Lint + typecheck clean
-- [ ] `@ApiProperty` on all new/modified DTOs
-- [ ] No `process.env` outside `src/config/` (api)
-- [ ] `TransformInterceptor` envelope respected (no raw returns)
-- [ ] Auth: new routes use `@Public()` if unauthenticated, else `@Roles()` if restricted
-- [ ] shadcn components in `src/components/ui/` only (web)
-- [ ] Data via React Query hooks — no direct axios in components (web)
+- [ ] SDD verify passed (Feature / Improvement / Setup)
+- [ ] No `process.env` outside config module (backend)
+- [ ] No direct HTTP calls in components — always data-fetching hooks (frontend)
+- [ ] UI primitives from shared component library only (frontend)
 - [ ] `Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>` in commit
 ```

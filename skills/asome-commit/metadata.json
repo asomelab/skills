@@ -1,10 +1,9 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "organization": "ASOME Lab",
   "date": "June 2026",
-  "abstract": "Validates staged changes, infers conventional commit type+scope from the diff, and commits with co-author trailer. Enforces the commit format required by asome-portal: type(scope): description, with Fibonacci story point awareness for multi-commit feature branches.",
+  "abstract": "Validates staged changes, infers conventional commit type+scope from the diff, and commits with co-author trailer. Enforces the ASOME commit format: type(scope): description. Scope adapts to the project's module structure. Includes SDD-aligned commit workflow for feature branches.",
   "references": [
-    "https://www.conventionalcommits.org",
-    "https://github.com/asomelab/asome-portal"
+    "https://www.conventionalcommits.org"
   ]
 }

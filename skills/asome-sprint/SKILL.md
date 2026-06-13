@@ -1,49 +1,52 @@
 ---
 name: asome-sprint
 description: >
-  Manage the ASOME Portal sprint board: plan a sprint, move issue stages, report velocity.
+  Manage the ASOME project sprint board: plan a sprint, move issue stages, report velocity.
   Trigger: "plan sprint", "sprint report", "move issue", "mover issue", "sprint actual",
   "qué hay en el sprint", "cuántos puntos", "stage del issue", or any board management request.
 license: Apache-2.0
 metadata:
   author: asome
-  version: "1.0"
-  project: asomelab/asome-portal
+  version: "1.1"
 ---
 
 # ASOME — Sprint Management
 
 Three sub-commands: **plan**, **move**, **report**. Executes directly.
 
+> **Prerequisite**: `.asome/config.json` must exist. If missing, run `/asome-setup` first.
+
 ---
 
-## Project constants
+## Resolve project context
 
+```bash
+REPO=$(jq -r '.repo' .asome/config.json)
+PROJECT_NUM=$(jq -r '.project_num' .asome/config.json)
+PROJECT_ID=$(jq -r '.project_id' .asome/config.json)
+ORG=${REPO%%/*}
+
+F_STAGE=$(jq -r '.fields.Stage.id' .asome/config.json)
+F_SPRINT=$(jq -r '.fields.Sprint.id' .asome/config.json)
+F_SP=$(jq -r '."fields"."Story Points".id' .asome/config.json)
+
+# Stage option IDs
+STAGE_BACKLOG=$(jq -r '.fields.Stage.options["Backlog"]' .asome/config.json)
+STAGE_TODO=$(jq -r '.fields.Stage.options["To Do"]' .asome/config.json)
+STAGE_IN_PROGRESS=$(jq -r '.fields.Stage.options["In Progress"]' .asome/config.json)
+STAGE_IN_REVIEW=$(jq -r '.fields.Stage.options["In Review"]' .asome/config.json)
+STAGE_BLOCKED=$(jq -r '.fields.Stage.options["Blocked"]' .asome/config.json)
+STAGE_DONE=$(jq -r '.fields.Stage.options["Done"]' .asome/config.json)
+STAGE_CANCELLED=$(jq -r '.fields.Stage.options["Cancelled"]' .asome/config.json)
 ```
-PROJECT_NUM = 6
-PROJECT_ID  = PVT_kwDODNkJ584Bakec
-OWNER       = asomelab
-REPO        = asomelab/asome-portal
 
-Stage field  PVTSSF_lADODNkJ584BakeczhVbLds
-  Backlog     eb7a63bb
-  To Do       8ce063f1
-  In Progress c7995139
-  In Review   0e32ac74
-  Blocked     0a9f48e0
-  Done        75d5718b
-  Cancelled   69980f3e
+To look up a sprint iteration ID:
+```bash
+# By title match (e.g., "Sprint 2")
+jq -r '.fields.Sprint.iterations[] | select(.title | test("Sprint 2")) | .id' .asome/config.json
 
-Sprint field PVTIF_lADODNkJ584BakeczhVbLj8
-  Sprint 1 (M0 Scaffolding) 4290fa00  2026-06-13 – 2026-06-20
-  Sprint 2 (M1 Auth)        c98e0158  2026-06-20 – 2026-06-27
-  Sprint 3 (M2 CRM)         45612da9  2026-06-27 – 2026-07-08
-  Sprint 4 (M3 Proyectos)   bc1c8745  2026-07-08 – 2026-07-18
-  Sprint 5 (M4 Equipo)      9bb83a8f  2026-07-18 – 2026-07-25
-  Sprint 6 (M5 Finanzas)    d8dcb44e  2026-07-25 – 2026-08-05
-  Sprint 7 (M6 Dashboard)   8f6809f4  2026-08-05 – 2026-08-12
-
-Story Points field PVTF_lADODNkJ584BakeczhVbLeo
+# List all sprints
+jq -r '.fields.Sprint.iterations[] | "\(.title): \(.id) (\(.start) – \(.end))"' .asome/config.json
 ```
 
 ---
@@ -55,27 +58,26 @@ Story Points field PVTF_lADODNkJ584BakeczhVbLeo
 Assigns a list of issues to a sprint and sets their Stage to **To Do**.
 
 ```bash
-# For each issue number to assign:
 ISSUE_NUM=5
-SPRINT_ITER_ID="4290fa00"   # Sprint 1 example
+SPRINT_ITER_ID=$(jq -r '.fields.Sprint.iterations[] | select(.title | test("Sprint 1")) | .id' .asome/config.json)
 
 # Get item ID from issue
-ISSUE_NODE=$(gh api repos/asomelab/asome-portal/issues/$ISSUE_NUM --jq .node_id)
+ISSUE_NODE=$(gh api repos/$REPO/issues/$ISSUE_NUM --jq .node_id)
 ITEM_ID=$(gh api graphql -f query="
 {node(id:\"$ISSUE_NODE\"){...on Issue{projectItems(first:5){nodes{id}}}}}" \
   --jq '.data.node.projectItems.nodes[0].id')
 
 # Set Sprint
 gh api graphql -f query="mutation{updateProjectV2ItemFieldValue(input:{
-  projectId:\"PVT_kwDODNkJ584Bakec\",itemId:\"$ITEM_ID\",
-  fieldId:\"PVTIF_lADODNkJ584BakeczhVbLj8\",
+  projectId:\"$PROJECT_ID\",itemId:\"$ITEM_ID\",
+  fieldId:\"$F_SPRINT\",
   value:{iterationId:\"$SPRINT_ITER_ID\"}}){projectV2Item{id}}}"
 
 # Set Stage → To Do
 gh api graphql -f query="mutation{updateProjectV2ItemFieldValue(input:{
-  projectId:\"PVT_kwDODNkJ584Bakec\",itemId:\"$ITEM_ID\",
-  fieldId:\"PVTSSF_lADODNkJ584BakeczhVbLds\",
-  value:{singleSelectOptionId:\"8ce063f1\"}}){projectV2Item{id}}}"
+  projectId:\"$PROJECT_ID\",itemId:\"$ITEM_ID\",
+  fieldId:\"$F_STAGE\",
+  value:{singleSelectOptionId:\"$STAGE_TODO\"}}){projectV2Item{id}}}"
 
 echo "Issue #$ISSUE_NUM → Sprint + To Do"
 ```
@@ -88,36 +90,31 @@ echo "Issue #$ISSUE_NUM → Sprint + To Do"
 
 Moves a single issue to a new Stage on the board.
 
-Stage → option ID map:
-| Stage | ID |
-|---|---|
-| Backlog | eb7a63bb |
-| To Do | 8ce063f1 |
-| In Progress | c7995139 |
-| In Review | 0e32ac74 |
-| Blocked | 0a9f48e0 |
-| Done | 75d5718b |
-| Cancelled | 69980f3e |
+Stage lookup:
+```bash
+# Get option ID for any stage name
+STAGE_OPT=$(jq -r '.fields.Stage.options["In Progress"]' .asome/config.json)
+```
 
 ```bash
 ISSUE_NUM=3
-TARGET_STAGE_ID="c7995139"   # In Progress example
+TARGET_STAGE_ID=$(jq -r '.fields.Stage.options["In Progress"]' .asome/config.json)
 
-ISSUE_NODE=$(gh api repos/asomelab/asome-portal/issues/$ISSUE_NUM --jq .node_id)
+ISSUE_NODE=$(gh api repos/$REPO/issues/$ISSUE_NUM --jq .node_id)
 ITEM_ID=$(gh api graphql -f query="
 {node(id:\"$ISSUE_NODE\"){...on Issue{projectItems(first:5){nodes{id}}}}}" \
   --jq '.data.node.projectItems.nodes[0].id')
 
 gh api graphql -f query="mutation{updateProjectV2ItemFieldValue(input:{
-  projectId:\"PVT_kwDODNkJ584Bakec\",itemId:\"$ITEM_ID\",
-  fieldId:\"PVTSSF_lADODNkJ584BakeczhVbLds\",
+  projectId:\"$PROJECT_ID\",itemId:\"$ITEM_ID\",
+  fieldId:\"$F_STAGE\",
   value:{singleSelectOptionId:\"$TARGET_STAGE_ID\"}}){projectV2Item{id}}}"
 
 echo "Issue #$ISSUE_NUM Stage → <target>"
 
-# Also add/remove status label if applicable
-gh issue edit $ISSUE_NUM --repo asomelab/asome-portal --add-label "status:in-review"   # for In Review
-gh issue edit $ISSUE_NUM --repo asomelab/asome-portal --remove-label "status:blocked"  # cleanup
+# Also update status label if applicable
+gh issue edit $ISSUE_NUM --repo "$REPO" --add-label "status:in-review"   # for In Review
+gh issue edit $ISSUE_NUM --repo "$REPO" --remove-label "status:blocked"  # cleanup
 ```
 
 ---
@@ -129,8 +126,7 @@ gh issue edit $ISSUE_NUM --repo asomelab/asome-portal --remove-label "status:blo
 Fetches the board state and generates a sprint summary.
 
 ```bash
-# Fetch all items with Stage + SP
-gh project item-list 6 --owner asomelab --format json | python3 - << 'EOF'
+gh project item-list $PROJECT_NUM --owner "$ORG" --format json | python3 - << 'EOF'
 import sys, json
 
 data = json.load(sys.stdin)

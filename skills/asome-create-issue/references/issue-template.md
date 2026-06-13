@@ -1,4 +1,4 @@
-# Issue template — ASOME Portal
+# Issue template — ASOME
 
 ## Feature / Setup / Improvement
 
@@ -10,13 +10,14 @@
 - requirement 2
 - requirement 3
 
-**Ref:** `reviste/api/src/<path>` ← backend reference (omit if N/A)
+**Ref:** `<area>/src/<path>` ← relevant source path (omit if N/A)
 
 **Definition of Done**
 - [ ] Feature implemented and working locally
-- [ ] Tests written (Jest for api / Vitest for web)
-- [ ] Linting passes (`npm run lint`)
-- [ ] Type-check passes (`tsc --noEmit`)
+- [ ] Tests written and passing
+- [ ] Linting passes
+- [ ] Type-check passes
+- [ ] SDD verify passed (`/sdd-verify`)
 - [ ] PR opened, reviewed, merged to `main`
 - [ ] Issue closed, Stage → Done on board
 ```
@@ -32,7 +33,7 @@
 
 **Output**
 Decision documented as comment on this issue (or in CLAUDE.md / ARCHITECTURE.md).
-Chosen approach added to relevant package.json / config before closing.
+Chosen approach added to relevant config / docs before closing.
 
 **Time-box**: <N> hours max
 ```
@@ -74,5 +75,5 @@ paste error here
 **Files to update**
 - `docs/ARCHITECTURE.md`
 - `CLAUDE.md`
-- `api/.env.example`
+- `<area>/.env.example`
 ```

@@ -1,20 +1,21 @@
 ---
 name: asome-standup
 description: >
-  Generate a daily standup digest from the ASOME Portal board — what's in progress,
+  Generate a daily standup digest from any ASOME project board — what's in progress,
   what's blocked, what shipped recently.
   Trigger: "standup", "daily", "qué está pasando", "resumen del board",
   "qué tenemos en progreso", "digest del proyecto", "qué se cerró".
 license: Apache-2.0
 metadata:
   author: asome
-  version: "1.0"
-  project: asomelab/asome-portal
+  version: "1.1"
 ---
 
 # ASOME — Daily Standup
 
 Generates a markdown digest of the board state in < 10 seconds. Read-only.
+
+> **Prerequisite**: `.asome/config.json` must exist. If missing, run `/asome-setup` first.
 
 ---
 
@@ -22,8 +23,8 @@ Generates a markdown digest of the board state in < 10 seconds. Read-only.
 
 ```
 ## 🟡 In Progress (N issues · X SP)
-  #3  NestJS bootstrap — AppModule + config + main.ts [5SP] · Backend
-  #4  Vite + React 19 + Tailwind v4 + shadcn/ui [5SP] · Frontend
+  #3  NestJS bootstrap — AppModule + config [5SP] · Backend
+  #4  Vite + React + Tailwind [5SP] · Frontend
 
 ## 🔴 Blocked (N issues)
   #N  <title> — last updated <date>
@@ -34,13 +35,13 @@ Generates a markdown digest of the board state in < 10 seconds. Read-only.
 ## ✅ Done recently (closed in last 48h · X SP shipped)
   #N  <title>
 
-## 📋 To Do — Sprint 1 (remaining X SP)
+## 📋 To Do — Sprint N (remaining X SP)
   #1  Monorepo init [3SP] · Infra
   #2  NestJS bootstrap [5SP] · Backend
   ...
 
 ---
-Sprint 1 velocity: X SP done / Y SP total
+Sprint N velocity: X SP done / Y SP total
 ```
 
 ---
@@ -48,7 +49,10 @@ Sprint 1 velocity: X SP done / Y SP total
 ## Execution
 
 ```bash
-gh project item-list 6 --owner asomelab --format json | python3 << 'EOF'
+PROJECT_NUM=$(jq -r '.project_num' .asome/config.json)
+ORG=$(jq -r '.repo | split("/")[0]' .asome/config.json)
+
+gh project item-list $PROJECT_NUM --owner "$ORG" --format json | python3 << 'EOF'
 import sys, json
 from datetime import datetime, timezone, timedelta
 
@@ -69,7 +73,7 @@ for item in data.get("items", []):
     if stage == "In Progress":   in_progress.append((tag, sp))
     elif stage == "Blocked":     blocked.append(tag)
     elif stage == "In Review":   in_review.append((tag, sp))
-    elif stage == "Done":        done_recent.append((tag, sp))   # filter by date if available
+    elif stage == "Done":        done_recent.append((tag, sp))
     elif stage == "To Do":       todo.append((tag, sp))
 
 def section(emoji, label, items, show_sp=True):
@@ -98,17 +102,15 @@ EOF
 The digest is plain markdown — paste into:
 - **Slack**: paste directly, renders with bold headers
 - **Notion**: paste as markdown block
-- **GitHub Discussion**: paste as comment in the portal discussion
+- **GitHub Discussion**: paste as comment
 - **Email**: wrap in a `<pre>` tag
 
 ---
 
 ## Optional: filter by area
 
-Add `--area Backend` to filter only Backend items:
-
 ```bash
-gh project item-list 6 --owner asomelab --format json | \
+gh project item-list $PROJECT_NUM --owner "$ORG" --format json | \
   python3 -c "
 import sys, json
 data = json.load(sys.stdin)
@@ -117,3 +119,5 @@ for i in data['items']:
         print(f\"  #{i.get('number','?')} [{i.get('Stage','?')}] {i.get('title','?')[:60]}\")
 "
 ```
+
+Replace `'Backend'` with any value from `jq -r '.fields.Area.options | keys[]' .asome/config.json`.

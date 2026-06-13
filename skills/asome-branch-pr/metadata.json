@@ -1,10 +1,9 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "organization": "ASOME Lab",
   "date": "June 2026",
-  "abstract": "Creates a conventional branch, validates commits, opens a PR with full body (summary, changes table, test plan checklist), and moves the linked issue's Stage to In Review on the GitHub Project #6 board via GraphQL mutations.",
+  "abstract": "Creates a conventional branch, validates commits, opens a PR with full body (summary, changes table, test plan checklist), and moves the linked issue's Stage to In Review on the project board via GraphQL mutations. Project constants resolved from .asome/config.json. Enforces /sdd-verify pass for Feature/Improvement/Setup PRs.",
   "references": [
-    "https://github.com/asomelab/asome-portal",
     "https://docs.github.com/en/graphql"
   ]
 }
