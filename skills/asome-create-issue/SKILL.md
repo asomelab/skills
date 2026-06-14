@@ -1,57 +1,66 @@
 ---
 name: asome-create-issue
 description: >
-  Create an enriched GitHub issue for asomelab/asome-portal following ASOME conventions.
+  Create an enriched GitHub issue for any ASOME project following ASOME conventions.
   Trigger: "create issue", "new issue", "agregar issue", "crear issue", "asome issue",
-  or when the user describes a task/bug/research item for the portal project.
+  or when the user describes a task/bug/research item for the current project.
 license: Apache-2.0
 metadata:
   author: asome
-  version: "1.0"
-  project: asomelab/asome-portal
+  version: "1.1"
 ---
 
 # ASOME — Create Issue
 
-Creates a fully enriched GitHub issue in `asomelab/asome-portal` AND adds it to Project #6
-with all custom fields populated (Stage, Priority, Kind, Story Points, Area, Start, Target, Sprint).
+Creates a fully enriched GitHub issue in the current project AND adds it to the linked
+GitHub Project board with all custom fields populated (Stage, Priority, Kind, Story Points,
+Area, Start, Target, Sprint).
 
 **Executes directly** — no preview step.
 
+> **Prerequisite**: `.asome/config.json` must exist. If missing, run `/asome-setup` first.
+
 ---
 
-## Project constants
-
-```
-REPO        = asomelab/asome-portal
-PROJECT_ID  = PVT_kwDODNkJ584Bakec   (Project #6)
-
-Field IDs:
-  Stage        PVTSSF_lADODNkJ584BakeczhVbLds
-  Priority     PVTSSF_lADODNkJ584BakeczhVbLdw
-  Kind         PVTSSF_lADODNkJ584BakeczhVbLj4
-  Story Points PVTF_lADODNkJ584BakeczhVbLeo
-  Area         PVTSSF_lADODNkJ584BakeczhVbJG8
-  Start        PVTF_lADODNkJ584BakeczhVbJIo
-  Target       PVTF_lADODNkJ584BakeczhVbJJg
-  Sprint       PVTIF_lADODNkJ584BakeczhVbLj8
-
-Stage options:    Backlog eb7a63bb | To Do 8ce063f1 | In Progress c7995139
-                  In Review 0e32ac74 | Blocked 0a9f48e0 | Done 75d5718b | Cancelled 69980f3e
-Priority options: Urgent 563fa301 | High 97590af3 | Medium 5f85dabf | Low 5fc6919d | No Priority 38e3cabe
-Kind options:     Feature c220fe61 | Setup c7be4240 | Research 0693a04e | Bug 93398800 | Docs 80478664 | Improvement 766b0d4c
-Area options:     Infra c0447b28 | Backend d0e1cb2c | Frontend 4a439165 | Docs 4a424d37
-
-Sprint iteration IDs:
-  Sprint 1 (M0) 4290fa00  Sprint 2 (M1) c98e0158  Sprint 3 (M2) 45612da9
-  Sprint 4 (M3) bc1c8745  Sprint 5 (M4) 9bb83a8f  Sprint 6 (M5) d8dcb44e
-  Sprint 7 (M6) 8f6809f4
-```
-
-To refresh IDs if the project changes:
+## Resolve project context
 
 ```bash
-gh api graphql -f query='{node(id:"PVT_kwDODNkJ584Bakec"){...on ProjectV2{fields(first:20){nodes{...on ProjectV2SingleSelectField{id name options{id name}}...on ProjectV2IterationField{id name configuration{iterations{id title}}}...on ProjectV2Field{id name}}}}}}'
+REPO=$(jq -r '.repo' .asome/config.json)
+PROJECT_ID=$(jq -r '.project_id' .asome/config.json)
+
+F_STAGE=$(jq -r '.fields.Stage.id' .asome/config.json)
+F_PRIORITY=$(jq -r '.fields.Priority.id' .asome/config.json)
+F_KIND=$(jq -r '.fields.Kind.id' .asome/config.json)
+F_SP=$(jq -r '."fields"."Story Points".id' .asome/config.json)
+F_AREA=$(jq -r '.fields.Area.id' .asome/config.json)
+F_START=$(jq -r '.fields.Start.id' .asome/config.json)
+F_TARGET=$(jq -r '.fields.Target.id' .asome/config.json)
+F_SPRINT=$(jq -r '.fields.Sprint.id' .asome/config.json)
+```
+
+Look up option IDs by name at execution time:
+
+```bash
+# Stage option (e.g. "To Do" or "Backlog")
+STAGE_OPT=$(jq -r '.fields.Stage.options["To Do"]' .asome/config.json)
+
+# Priority option (e.g. "High")
+PRIORITY_OPT=$(jq -r '.fields.Priority.options["High"]' .asome/config.json)
+
+# Kind option (e.g. "Feature")
+KIND_OPT=$(jq -r '.fields.Kind.options["Feature"]' .asome/config.json)
+
+# Area option (e.g. "Backend")
+AREA_OPT=$(jq -r '.fields.Area.options["Backend"]' .asome/config.json)
+
+# Sprint iteration ID — match by title substring or exact title
+SPRINT_ID=$(jq -r '.fields.Sprint.iterations[] | select(.title | test("Sprint 1")) | .id' .asome/config.json)
+```
+
+List available milestones from the repo when in doubt:
+
+```bash
+gh api repos/$REPO/milestones --jq '.[].title'
 ```
 
 ---
@@ -60,15 +69,15 @@ gh api graphql -f query='{node(id:"PVT_kwDODNkJ584Bakec"){...on ProjectV2{fields
 
 Before creating, confirm with the user (or infer from context):
 
-| Field        | Question                                                                                    |
+| Field        | How to resolve                                                                              |
 | ------------ | ------------------------------------------------------------------------------------------- |
 | Title        | Short imperative description                                                                |
-| Milestone    | M0–M6 (or DevEx / Docs for cross-cutting)                                                   |
-| Area         | Infra / Backend / Frontend / Docs                                                           |
-| Kind         | Feature / Setup / Research / Bug / Docs / Improvement                                       |
-| Priority     | Urgent / High / Medium / Low                                                                |
+| Milestone    | List from `gh api repos/$REPO/milestones`; pick the relevant one                           |
+| Area         | Available options in `.fields.Area.options` keys                                            |
+| Kind         | Available options in `.fields.Kind.options` keys                                            |
+| Priority     | Available options in `.fields.Priority.options` keys                                        |
 | Story Points | 1, 2, 3, 5, 8, 13 (Fibonacci)                                                               |
-| Sprint       | Derived from milestone (M0→S1, M1→S2, ...)                                                  |
+| Sprint       | Available iterations in `.fields.Sprint.iterations[].title`                                 |
 | Body         | Context (WHY) + Scope (subsections with models/flows) + Technical notes + DoD + Dates table |
 
 ---
@@ -76,7 +85,7 @@ Before creating, confirm with the user (or infer from context):
 ## Issue title format
 
 ```
-M<n>: <Area context> — <imperative description>
+<Milestone or context>: <Area context> — <imperative description>
 ```
 
 Examples:
@@ -86,12 +95,14 @@ Examples:
 - `DevEx: Add VS Code workspace settings + recommended extensions`
 - `Bug: Finance summary endpoint returns wrong margin when no payments`
 
+Adapt the prefix to the project's milestone convention.
+
 ---
 
 ## Issue body template
 
 Use `references/issue-template.md`. The body must read like a **mini design doc** — not a
-bullet dump. Model quality: wootic/reviste#241, #257, #259.
+bullet dump.
 
 ### Structure (Feature / Setup / Improvement)
 
@@ -114,7 +125,7 @@ Infra → ### Architecture | ### Pipeline
 Full-stack → combine above
 -->
 
-<Rich content per subsection: Prisma models in code blocks, architecture flows, endpoint
+<Rich content per subsection: data models in code blocks, architecture flows, endpoint
 signatures, FSM tables, permission matrices. Not bullet lists — structured docs.>
 
 ## Technical notes
@@ -122,16 +133,14 @@ signatures, FSM tables, permission matrices. Not bullet lists — structured doc
 - <gotcha, constraint, or pattern to follow>
 - <env var, dependency, or infra prerequisite>
 
-**Ref:** `reviste/api/src/<path>`
-
 ---
 
 ## Definition of Done
 
 - [ ] Feature implemented and working locally
-- [ ] Tests written (Jest for api / Vitest for web)
-- [ ] Linting passes (`npm run lint`)
-- [ ] Type-check passes (`tsc --noEmit`)
+- [ ] Tests written
+- [ ] Linting passes
+- [ ] Type-check passes
 - [ ] PR opened, reviewed, merged to `main`
 - [ ] Issue closed, Stage → Done on board
 
@@ -218,10 +227,9 @@ signatures, FSM tables, permission matrices. Not bullet lists — structured doc
 
 - [ ] `## Context` present and explains WHY (not just what)
 - [ ] `## Scope` has meaningful subsections — no flat bullet dumps
-- [ ] Data models in `prisma` code blocks when relevant
+- [ ] Data models in code blocks when relevant
 - [ ] Architecture flows in plain code blocks when relevant
 - [ ] `## Technical notes` has at least one implementation constraint
-- [ ] `**Ref:**` present if a reviste analogue exists
 - [ ] `## Definition of Done` checklist present
 - [ ] Dates table at the bottom with sprint start/end
 
@@ -243,10 +251,30 @@ Apply exactly ONE from each group. All three are required; `effort:*` is optiona
 ## Execution steps
 
 ```bash
+# Resolve project context
+REPO=$(jq -r '.repo' .asome/config.json)
+PROJECT_ID=$(jq -r '.project_id' .asome/config.json)
+F_STAGE=$(jq -r '.fields.Stage.id' .asome/config.json)
+F_PRIORITY=$(jq -r '.fields.Priority.id' .asome/config.json)
+F_KIND=$(jq -r '.fields.Kind.id' .asome/config.json)
+F_SP=$(jq -r '."fields"."Story Points".id' .asome/config.json)
+F_AREA=$(jq -r '.fields.Area.id' .asome/config.json)
+F_START=$(jq -r '.fields.Start.id' .asome/config.json)
+F_TARGET=$(jq -r '.fields.Target.id' .asome/config.json)
+F_SPRINT=$(jq -r '.fields.Sprint.id' .asome/config.json)
+
+# Resolve option IDs for chosen values
+STAGE_OPT=$(jq -r '.fields.Stage.options["To Do"]' .asome/config.json)
+PRIORITY_OPT=$(jq -r '.fields.Priority.options["High"]' .asome/config.json)
+KIND_OPT=$(jq -r '.fields.Kind.options["Feature"]' .asome/config.json)
+AREA_OPT=$(jq -r '.fields.Area.options["Backend"]' .asome/config.json)
+SPRINT_ID=$(jq -r '.fields.Sprint.iterations[] | select(.title | test("Sprint 1")) | .id' .asome/config.json)
+SP=5
+
 # Step 1 — Create the issue
 ISSUE_URL=$(gh issue create \
-  --repo asomelab/asome-portal \
-  --title "M<n>: <title>" \
+  --repo "$REPO" \
+  --title "<milestone>: <title>" \
   --body "$(cat <<'BODY'
 <body content>
 BODY
@@ -257,39 +285,38 @@ echo "Issue: $ISSUE_URL"
 
 # Step 2 — Get issue node ID
 ISSUE_NUM=$(echo "$ISSUE_URL" | grep -oE '[0-9]+$')
-ISSUE_NODE=$(gh api repos/asomelab/asome-portal/issues/$ISSUE_NUM --jq .node_id)
+ISSUE_NODE=$(gh api repos/$REPO/issues/$ISSUE_NUM --jq .node_id)
 
-# Step 3 — Add to Project #6
+# Step 3 — Add to project board
 ITEM_ID=$(gh api graphql -f query="
 mutation {
-  addProjectV2ItemById(input:{projectId:\"PVT_kwDODNkJ584Bakec\",contentId:\"$ISSUE_NODE\"}){
+  addProjectV2ItemById(input:{projectId:\"$PROJECT_ID\",contentId:\"$ISSUE_NODE\"}){
     item{id}
   }
 }" --jq '.data.addProjectV2ItemById.item.id')
 echo "Item: $ITEM_ID"
 
-# Step 4 — Set Stage (To Do for active sprint, Backlog for future)
-gh api graphql -f query="mutation{updateProjectV2ItemFieldValue(input:{projectId:\"PVT_kwDODNkJ584Bakec\",itemId:\"$ITEM_ID\",fieldId:\"PVTSSF_lADODNkJ584BakeczhVbLds\",value:{singleSelectOptionId:\"8ce063f1\"}}){projectV2Item{id}}}"
+# Step 4 — Set Stage
+gh api graphql -f query="mutation{updateProjectV2ItemFieldValue(input:{projectId:\"$PROJECT_ID\",itemId:\"$ITEM_ID\",fieldId:\"$F_STAGE\",value:{singleSelectOptionId:\"$STAGE_OPT\"}}){projectV2Item{id}}}"
 
-# Step 5 — Set Priority (example: High)
-gh api graphql -f query="mutation{updateProjectV2ItemFieldValue(input:{projectId:\"PVT_kwDODNkJ584Bakec\",itemId:\"$ITEM_ID\",fieldId:\"PVTSSF_lADODNkJ584BakeczhVbLdw\",value:{singleSelectOptionId:\"97590af3\"}}){projectV2Item{id}}}"
+# Step 5 — Set Priority
+gh api graphql -f query="mutation{updateProjectV2ItemFieldValue(input:{projectId:\"$PROJECT_ID\",itemId:\"$ITEM_ID\",fieldId:\"$F_PRIORITY\",value:{singleSelectOptionId:\"$PRIORITY_OPT\"}}){projectV2Item{id}}}"
 
-# Step 6 — Set Kind (example: Feature)
-gh api graphql -f query="mutation{updateProjectV2ItemFieldValue(input:{projectId:\"PVT_kwDODNkJ584Bakec\",itemId:\"$ITEM_ID\",fieldId:\"PVTSSF_lADODNkJ584BakeczhVbLj4\",value:{singleSelectOptionId:\"c220fe61\"}}){projectV2Item{id}}}"
+# Step 6 — Set Kind
+gh api graphql -f query="mutation{updateProjectV2ItemFieldValue(input:{projectId:\"$PROJECT_ID\",itemId:\"$ITEM_ID\",fieldId:\"$F_KIND\",value:{singleSelectOptionId:\"$KIND_OPT\"}}){projectV2Item{id}}}"
 
-# Step 7 — Set Area (example: Backend)
-gh api graphql -f query="mutation{updateProjectV2ItemFieldValue(input:{projectId:\"PVT_kwDODNkJ584Bakec\",itemId:\"$ITEM_ID\",fieldId:\"PVTSSF_lADODNkJ584BakeczhVbJG8\",value:{singleSelectOptionId:\"d0e1cb2c\"}}){projectV2Item{id}}}"
+# Step 7 — Set Area
+gh api graphql -f query="mutation{updateProjectV2ItemFieldValue(input:{projectId:\"$PROJECT_ID\",itemId:\"$ITEM_ID\",fieldId:\"$F_AREA\",value:{singleSelectOptionId:\"$AREA_OPT\"}}){projectV2Item{id}}}"
 
 # Step 8 — Set Story Points (NOTE: inline number, NOT a string variable)
-SP=5
-gh api graphql -f query="mutation{updateProjectV2ItemFieldValue(input:{projectId:\"PVT_kwDODNkJ584Bakec\",itemId:\"$ITEM_ID\",fieldId:\"PVTF_lADODNkJ584BakeczhVbLeo\",value:{number:$SP}}){projectV2Item{id}}}"
+gh api graphql -f query="mutation{updateProjectV2ItemFieldValue(input:{projectId:\"$PROJECT_ID\",itemId:\"$ITEM_ID\",fieldId:\"$F_SP\",value:{number:$SP}}){projectV2Item{id}}}"
 
 # Step 9 — Set Start + Target dates
-gh api graphql -f query="mutation{updateProjectV2ItemFieldValue(input:{projectId:\"PVT_kwDODNkJ584Bakec\",itemId:\"$ITEM_ID\",fieldId:\"PVTF_lADODNkJ584BakeczhVbJIo\",value:{date:\"2026-06-13\"}}){projectV2Item{id}}}"
-gh api graphql -f query="mutation{updateProjectV2ItemFieldValue(input:{projectId:\"PVT_kwDODNkJ584Bakec\",itemId:\"$ITEM_ID\",fieldId:\"PVTF_lADODNkJ584BakeczhVbJJg\",value:{date:\"2026-06-20\"}}){projectV2Item{id}}}"
+gh api graphql -f query="mutation{updateProjectV2ItemFieldValue(input:{projectId:\"$PROJECT_ID\",itemId:\"$ITEM_ID\",fieldId:\"$F_START\",value:{date:\"YYYY-MM-DD\"}}){projectV2Item{id}}}"
+gh api graphql -f query="mutation{updateProjectV2ItemFieldValue(input:{projectId:\"$PROJECT_ID\",itemId:\"$ITEM_ID\",fieldId:\"$F_TARGET\",value:{date:\"YYYY-MM-DD\"}}){projectV2Item{id}}}"
 
-# Step 10 — Set Sprint (example: Sprint 1)
-gh api graphql -f query="mutation{updateProjectV2ItemFieldValue(input:{projectId:\"PVT_kwDODNkJ584Bakec\",itemId:\"$ITEM_ID\",fieldId:\"PVTIF_lADODNkJ584BakeczhVbLj8\",value:{iterationId:\"4290fa00\"}}){projectV2Item{id}}}"
+# Step 10 — Set Sprint
+gh api graphql -f query="mutation{updateProjectV2ItemFieldValue(input:{projectId:\"$PROJECT_ID\",itemId:\"$ITEM_ID\",fieldId:\"$F_SPRINT\",value:{iterationId:\"$SPRINT_ID\"}}){projectV2Item{id}}}"
 ````
 
 ---
@@ -299,3 +326,4 @@ gh api graphql -f query="mutation{updateProjectV2ItemFieldValue(input:{projectId
 - **NEVER** use `--assignee ""` in `gh issue create` — fails silently (no issue created, no error shown).
 - **Story Points MUST be inlined** as `value:{number:5}` in the mutation — passing via `-f val=5` sends a string and GraphQL rejects it silently.
 - `--milestone` expects the exact milestone title string, not the number.
+- If `.asome/config.json` is missing, run `/asome-setup` first — all field IDs and option IDs come from there.
