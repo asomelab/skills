@@ -1,0 +1,11 @@
+{
+  "version": "1.0.0",
+  "organization": "ASOME Lab",
+  "date": "June 2026",
+  "abstract": "Audits an ASOME project's Terraform configs and GitHub Actions workflows against a curated best-practices checklist covering Terraform hygiene, AWS Well-Architected principles, and GHA security. Emits CRITICAL / WARNING / SUGGESTION findings with a summary table. Read-only — makes no changes. Complements asome-infra-plan as a pre-apply gate.",
+  "references": [
+    "https://developer.hashicorp.com/terraform/language/style",
+    "https://docs.aws.amazon.com/wellarchitected/latest/framework/welcome.html",
+    "https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "version": "1.0.0",
+  "organization": "ASOME Lab",
+  "date": "June 2026",
+  "abstract": "Clones asomelab/infrastructure at runtime, copies selected Terraform modules and GitHub Actions workflows into the current project, replaces placeholders with project-specific values from .asome/config.json, and runs terraform init. Designed to bootstrap infra for any new ASOME project from canonical patterns.",
+  "references": [
+    "https://developer.hashicorp.com/terraform/language/modules",
+    "https://docs.github.com/en/actions/security-guides/automatic-token-authentication"
+  ]
+}

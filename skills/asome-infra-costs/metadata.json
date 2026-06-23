@@ -1,0 +1,11 @@
+{
+  "version": "1.0.0",
+  "organization": "ASOME Lab",
+  "date": "June 2026",
+  "abstract": "Queries AWS Cost Explorer and resource APIs to surface monthly spend by service and flag idle or oversized resources (unattached EBS, idle EIPs, stopped EC2, orphaned snapshots, over-sized RDS). Guides the user through aws configure or aws configure sso if credentials are missing. Outputs a prioritized cost-reduction recommendations table with estimated savings. Suggests only — changes applied via /asome-infra-plan.",
+  "references": [
+    "https://docs.aws.amazon.com/cost-management/latest/userguide/ce-what-is.html",
+    "https://aws.amazon.com/ec2/graviton/",
+    "https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html"
+  ]
+}

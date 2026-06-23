@@ -18,12 +18,23 @@
     },
     {
       "title": "Dev Workflow",
-      "description": "Skills for the ASOME day-to-day development cycle: issues, commits, branches, PRs, and code review.",
+      "description": "Skills for the ASOME day-to-day development cycle: issues, commits, branches, PRs, code review, and environment promotion.",
       "skills": [
         "asome-create-issue",
         "asome-commit",
         "asome-branch-pr",
-        "asome-review"
+        "asome-review",
+        "asome-deploy"
+      ]
+    },
+    {
+      "title": "Infrastructure",
+      "description": "Skills for ASOME infrastructure: bootstrapping from canonical patterns, auditing against best practices, analyzing AWS costs, and safely applying Terraform changes.",
+      "skills": [
+        "asome-infra-setup",
+        "asome-infra-audit",
+        "asome-infra-costs",
+        "asome-infra-plan"
       ]
     },
     {

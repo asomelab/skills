@@ -1,0 +1,10 @@
+{
+  "version": "1.0.0",
+  "organization": "ASOME Lab",
+  "date": "June 2026",
+  "abstract": "Safe Terraform plan and apply wrapper that runs init, validate, fmt-check, and plan, then summarizes adds/changes/destroys with extra emphasis on stateful resource destruction. Gates terraform apply behind explicit user confirmation. Supports plan-only (default), apply, drift detection, and destroy modes. Never auto-approves; complements /asome-infra-audit as a pre-apply gate.",
+  "references": [
+    "https://developer.hashicorp.com/terraform/cli/commands/plan",
+    "https://developer.hashicorp.com/terraform/cli/commands/apply"
+  ]
+}

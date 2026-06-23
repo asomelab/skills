@@ -1,0 +1,10 @@
+{
+  "version": "1.0.0",
+  "organization": "ASOME Lab",
+  "date": "June 2026",
+  "abstract": "Promotes code between environments (dev → staging → main) by opening a PR from the correct source branch. Enforces the Gitflow promotion chain — staging only accepts PRs from dev, main only from staging. Resolves branch names (dev/development, staging/stg, main/master) from an optional deploy block in .asome/config.json, falling back to auto-detection via git remote branches. Never direct-pushes; always PR-first.",
+  "references": [
+    "https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow",
+    "https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests"
+  ]
+}

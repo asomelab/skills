@@ -22,6 +22,11 @@ npx skills add asomelab/skills
 | `asome-sprint` | `plan sprint`, `move issue` | Manage sprint board: plan, move stages, report velocity |
 | `asome-standup` | `standup`, `daily` | Daily digest: In Progress / Blocked / Done / velocity |
 | `design-system-asome-lab` | `design system`, `tokens` | Design tokens + component specs for ASOME Lab UI |
+| `asome-deploy` | `deploy`, `deploy to staging`, `deploy to main` | Promote code dev→staging→main via guarded PRs (Gitflow) |
+| `asome-infra-setup` | `setup infra`, `bootstrap infra` | Scaffold infra from asomelab/infrastructure patterns by architecture |
+| `asome-infra-audit` | `audit infra`, `check terraform` | Audit Terraform, AWS, GHA against best practices (CRITICAL/WARNING/SUGGESTION) |
+| `asome-infra-costs` | `aws costs`, `reduce costs` | Explore AWS spend, find idle resources, get cost-reduction recommendations |
+| `asome-infra-plan` | `terraform plan`, `apply infra` | Safe terraform plan+apply wrapper with destroy guards and confirmation |
 
 ## Dev flow
 

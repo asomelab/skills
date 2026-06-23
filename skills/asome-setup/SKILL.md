@@ -135,7 +135,24 @@ Parse the response to extract:
 - `Target` field ID (date field)
 - `Sprint` field ID + all iteration IDs, titles, and dates
 
-### Step 5 — write config
+### Step 5 — auto-detect deploy branches
+
+Detect branch names for `/asome-deploy` (dev → staging → main promotion skill):
+
+```bash
+DEV_BRANCH=$(git branch -r 2>/dev/null | grep -oE 'origin/(dev|development)' | head -1 | sed 's/origin\///')
+STG_BRANCH=$(git branch -r 2>/dev/null | grep -oE 'origin/(staging|stg)' | head -1 | sed 's/origin\///')
+PROD_BRANCH=$(git branch -r 2>/dev/null | grep -oE 'origin/(main|master)' | head -1 | sed 's/origin\///')
+
+# Fallback defaults if not detected
+DEV_BRANCH="${DEV_BRANCH:-dev}"
+STG_BRANCH="${STG_BRANCH:-staging}"
+PROD_BRANCH="${PROD_BRANCH:-main}"
+
+echo "Deploy branches: dev=$DEV_BRANCH staging=$STG_BRANCH prod=$PROD_BRANCH"
+```
+
+### Step 6 — write config
 
 ```bash
 mkdir -p .asome
@@ -144,6 +161,11 @@ cat > .asome/config.json << 'EOF'
   "repo": "<REPO>",
   "project_num": <PROJECT_NUM>,
   "project_id": "<PROJECT_ID>",
+  "deploy": {
+    "dev": "<DEV_BRANCH>",
+    "staging": "<STG_BRANCH>",
+    "prod": "<PROD_BRANCH>"
+  },
   "fields": {
     <...parsed fields...>
   }
@@ -152,7 +174,10 @@ EOF
 echo "Written: .asome/config.json"
 ```
 
-### Step 6 — add to .gitignore (if not already)
+The `deploy` block is optional but enables `/asome-deploy` to skip auto-detection on every run.
+Update manually if you rename environment branches.
+
+### Step 7 — add to .gitignore (if not already)
 
 ```bash
 grep -q '.asome/config.json' .gitignore 2>/dev/null || echo '.asome/config.json' >> .gitignore
