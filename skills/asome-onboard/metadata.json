@@ -1,0 +1,7 @@
+{
+  "version": "1.0.0",
+  "organization": "ASOME Lab",
+  "date": "June 2026",
+  "abstract": "Onboards a developer to any ASOME project by reading GitHub issues and the sprint board via .asome/config.json when available, falling back to raw issue list and local repo context (CLAUDE.md, file tree, recent commits) when not. Produces a full situational snapshot: what's being built, stack, sprint state, board stages, and a recommended starting point.",
+  "references": []
+}

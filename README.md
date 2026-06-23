@@ -14,6 +14,8 @@ npx skills add asomelab/skills
 | Skill | Trigger | Description |
 |---|---|---|
 | `asome-setup` | `setup asome`, `asome config` | One-time project setup — writes `.asome/config.json` with GitHub Project field IDs |
+| `asome-onboard` | `onboard`, `introduce me to the project`, `poneme al día` | Project snapshot for new devs — reads issues, sprint board, stack, and recommends where to start |
+| `asome-create-skill` | `create skill`, `nueva skill`, `add skill` | Scaffold a new ASOME skill with SKILL.md, metadata.json, and registry entry |
 | `asome-sdd` | `sdd`, `start feature`, `empezar feature` | SDD workflow guide: when to use SDD, board-stage mapping, full command sequence |
 | `asome-create-issue` | `create issue`, `nueva issue` | Create enriched GitHub issue with all project board fields |
 | `asome-commit` | `commit`, `commitear` | Conventional commit with type+scope inferred from diff |

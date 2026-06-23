@@ -1,0 +1,7 @@
+{
+  "version": "1.0.0",
+  "organization": "ASOME Lab",
+  "date": "June 2026",
+  "abstract": "Scaffolds a new ASOME skill following repo conventions: generates SKILL.md with correct frontmatter and trigger keywords, metadata.json with version and abstract, and registers the skill in skills.sh.json under the appropriate group. Enforces project-agnostic patterns and asome author convention.",
+  "references": []
+}

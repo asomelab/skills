@@ -6,7 +6,9 @@
       "title": "Setup",
       "description": "One-time project initialization. Run /asome-setup once per project to discover GitHub Project constants and write .asome/config.json — required by all other board-aware skills.",
       "skills": [
-        "asome-setup"
+        "asome-setup",
+        "asome-onboard",
+        "asome-create-skill"
       ]
     },
     {
