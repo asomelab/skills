@@ -16,7 +16,7 @@ description: >
 license: Apache-2.0
 metadata:
   author: asome
-  version: "1.1"
+  version: "1.2"
 ---
 
 # ASOME — Deploy (Environment Promotion)
@@ -225,6 +225,29 @@ gh pr diff "$PR_NUM" --repo "$REPO" | head -100
 echo "(diff truncated — view full diff at $PR_URL)"
 ```
 
+### Step 6 — wait for required checks before declaring the PR promotable
+
+**Never tell the user a promotion PR is ready to merge until checks are green.**
+
+```bash
+echo "Waiting for CI checks on PR #$PR_NUM..."
+gh pr checks "$PR_NUM" --repo "$REPO" --watch --interval 15
+CHECKS_EXIT=$?
+
+if [ $CHECKS_EXIT -ne 0 ]; then
+  echo "❌ One or more checks failed on PR #$PR_NUM."
+  echo "Promotion stopped — do NOT merge $PR_URL until checks are fixed and green."
+  exit 1
+fi
+
+echo "✅ All checks passed on PR #$PR_NUM. Ready for review/merge."
+```
+
+`gh pr checks --watch` blocks until every required check finishes and exits non-zero if any
+check fails or times out. Treat a non-zero exit as a hard stop — end the task here, surface
+the failing check(s) (`gh pr checks "$PR_NUM" --repo "$REPO"` for the list), and do not
+proceed to merge, tag, or release.
+
 ---
 
 ## After merge
@@ -255,6 +278,32 @@ gh pr view "$PR_NUM" --repo "$REPO" --json state,mergedAt --jq '.state'
 
 git fetch --all --prune --tags
 ```
+
+### Step 0b — wait for the post-merge deploy workflow, stop if it fails
+
+The merge itself may trigger a deploy workflow on `$PROD_BRANCH`. Don't tag a release on
+top of a broken deploy.
+
+```bash
+MERGE_SHA=$(gh pr view "$PR_NUM" --repo "$REPO" --json mergeCommit --jq '.mergeCommit.oid')
+RUN_ID=$(gh run list --repo "$REPO" --branch "$PROD_BRANCH" --commit "$MERGE_SHA" --json databaseId --jq '.[0].databaseId')
+
+if [ -n "$RUN_ID" ]; then
+  echo "Watching deploy workflow run $RUN_ID on $PROD_BRANCH..."
+  gh run watch "$RUN_ID" --repo "$REPO" --exit-status
+  if [ $? -ne 0 ]; then
+    echo "❌ Post-merge workflow run failed for $MERGE_SHA on $PROD_BRANCH."
+    echo "Promotion stopped — fix the failure before tagging or releasing."
+    exit 1
+  fi
+  echo "✅ Post-merge checks passed."
+else
+  echo "No workflow run found for $MERGE_SHA on $PROD_BRANCH — skipping watch."
+fi
+```
+
+Treat any non-zero `gh run watch` exit as a hard stop: end the task, do not tag, do not
+publish a release.
 
 ### Step 1 — find the latest tag
 
@@ -331,3 +380,6 @@ changelog (visible at `https://github.com/$REPO/releases`).
   starts from `v0.0.0`.
 - Never re-tag or force-push an existing tag. If a release was tagged in error, create a
   new patch tag pointing at the correct commit instead of moving the old one.
+- **CI gates are hard stops, not warnings.** `gh pr checks --watch` failing means stop and
+  report — never merge, tag, or release around a red check. Same for the post-merge
+  `gh run watch` on the deploy workflow.
