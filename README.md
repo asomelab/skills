@@ -20,11 +20,11 @@ npx skills add asomelab/skills
 | `asome-create-issue` | `create issue`, `nueva issue` | Create enriched GitHub issue with all project board fields |
 | `asome-commit` | `commit`, `commitear` | Conventional commit with type+scope inferred from diff |
 | `asome-branch-pr` | `create PR`, `abrir PR` | Branch + PR with test plan, changes table, board move |
-| `asome-review` | `review PR`, `revisar código` | CRITICAL/WARNING/SUGGESTION checklist with SDD compliance |
+| `asome-review` | `review PR`, `revisar código` | SDD spec compliance + antipatterns + design-system/shared-component reuse, CRITICAL/WARNING/SUGGESTION |
 | `asome-sprint` | `plan sprint`, `move issue` | Manage sprint board: plan, move stages, report velocity |
 | `asome-standup` | `standup`, `daily` | Daily digest: In Progress / Blocked / Done / velocity |
 | `design-system-asome-lab` | `design system`, `tokens` | Design tokens + component specs for ASOME Lab UI |
-| `asome-deploy` | `deploy`, `deploy to staging`, `deploy to main` | Promote code dev→staging→main via guarded PRs (Gitflow) |
+| `asome-deploy` | `deploy`, `deploy to staging`, `deploy to main` | Promote code dev→staging→main via guarded PRs (Gitflow), waits on CI checks, halts on red |
 | `asome-infra-setup` | `setup infra`, `bootstrap infra` | Scaffold infra from asomelab/infrastructure patterns by architecture |
 | `asome-infra-audit` | `audit infra`, `check terraform` | Audit Terraform, AWS, GHA against best practices (CRITICAL/WARNING/SUGGESTION) |
 | `asome-infra-costs` | `aws costs`, `reduce costs` | Explore AWS spend, find idle resources, get cost-reduction recommendations |
@@ -41,7 +41,7 @@ npx skills add asomelab/skills
 /asome-sdd           → follow SDD: /sdd-ff <name> before touching code
 /asome-commit        → conventional commit per SDD task
 /asome-branch-pr     → /sdd-verify must pass → open PR, board → In Review
-/asome-review        → review checklist (includes SDD compliance)
+/asome-review        → SDD compliance + antipatterns + design-system reuse check
 /asome-sprint        → board → Done after merge
 /sdd-archive         → close the SDD change
 
