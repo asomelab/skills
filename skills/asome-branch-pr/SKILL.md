@@ -1,20 +1,25 @@
 ---
 name: asome-branch-pr
 description: >
-  Create a branch and open an enriched PR for any ASOME project with test plan,
-  changes table, and auto-move board stage to In Review.
+  Create a branch off the root development branch and open an enriched PR for any
+  ASOME project targeting that same dev branch, with test plan, changes table, and
+  auto-move board stage to In Review.
   Trigger: "create PR", "open PR", "abrir PR", "crear PR", "branch and PR",
   "push and PR", "ready for review", or when implementation is done and needs review.
 license: Apache-2.0
 metadata:
   author: asome
-  version: "1.1"
+  version: "1.2"
 ---
 
 # ASOME — Branch + PR
 
-Creates a conventional branch, validates commits, opens a PR with full body,
-and moves the linked issue's Stage to **In Review** on the project board.
+Creates a conventional branch off the project's root development branch, validates
+commits, opens a PR **targeting that same dev branch** with full body, and moves the
+linked issue's Stage to **In Review** on the project board.
+
+Feature/fix branches never branch from or target `main`/`staging` directly — those
+are promotion-only targets handled by `/asome-deploy`. See that skill's branch model.
 
 **Executes directly.**
 
@@ -30,7 +35,18 @@ PROJECT_ID=$(jq -r '.project_id' .asome/config.json)
 F_STAGE=$(jq -r '.fields.Stage.id' .asome/config.json)
 IN_REVIEW=$(jq -r '.fields.Stage.options["In Review"]' .asome/config.json)
 DONE=$(jq -r '.fields.Stage.options["Done"]' .asome/config.json)
+
+# Root development branch — same resolution as /asome-deploy
+DEV_BRANCH=$(jq -r '.deploy.dev // empty' .asome/config.json 2>/dev/null)
+if [ -z "$DEV_BRANCH" ]; then
+  git fetch origin --quiet
+  DEV_BRANCH=$(git branch -r | grep -oE 'origin/(develop|dev|development)' | head -1 | sed 's/origin\///')
+fi
+echo "Root dev branch: $DEV_BRANCH"
 ```
+
+If no `dev`/`develop`/`development` branch is found, ask the user which branch is
+the root development branch before proceeding — do not fall back to `main`.
 
 ---
 
@@ -66,7 +82,7 @@ Examples:
 - `docs/api-swagger-annotations`
 
 ```bash
-git checkout -b <type>/<slug> main
+git checkout -b <type>/<slug> origin/$DEV_BRANCH
 ```
 
 ---
@@ -110,8 +126,9 @@ Closes #<issue-number>
 ## Execution steps
 
 ```bash
-# 1. Create and push branch
-git checkout -b <type>/<slug> main
+# 1. Create and push branch off the root dev branch
+git fetch origin --quiet
+git checkout -b <type>/<slug> origin/$DEV_BRANCH
 # ... make changes + commits (use /asome-commit) ...
 git push -u origin <type>/<slug>
 
@@ -148,7 +165,7 @@ Closes #<N>
 - [ ] SDD verify passed (Feature/Improvement/Setup)
 BODY
 )" \
-  --base main)
+  --base "$DEV_BRANCH")
 echo "PR: $PR_URL"
 
 # 3. Add type label

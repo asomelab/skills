@@ -1,8 +1,8 @@
 {
-  "version": "1.1.0",
+  "version": "1.2.0",
   "organization": "ASOME Lab",
   "date": "June 2026",
-  "abstract": "Creates a conventional branch, validates commits, opens a PR with full body (summary, changes table, test plan checklist), and moves the linked issue's Stage to In Review on the project board via GraphQL mutations. Project constants resolved from .asome/config.json. Enforces /sdd-verify pass for Feature/Improvement/Setup PRs.",
+  "abstract": "Creates a conventional branch off the project's root development branch, validates commits, opens a PR targeting that same dev branch with full body (summary, changes table, test plan checklist), and moves the linked issue's Stage to In Review on the project board via GraphQL mutations. Dev branch resolved from .asome/config.json deploy.dev or auto-detected (develop/dev/development). Enforces /sdd-verify pass for Feature/Improvement/Setup PRs.",
   "references": [
     "https://docs.github.com/en/graphql"
   ]
