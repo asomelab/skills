@@ -5,14 +5,18 @@ description: >
   Opens a PR from the source branch to the target — never pushes directly. Enforces the
   promotion order: staging only from dev, main only from staging. Supports branch-name
   aliases (dev/development, staging/stg, main/master) resolved from .asome/config.json.
+  After a staging → main promotion PR is merged, tags a semver release (git tag, asks
+  the user for major/minor/patch), and publishes a GitHub Release with auto-generated
+  notes (`gh release create --generate-notes`).
   Trigger: "deploy", "deploy to staging", "deploy to main", "promote", "desplegar",
   "merge to staging", "merge to prod", "release to staging", "release to main",
-  or any request to promote code between environments.
+  "tag release", "crear release", "versionar", "semver",
+  or any request to promote code between environments or cut a release.
   Usage: /asome-deploy <dev|staging|main>
 license: Apache-2.0
 metadata:
   author: asome
-  version: "1.0"
+  version: "1.1"
 ---
 
 # ASOME — Deploy (Environment Promotion)
@@ -225,9 +229,11 @@ echo "(diff truncated — view full diff at $PR_URL)"
 
 ## After merge
 
-When the promotion PR is merged, the target environment is updated. No post-merge steps
-are required by this skill — CI/CD workflows (copied by `/asome-infra-setup`) handle
-the actual deployment pipeline.
+When the promotion PR is merged, the target environment is updated. CI/CD workflows
+(copied by `/asome-infra-setup`) handle the actual deployment pipeline.
+
+**For `staging → $PROD_BRANCH` merges only**, also cut a semver release (see below).
+Promotions to staging are not tagged or released.
 
 To keep branches in sync after merging `staging → main`:
 ```bash
@@ -235,6 +241,77 @@ To keep branches in sync after merging `staging → main`:
 git fetch --all
 git log --oneline origin/main..origin/staging   # should be empty after a clean merge
 ```
+
+---
+
+## Release (semver tag + GitHub Release) — main promotions only
+
+Run this after confirming the `staging → $PROD_BRANCH` promotion PR is merged.
+
+```bash
+# 0. Confirm the PR actually merged
+gh pr view "$PR_NUM" --repo "$REPO" --json state,mergedAt --jq '.state'
+# Must print "MERGED" — if not, stop, it hasn't shipped yet.
+
+git fetch --all --prune --tags
+```
+
+### Step 1 — find the latest tag
+
+```bash
+LATEST_TAG=$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -1)
+LATEST_TAG="${LATEST_TAG:-v0.0.0}"
+echo "Latest release: $LATEST_TAG"
+```
+
+### Step 2 — ask the user for the bump type
+
+Show the commits included in this promotion as context (`git log --oneline
+origin/$PROD_BRANCH..origin/staging` from Step 2 above, or `git log <LATEST_TAG>..origin/$PROD_BRANCH`
+if that range is now empty post-merge), then **ask the user**: "¿major, minor o patch?"
+Do not infer it automatically — always ask.
+
+### Step 3 — compute and create the tag
+
+```bash
+# Strip leading 'v', split into MAJOR.MINOR.PATCH
+VERSION="${LATEST_TAG#v}"
+MAJOR=$(echo "$VERSION" | cut -d. -f1)
+MINOR=$(echo "$VERSION" | cut -d. -f2)
+PATCH=$(echo "$VERSION" | cut -d. -f3)
+
+case "$BUMP" in   # BUMP = answer from Step 2: major | minor | patch
+  major) MAJOR=$((MAJOR+1)); MINOR=0; PATCH=0 ;;
+  minor) MINOR=$((MINOR+1)); PATCH=0 ;;
+  patch) PATCH=$((PATCH+1)) ;;
+  *) echo "❌ Invalid bump type: $BUMP"; exit 1 ;;
+esac
+
+NEW_TAG="v${MAJOR}.${MINOR}.${PATCH}"
+echo "Tagging release: $NEW_TAG"
+
+git checkout "$PROD_BRANCH"
+git pull origin "$PROD_BRANCH"
+git tag -a "$NEW_TAG" -m "Release $NEW_TAG"
+git push origin "$NEW_TAG"
+```
+
+### Step 4 — publish the GitHub Release with auto-generated notes
+
+```bash
+gh release create "$NEW_TAG" \
+  --repo "$REPO" \
+  --target "$PROD_BRANCH" \
+  --title "$NEW_TAG" \
+  --generate-notes \
+  --notes-start-tag "$LATEST_TAG"
+
+echo "✅ Released $NEW_TAG"
+```
+
+`--generate-notes` builds release notes from merged PRs/commits since `$LATEST_TAG` —
+no separate changelog tooling needed. GitHub keeps the full release history as the
+changelog (visible at `https://github.com/$REPO/releases`).
 
 ---
 
@@ -249,3 +326,8 @@ git log --oneline origin/main..origin/staging   # should be empty after a clean 
 - `git fetch --all --prune` is required before `rev-list` counts — local refs may be stale.
 - For `main`/prod deployments, ensure branch protection rules require at least one review
   on the promotion PR (configure in GitHub → Settings → Branches).
+- Tags follow `vMAJOR.MINOR.PATCH` (semver). Only `staging → main` promotions get tagged
+  and released — `dev → staging` does not. If `git tag --list 'v*'` is empty, the skill
+  starts from `v0.0.0`.
+- Never re-tag or force-push an existing tag. If a release was tagged in error, create a
+  new patch tag pointing at the correct commit instead of moving the old one.

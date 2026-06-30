@@ -1,10 +1,12 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "organization": "ASOME Lab",
   "date": "June 2026",
-  "abstract": "Promotes code between environments (dev → staging → main) by opening a PR from the correct source branch. Enforces the Gitflow promotion chain — staging only accepts PRs from dev, main only from staging. Resolves branch names (dev/development, staging/stg, main/master) from an optional deploy block in .asome/config.json, falling back to auto-detection via git remote branches. Never direct-pushes; always PR-first.",
+  "abstract": "Promotes code between environments (dev → staging → main) by opening a PR from the correct source branch. Enforces the Gitflow promotion chain — staging only accepts PRs from dev, main only from staging. Resolves branch names (dev/development, staging/stg, main/master) from an optional deploy block in .asome/config.json, falling back to auto-detection via git remote branches. Never direct-pushes; always PR-first. After a staging → main promotion merges, tags a semver release (asks the user for major/minor/patch) and publishes a GitHub Release with auto-generated notes via `gh release create --generate-notes` — no separate changelog tooling.",
   "references": [
     "https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow",
-    "https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests"
+    "https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests",
+    "https://semver.org",
+    "https://cli.github.com/manual/gh_release_create"
   ]
 }
