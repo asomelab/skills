@@ -1,20 +1,38 @@
 ---
 name: asome-commit
 description: >
-  Create a conventional commit for any ASOME project: validate format, suggest type+scope
-  from staged diff, and commit with co-author trailer.
+  Create atomic conventional commits for any ASOME project: split staged changes by
+  concern, validate format per commit, and commit each with a co-author trailer.
   Trigger: "commit", "commitear", "hacer commit", "conventional commit",
-  "qué tipo de commit va", "commit con mensaje", or any request to commit staged changes.
+  "qué tipo de commit va", "commit con mensaje", "atomic commit", "commits atomicos",
+  or any request to commit staged changes.
 license: Apache-2.0
 metadata:
   author: asome
-  version: "1.1"
+  version: "1.2"
 ---
 
 # ASOME — Conventional Commit
 
-Inspects staged changes, suggests a conventional commit message, validates the format,
-and commits with the co-author trailer. Executes directly.
+Inspects staged (and unstaged, if nothing is staged) changes, splits them into
+atomic groups by concern, suggests one conventional commit message per group,
+validates the format, and commits each group separately with the co-author trailer.
+Executes directly.
+
+## Atomicity rule (mandatory)
+
+One commit = one logical change = one `type(scope)`. Never bundle unrelated
+concerns into a single commit, even if they were all staged together.
+
+A diff must be **split** into separate commits when it contains changes that:
+- touch different scopes (e.g. `auth` files + `billing` files)
+- mix different types (e.g. a `feat` change + an unrelated `fix` or `chore`)
+- mix source changes with unrelated formatting/lint-only changes
+- include a generated/lock file change unrelated to the feature change
+
+A diff may stay as **one** commit when all changed files serve the same
+logical change, even across multiple files (e.g. a service + its controller +
+its DTO for the same new endpoint, or a feature + its tests).
 
 ---
 
@@ -69,23 +87,43 @@ Adapt scope names to the project's actual module structure.
 ## Execution steps
 
 ```bash
-# 1. Show staged changes summary
+# 1. Show what's staged (fall back to unstaged if nothing is staged)
 git diff --cached --stat
+git status --porcelain
+```
 
-# 2. Infer type + scope from the diff
-# (read the diff and suggest based on the tables above)
+```bash
+# 2. Read the full diff and group files by logical change
+git diff --cached
+```
 
-# 3. Validate the message format before committing
+Group changed files by concern (scope + type), per the Atomicity rule above.
+Each group becomes one commit. If everything belongs to one logical change,
+there is just one group.
+
+```bash
+# 3. For each group, stage ONLY that group's files, unstaging the rest first
+git restore --staged .
+git add <files for this group>
+
+# 4. Validate the message format before committing
 # Message must match: ^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\([a-z0-9._-]+\))?!?: .+
 
-# 4. Commit with trailer
+# 5. Commit with trailer
 git commit -m "$(cat <<'EOF'
 <type>(<scope>): <description>
 
 Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 EOF
 )"
+
+# 6. Repeat steps 3-5 for the next group until all changes are committed
+git status --porcelain
 ```
+
+If a single file mixes two unrelated concerns (e.g. an unrelated lint fix
+alongside a feature change in the same file), use `git add -p` to stage only
+the relevant hunks for the current group instead of the whole file.
 
 ---
 
