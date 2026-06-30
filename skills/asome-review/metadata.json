@@ -1,8 +1,8 @@
 {
-  "version": "1.1.0",
+  "version": "2.0.0",
   "organization": "ASOME Lab",
   "date": "June 2026",
-  "abstract": "Code review checklist for any ASOME project PRs, validated against ASOME conventions. Reports CRITICAL (blocks merge), WARNING (should fix), and SUGGESTION (optional) findings. Includes SDD compliance check (verify passed, change name in PR body) plus backend and frontend convention checklists adaptable to the project's stack.",
+  "abstract": "Code review for any ASOME project PR that merges SDD spec/contract verification with traditional review. Step 1 pulls the SDD spec/design/tasks for the change referenced in the PR body and checks the diff against requirements, design decisions, and task completion (a code-level pass complementing /sdd-verify). Step 2 flags language-agnostic antipatterns (swallowed errors, god functions, magic numbers, duplicated logic). Step 3 checks design-system/shared-component compliance — flags reinvented UI primitives, raw hex/spacing values where a design token exists, and copy-pasted markup, cross-referencing a project's design-system-<project> skill when present. Plus backend and frontend convention checklists. Reports CRITICAL (blocks merge), WARNING (should fix), SUGGESTION (optional).",
   "references": [
     "https://docs.github.com/en/graphql"
   ]
