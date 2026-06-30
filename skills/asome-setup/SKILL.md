@@ -8,7 +8,7 @@ description: >
 license: Apache-2.0
 metadata:
   author: asome
-  version: "1.0"
+  version: "1.1"
 ---
 
 # ASOME — Project Setup
@@ -177,14 +177,24 @@ echo "Written: .asome/config.json"
 The `deploy` block is optional but enables `/asome-deploy` to skip auto-detection on every run.
 Update manually if you rename environment branches.
 
-### Step 7 — add to .gitignore (if not already)
+### Step 7 — commit the config
+
+`.asome/config.json` contains no secrets — only GraphQL node IDs (project/field/option IDs)
+and branch names, all of which are project-public. It's the shared contract every ASOME
+skill reads, so it's tracked in git rather than gitignored: every teammate (and every
+agent run) gets the same config without re-running setup.
 
 ```bash
-grep -q '.asome/config.json' .gitignore 2>/dev/null || echo '.asome/config.json' >> .gitignore
+git add .asome/config.json
+git status --short .asome/config.json
 ```
 
-> `.asome/config.json` contains project-specific GraphQL IDs. Commit `.asome/` to `.gitignore`
-> unless the team wants to share the config (in which case skip this step).
+If `.gitignore` already has a stale `.asome/config.json` (or `.asome/`) entry from before
+this convention, remove it:
+
+```bash
+grep -vE '^\.asome/(config\.json)?$' .gitignore > /tmp/gitignore.tmp 2>/dev/null && mv /tmp/gitignore.tmp .gitignore
+```
 
 ---
 

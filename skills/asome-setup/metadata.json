@@ -1,8 +1,8 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "organization": "ASOME Lab",
   "date": "June 2026",
-  "abstract": "One-time setup skill for any ASOME project. Discovers the GitHub Project linked to the current repo, fetches all field and option IDs via GraphQL, and writes .asome/config.json. All other ASOME skills read from this config instead of hardcoding project-specific IDs.",
+  "abstract": "One-time setup skill for any ASOME project. Discovers the GitHub Project linked to the current repo, fetches all field and option IDs via GraphQL, and writes .asome/config.json. All other ASOME skills read from this config instead of hardcoding project-specific IDs. The config is committed to git (not gitignored) — it holds no secrets, only project-public GraphQL node IDs and branch names, so the whole team shares one source of truth without re-running setup.",
   "references": [
     "https://docs.github.com/en/graphql"
   ]
