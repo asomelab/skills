@@ -1,0 +1,7 @@
+{
+  "version": "1.0.0",
+  "organization": "ASOME Lab",
+  "date": "July 2026",
+  "abstract": "Schedules Google Calendar events on the ASOME calendar (hola@asomelab.com) following ASOME conventions: the 'ASOME <> {Client} | {Type}' title format, a fixed reminder set (email 60m + popup 30m + popup 5m before), an auto-added Google Meet link, and America/Argentina/Tucuman timezone. Resolves attendee emails from calendar and Gmail history — ASOME members via firstname.lastname@asomelab.com, externals via personal address — and never guesses an unknown email. Inputs are the meeting kind, attendees, date and time; output is a created invite with conflict flagging.",
+  "references": []
+}

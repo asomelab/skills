@@ -19,3 +19,4 @@ Install: `npx skills add asomelab/skills`
 | `asome-infra-audit` | [SKILL.md](skills/asome-infra-audit/SKILL.md) | Any ASOME project |
 | `asome-infra-costs` | [SKILL.md](skills/asome-infra-costs/SKILL.md) | Any ASOME project · AWS |
 | `asome-infra-plan` | [SKILL.md](skills/asome-infra-plan/SKILL.md) | Any ASOME project |
+| `asome-meeting` | [SKILL.md](skills/asome-meeting/SKILL.md) | ASOME calendar · hola@asomelab.com |

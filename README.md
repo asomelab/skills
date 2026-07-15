@@ -29,6 +29,7 @@ npx skills add asomelab/skills
 | `asome-infra-audit` | `audit infra`, `check terraform` | Audit Terraform, AWS, GHA against best practices (CRITICAL/WARNING/SUGGESTION) |
 | `asome-infra-costs` | `aws costs`, `reduce costs` | Explore AWS spend, find idle resources, get cost-reduction recommendations |
 | `asome-infra-plan` | `terraform plan`, `apply infra` | Safe terraform plan+apply wrapper with destroy guards and confirmation |
+| `asome-meeting` | `agenda una reunion`, `schedule a meeting`, `sprint review` | Schedule ASOME calendar events with ASOME title/reminder/Meet conventions and history-based attendee resolution |
 
 ## Dev flow
 
