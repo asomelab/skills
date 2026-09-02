@@ -1,0 +1,7 @@
+{
+  "version": "1.0.0",
+  "organization": "ASOME Lab",
+  "date": "September 2026",
+  "abstract": "Standardizes ASOME product discovery — the docs/product/ doc set, the 7-block user-story template, and the decisiones.md/mediciones-pendientes.md registers — reverse-engineered from asome-crm, asome-clarity, lannis-clone, and de-wall. Covers new products, competitor and domain research (desk teardown, field research, market/commercial, visual teardown), and planning new modules or phases into an existing doc set. Never invents an unknown value: every gap becomes a tagged M-NN register entry and a batched question back to the user at each phase boundary.",
+  "references": []
+}
