@@ -37,7 +37,7 @@ framework, or schema. It never creates a GitHub issue or a spec.
 | `investigar` | `/asome-discovery investigar <competidor\|dominio>` | `investigacion/<slug>.md` + glossary updates + `M-NN` entries |
 | `fase` | `/asome-discovery fase <N>` | writes the `esbozada` rows of phase N as full HU files, flips them to `escrita` |
 | `modulo` | `/asome-discovery modulo <nombre>` | new épica + index rows + HUs, folded into an existing doc set |
-| `auditar` | `/asome-discovery auditar` | convention/gap report against this skill's templates — read-only, no edits |
+| `auditar` | `/asome-discovery auditar` | convention/gap report against this skill's templates — read-only, no edits. Follow `## Auditar — procedure` below; structural diffing alone is not enough |
 
 If invoked with no mode, infer from context (existing `docs/product/` present → `fase` or
 `modulo`; nothing present → `nuevo`) and confirm the inference in Fase 0 rather than guessing
@@ -95,6 +95,51 @@ template and the `hu-index.md` skeleton in `references/hu-template.md`.
 
 Four shapes — desk teardown, domain & alternatives, field research, visual teardown — chosen
 per project in Fase 0. Full templates in `references/investigacion-templates.md`.
+
+---
+
+## Auditar — procedure
+
+Structural diffing against the templates alone is not enough — a doc set can match every
+template section-by-section and still contradict itself. Run all six checks; report
+CRITICAL/WARNING/SUGGESTION.
+
+1. **Structural diff.** Every doc-set file present; each numbered doc's `##`/`###` headings
+   match its skeleton in `references/doc-set-template.md`. Missing sections or an extra
+   diagram in the wrong file/type (mermaid `erDiagram` belongs only in `04`) are WARNING.
+2. **HU structural check.** Every `hu/HU-###-*.md` file's headings match the 7-block canon in
+   `references/hu-template.md` exactly (metadata table + the same 6 `##` sections, in order,
+   with `Fuente del dato` present). Any file that doesn't is WARNING; a project-wide switch to
+   the legacy 9-section template without it being logged as a `D-NN` decision is CRITICAL.
+3. **Cross-reference integrity — the check that matters most.** Extract every `D-NN` and
+   `M-NN` citation across *every* file in the doc set (not just the registers). For each one:
+   resolve it against the actual entry in `decisiones.md`/`mediciones-pendientes.md`, and
+   compare what the citing sentence *claims* that ID means against what the register *says*
+   it means. Flag: a citation pointing at an ID that doesn't exist; an ID whose citing
+   context doesn't match the register's description (a swapped or transposed reference); and
+   especially a citation of an already-**resolved** ID (in `## Tomadas`) where the sentence
+   is describing something still **open** — that's the failure mode where a real blocker
+   reads as cleared. This is CRITICAL whenever the mismatched citation could cause someone to
+   believe a gate is closed when it isn't, or to copy a wrong number as if verified.
+4. **Convention self-consistency.** Any claim a doc makes about a template's shape, a count,
+   or a structure (e.g. `docs/product/README.md`'s §Convenciones describing the HU template
+   as "N bloques") must be checked against BOTH the file that supposedly recorded the
+   decision (a `D-NN` entry) AND the actual files it describes — not against the other
+   convention doc alone. Two docs agreeing with each other proves nothing if neither matches
+   the files on disk; count the real headings. A contradiction here is CRITICAL — it's a
+   trap for whoever reads only one of the two docs.
+5. **Index integrity.** Every HU's phase and épica in `hu/hu-index.md` must match its listing
+   in `06-epicas.md` and `07-roadmap-y-fases.md`. A mismatch is CRITICAL — `hu-index.md` is
+   the stated "registro maestro" and a wrong phase there both misleads a reader and corrupts
+   the `## Resumen` totals.
+6. **Vocabulary scan.** Grep the banned-words list from each glossary
+   (`04-modelo-de-dominio.md` §1, `investigacion/dominio-y-alternativas.md` §1) against the
+   actual prose in every HU and numbered doc. A clear hit is SUGGESTION unless it changes a
+   requirement's meaning; a borderline term (a standard phrase that only partially overlaps a
+   banned sense) is SUGGESTION with the ambiguity stated, not asserted as a violation.
+
+Never stop at "the templates matched" — checks 3 and 4 are what catch the defects that
+structural diffing alone misses.
 
 ---
 
@@ -194,6 +239,17 @@ State this handoff explicitly in the `Estado del descubrimiento` section of
 - `00-vision.md` §6 and `mediciones-pendientes.md` cite the same `M-NN` IDs — keep them in
   sync by hand; `lannis-clone` has a real drift here (its §6 swaps `M-02`/`M-03`) that
   `auditar` mode should catch, not repeat.
+- `lannis-clone`'s convention docs contradict each other and their own citations in more
+  places than that one swap: `docs/product/README.md` says the HU template is "Siete
+  bloques" while its own `decisiones.md` D-04 entry says "6 secciones" (the actual HU files
+  match the README — D-04 is wrong); D-04 also miscounts `asome-crm`'s legacy template as "8
+  secciones" when it's actually 9 (verified: 39/39 files); and `00-vision.md`/
+  `07-roadmap-y-fases.md` cite `D-02` (an already-resolved language decision) where they mean
+  `D-05` (the still-open WSFE integration decision), which makes a real blocker look cleared.
+  None of these are caught by comparing one convention doc to another — only by resolving
+  every citation against the actual register entry and the actual files (see
+  `## Auditar — procedure` above). Treat this list as illustrative, not exhaustive — audit
+  fresh each time rather than only checking for these specific instances.
 - A YAML-frontmatter, Obsidian-wikilink style (as in `de-wall/dewall-docs/`) is a valid
   variant for an Obsidian-vault-based project, but is not the default — this skill's
   templates use plain relative markdown links and no frontmatter unless Fase 0 says the
