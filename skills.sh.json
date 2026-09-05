@@ -12,6 +12,13 @@
       ]
     },
     {
+      "title": "Product Discovery",
+      "description": "Product discovery for ASOME projects: the docs/product/ doc set, user stories, and the decision and assumption registers. Runs upstream of SDD — it defines what to build and why, never how.",
+      "skills": [
+        "asome-discovery"
+      ]
+    },
+    {
       "title": "SDD Workflow",
       "description": "Spec-Driven Development for ASOME projects. Mandatory for Feature, Improvement, and Setup issues. Defines when SDD is required, maps SDD phases to board stages, and provides the full command sequence.",
       "skills": [

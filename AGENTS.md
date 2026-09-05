@@ -7,6 +7,7 @@ Install: `npx skills add asomelab/skills`
 
 | Skill | File | Targets |
 |---|---|---|
+| `asome-discovery` | [SKILL.md](skills/asome-discovery/SKILL.md) | Any ASOME project · docs/product/ discovery repos |
 | `asome-create-issue` | [SKILL.md](skills/asome-create-issue/SKILL.md) | asomelab/asome-portal · Project #6 |
 | `asome-commit` | [SKILL.md](skills/asome-commit/SKILL.md) | asomelab/asome-portal |
 | `asome-branch-pr` | [SKILL.md](skills/asome-branch-pr/SKILL.md) | asomelab/asome-portal · Project #6 |
