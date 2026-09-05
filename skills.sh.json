@@ -56,9 +56,10 @@
     },
     {
       "title": "Calendar & Meetings",
-      "description": "Skills for scheduling ASOME meetings on the workspace calendar with ASOME's title, reminder, and Google Meet conventions.",
+      "description": "Skills for ASOME client-facing meetings: scheduling on the workspace calendar with ASOME's title, reminder and Google Meet conventions, and running the project kick-off — deck, acta and calendar events.",
       "skills": [
-        "asome-meeting"
+        "asome-meeting",
+        "asome-kickoff"
       ]
     }
   ]
