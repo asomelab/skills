@@ -1,0 +1,7 @@
+{
+  "version": "1.0.0",
+  "organization": "ASOME Lab",
+  "date": "September 2026",
+  "abstract": "Builds the ASOME project kick-off end to end. Runs a batched relevamiento that first auto-extracts what the signed contract and docs/product/ already state, then asks only the remaining gaps, and emits a ready-to-paste Claude Design prompt producing a deck with a fixed 13-block / 15-slide structure — so every ASOME kick-off looks the same and closes the same agreements. The canon guarantees the deck carries the working modality (sprint cycle, Definition of Done), the rules of the game (single decision-maker, scope changes, silence-equals-acceptance), the communication channels with owner and response time, the risks with mitigation, and every access, insumo and next step with a named owner and a concrete deadline. Also emits the same-day acta and, via asome-meeting, the kick-off, demo and relevamiento calendar events. Never invents an unresolved value: it goes into the deck as a visible PENDIENTE marker.",
+  "references": []
+}
