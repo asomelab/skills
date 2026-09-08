@@ -18,11 +18,11 @@ npx skills add asomelab/skills
 | `asome-create-skill` | `create skill`, `nueva skill`, `add skill` | Scaffold a new ASOME skill with SKILL.md, metadata.json, and registry entry |
 | `asome-discovery` | `product research`, `investigar producto`, `nuevo producto`, `escribir HUs` | Product discovery: docs/product/ doc set, HU template, decision/assumption registers — runs before SDD |
 | `asome-sdd` | `sdd`, `start feature`, `empezar feature` | SDD workflow guide: when to use SDD, board-stage mapping, full command sequence |
-| `asome-create-issue` | `create issue`, `nueva issue` | Create enriched GitHub issue with all project board fields |
+| `asome-create-issue` | `create issue`, `nueva issue` | Create an enriched GitHub issue — one vertical demonstrable slice, traced to the mapa operativo |
 | `asome-commit` | `commit`, `commitear` | Conventional commit with type+scope inferred from diff |
 | `asome-branch-pr` | `create PR`, `abrir PR` | Branch + PR with test plan, changes table, board move |
 | `asome-review` | `review PR`, `revisar código` | SDD spec compliance + antipatterns + design-system/shared-component reuse, CRITICAL/WARNING/SUGGESTION |
-| `asome-sprint` | `plan sprint`, `move issue` | Manage sprint board: plan, move stages, report velocity |
+| `asome-sprint` | `plan sprint`, `cerrar sprint`, `armar los sprints` | Owns the sprint cycle: bootstrap a project from the ASOME canon, plan under a capacity ceiling, close with retro, report velocity per lane |
 | `asome-standup` | `standup`, `daily` | Daily digest: In Progress / Blocked / Done / velocity |
 | `design-system-asome-lab` | `design system`, `tokens` | Design tokens + component specs for ASOME Lab UI |
 | `asome-deploy` | `deploy`, `deploy to staging`, `deploy to main` | Promote code dev→staging→main via guarded PRs (Gitflow), waits on CI checks, halts on red |

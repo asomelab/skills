@@ -12,7 +12,7 @@ description: >
 license: Apache-2.0
 metadata:
   author: asome
-  version: "1.0"
+  version: "1.1"
 ---
 
 # ASOME — Product Discovery

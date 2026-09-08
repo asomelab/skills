@@ -12,7 +12,7 @@ description: >
 license: Apache-2.0
 metadata:
   author: asome
-  version: "1.0"
+  version: "1.1"
 ---
 
 # ASOME — Kick-Off
@@ -64,7 +64,7 @@ Read, in this order, whatever exists:
 | the signed contract (PDF/doc — `pdftotext -layout`; if no text layer, `pdftoppm -png -r 150` and read the images) | plazos, hitos, entregables, reglas de validación, obligaciones del cliente, referente único |
 | `docs/product/00-vision.md` | B03 Propósito |
 | `docs/product/06-epicas.md`, `07-roadmap-y-fases.md` | B04 Alcance IN |
-| `docs/product/11-plan-de-sprints.md` | B05 Roadmap, fechas de demo |
+| `docs/product/11-plan-de-sprints.md` | B05 Roadmap, fechas de demo — lo produce `/asome-sprint bootstrap`, no `/asome-discovery` (su canon llega hasta `10-metricas.md`). Si falta, corré `bootstrap` antes del deck. |
 | `docs/product/decisiones.md`, `mediciones-pendientes.md` | B09 Riesgos (open `D-NN`/`M-NN` are the real risks) |
 | `docs/product/01-usuarios.md` | B02 One-Team (client side) |
 | `.asome/config.json` + board | B12 Próximos pasos |
