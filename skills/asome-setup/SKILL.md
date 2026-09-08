@@ -8,7 +8,7 @@ description: >
 license: Apache-2.0
 metadata:
   author: asome
-  version: "1.1"
+  version: "1.3"
 ---
 
 # ASOME — Project Setup
@@ -22,7 +22,11 @@ Run once per project. Re-run when the GitHub Project changes (fields added, spri
 
 ## What it creates
 
-`.asome/config.json` — read by all other ASOME skills. Structure:
+1. `.asome/config.json` — read by all other ASOME skills (structure below).
+2. **The repo's label set** — `type:*`, `priority:*`, `area:*`, `effort:*`, plus `track:*` and
+   `needs:ux` on software projects and `funnel:*` / `formato:*` on content projects. See Step 7.
+
+`.asome/config.json` structure:
 
 ```json
 {
@@ -177,7 +181,140 @@ echo "Written: .asome/config.json"
 The `deploy` block is optional but enables `/asome-deploy` to skip auto-detection on every run.
 Update manually if you rename environment branches.
 
-### Step 7 — commit the config
+### Step 7 — bootstrap repo labels
+
+Labels are the other half of the contract: the Project board carries Stage/Priority/Kind/Area,
+and the repo carries labels so issues stay filterable from the issue list and from `gh` without
+touching GraphQL. Create them here so every ASOME repo starts with the same set.
+
+`gh label create` fails if the label exists — pipe through `grep -v` so re-running setup is safe.
+
+```bash
+R=$(jq -r '.repo' .asome/config.json)
+mk(){ gh label create "$1" --repo "$R" --color "$2" --description "$3" 2>&1 | grep -v "already exists" || true; }
+```
+
+**Base set — every project:**
+
+```bash
+# type — what kind of work
+mk "type:feature"     "A2EEEF" "New feature"
+mk "type:setup"       "CFD3D7" "Project setup / scaffolding"
+mk "type:research"    "D876E3" "Research / spike"
+mk "type:bug"         "D73A4A" "Something is broken"
+mk "type:docs"        "0075CA" "Documentation"
+mk "type:improvement" "BFD4F2" "Improvement on existing work"
+
+# priority
+mk "priority:high"    "D93F0B" "High"
+mk "priority:med"     "FBCA04" "Medium"
+mk "priority:low"     "0E8A16" "Low"
+
+# effort — mirrors Story Points
+mk "effort:S"  "EDEDED" "1-2 SP"
+mk "effort:M"  "EDEDED" "3-5 SP"
+mk "effort:L"  "EDEDED" "8 SP"
+mk "effort:XL" "EDEDED" "13 SP"
+```
+
+**Area set — pick the one that matches the project type.** Areas must mirror the `Area` field
+options of the linked GitHub Project (Step 4), or filtering by label and filtering by board
+field give different answers.
+
+```bash
+# software projects
+mk "area:infra"    "0052CC" "Infrastructure / Terraform / CI"
+mk "area:backend"  "1D76DB" "Backend"
+mk "area:frontend" "0E8A16" "Frontend"
+mk "area:docs"     "0075CA" "Documentation"
+
+# track — software projects run two tracks in parallel: design leads, code follows
+mk "track:ux"  "CC317C" "UX/UI design track — leads implementation by one sprint"
+mk "track:dev" "0052CC" "Development (code) track"
+mk "needs:ux"  "C2185B" "Blocked: needs the UX/UI design closed before implementation starts"
+
+# content / marketing projects — mirror the production pipeline
+mk "area:idea"        "C5DEF5" "Idea bank and scoring"
+mk "area:guion"       "1D76DB" "Script writing"
+mk "area:grabacion"   "0E8A16" "Recording"
+mk "area:edicion"     "FBCA04" "Editing and subtitles"
+mk "area:publicacion" "5319E7" "Publishing"
+mk "area:estrategia"  "B60205" "Strategy and framework"
+mk "area:metricas"    "006B75" "Metrics tracking"
+```
+
+**Content projects only — funnel stage and content type.** Skip these on software repos.
+
+```bash
+# funnel — where the piece sits in the funnel. Target mix 70/20/10
+mk "funnel:tofu" "0E8A16" "Discovery — stories, strong hooks (70%)"
+mk "funnel:mofu" "FBCA04" "Consideration — education, objections (20%)"
+mk "funnel:bofu" "D93F0B" "Sales — process, cases, interviews (10%)"
+
+# formato — content type / production format
+mk "formato:yapping"       "1D76DB" "One take to camera, no rigid script, 30-60s"
+mk "formato:storytelling"  "5319E7" "Word-for-word scripted narrative, 30-90s"
+mk "formato:cara-pantalla" "0052CC" "Dual camera face + screen (demo), 45-90s"
+mk "formato:talking-head"  "006B75" "Semi-scripted Q&A, 30-45s"
+mk "formato:entrevista"    "B60205" "15-30 min interview to atomize into clips"
+mk "formato:clip"          "C5DEF5" "Cut from an interview or external appearance, 30-60s"
+mk "formato:carrusel"      "BFD4F2" "Image carousel (support format)"
+mk "formato:split-screen"  "E99695" "Split-screen comparison, 30-45s"
+```
+
+Every issue gets **exactly one** `type:*`, one `priority:*`, and one `area:*`. `effort:*` is
+optional. On content projects add exactly one `funnel:*` and at least one `formato:*` — a piece
+that will be cut into clips carries both its source format and `formato:clip`.
+
+#### The two-track convention (software projects)
+
+Design and implementation are separate issues, never the same one. The design issue leads the
+implementation issue by roughly one sprint.
+
+- `track:ux` — owned by the designer. Its deliverable is a Figma frame plus the decisions
+  written down (states, copy, empty/error cases). It ships no code.
+- `track:dev` — owned by an engineer. Its deliverable is the merged PR.
+- `needs:ux` — goes on the **dev** issue, not the UX one. It means: this cannot start until the
+  paired `track:ux` issue is Done.
+
+**Every open `track:ux` issue must have a paired `track:dev` issue** — a design nobody is
+scheduled to build is a design that rots. When the pair exists, the dev issue carries `needs:ux`
+plus this pointer as the **first lines of its body**, so the block is visible without opening
+Figma or the board:
+
+```markdown
+> ⛔ **Bloqueado por UX:** #659 — *S5: UX — Planificación: diseñar el flujo sin nombre precargado*.
+> El diseño tiene que estar cerrado antes de empezar a implementar esto.
+```
+
+That exact `Bloqueado por UX:` string is the machine-readable half of the link — `/asome-sprint
+ux-link` greps for it to audit the board, so don't reword it.
+
+**The reverse is not true: most dev issues need no UX at all.** Do not put `needs:ux` on:
+
+- `area:backend` / `area:infra` work with no new user-facing surface (APIs, migrations, cron,
+  CI, Terraform, observability)
+- bugs that restore already-designed behavior — the design exists, the code broke
+- `type:docs`, `type:research`, and chores
+- UI work that only assembles existing components and tokens against a design that already
+  shipped
+
+Reserve it for a new screen or surface, a change to an existing flow's information architecture
+or copy hierarchy, and anything the client asked for in words rather than in a design.
+
+Do not use GitHub sub-issues to express this dependency. An issue has a single parent and that
+slot belongs to the EPIC hierarchy — reparenting a dev issue under its UX issue silently drops
+it out of its EPIC.
+
+Verify:
+
+```bash
+gh label list --repo "$R" --limit 60 --json name --jq '[.[].name] | sort | join("  ")'
+```
+
+---
+
+### Step 8 — commit the config
 
 `.asome/config.json` contains no secrets — only GraphQL node IDs (project/field/option IDs)
 and branch names, all of which are project-public. It's the shared contract every ASOME
