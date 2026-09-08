@@ -221,12 +221,20 @@ mk "effort:XL" "EDEDED" "13 SP"
 options of the linked GitHub Project (Step 4), or filtering by label and filtering by board
 field give different answers.
 
+> **`area:backend` / `area:frontend` are deliberately gone from the software set.** Splitting the
+> area axis by layer is what produces two half-issues per feature, neither demonstrable on its own
+> — see the slicing rules in `/asome-create-issue`. The dev-vs-design distinction now lives on the
+> `track:*` axis, which is what it was always describing.
+>
+> On an existing project that already uses them, do **not** delete the labels — relabel gradually
+> and let them age out. `mk` is idempotent, so re-running setup never destroys anything.
+
 ```bash
 # software projects
-mk "area:infra"    "0052CC" "Infrastructure / Terraform / CI"
-mk "area:backend"  "1D76DB" "Backend"
-mk "area:frontend" "0E8A16" "Frontend"
-mk "area:docs"     "0075CA" "Documentation"
+mk "area:fullstack" "1D76DB" "Product work: one vertical slice, datos + API + pantalla"
+mk "area:ux"        "CC317C" "Design lane"
+mk "area:infra"     "0052CC" "Infrastructure / Terraform / CI"
+mk "area:producto"  "0075CA" "Relevamiento, decisiones, documentacion, spikes"
 
 # track — software projects run two tracks in parallel: design leads, code follows
 mk "track:ux"  "CC317C" "UX/UI design track — leads implementation by one sprint"
@@ -292,8 +300,8 @@ ux-link` greps for it to audit the board, so don't reword it.
 
 **The reverse is not true: most dev issues need no UX at all.** Do not put `needs:ux` on:
 
-- `area:backend` / `area:infra` work with no new user-facing surface (APIs, migrations, cron,
-  CI, Terraform, observability)
+- `area:infra` work, and any backend-only change with no new user-facing surface (APIs,
+  migrations, cron, CI, Terraform, observability)
 - bugs that restore already-designed behavior — the design exists, the code broke
 - `type:docs`, `type:research`, and chores
 - UI work that only assembles existing components and tokens against a design that already
