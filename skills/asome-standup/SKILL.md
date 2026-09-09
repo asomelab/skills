@@ -63,7 +63,7 @@ cutoff = now - timedelta(hours=48)
 in_progress, blocked, in_review, done_recent, todo = [], [], [], [], []
 
 for item in data.get("items", []):
-    stage  = item.get("Stage", "Backlog")
+    stage  = item.get("Status") or item.get("Stage") or "Backlog"
     sp     = item.get("Story Points", 0) or 0
     title  = item.get("title", "?")[:60]
     num    = item.get("number", "?")
@@ -116,7 +116,7 @@ import sys, json
 data = json.load(sys.stdin)
 for i in data['items']:
     if i.get('Area') == 'Backend':
-        print(f\"  #{i.get('number','?')} [{i.get('Stage','?')}] {i.get('title','?')[:60]}\")
+        print(f\"  #{i.get('number') or '?'} [{i.get('Status') or i.get('Stage') or '?'}] {i.get('title','?')[:60]}\")
 "
 ```
 

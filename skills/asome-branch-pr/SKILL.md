@@ -32,9 +32,13 @@ are promotion-only targets handled by `/asome-deploy`. See that skill's branch m
 ```bash
 REPO=$(jq -r '.repo' .asome/config.json)
 PROJECT_ID=$(jq -r '.project_id' .asome/config.json)
-F_STAGE=$(jq -r '.fields.Stage.id' .asome/config.json)
-IN_REVIEW=$(jq -r '.fields.Stage.options["In Review"]' .asome/config.json)
-DONE=$(jq -r '.fields.Stage.options["Done"]' .asome/config.json)
+# The status field is named `Status` on some boards and `Stage` on others —
+# resolve the key, never hardcode it. Reading the wrong one returns null and
+# the mutation dies with "Could not resolve to a node with the global id of 'null'".
+STAGE_KEY=$(jq -r '.fields | if has("Status") then "Status" else "Stage" end' .asome/config.json)
+F_STAGE=$(jq -r --arg k "$STAGE_KEY" '.fields[$k].id' .asome/config.json)
+IN_REVIEW=$(jq -r --arg k "$STAGE_KEY" '.fields[$k].options["In Review"]' .asome/config.json)
+DONE=$(jq -r --arg k "$STAGE_KEY" '.fields[$k].options["Done"]' .asome/config.json)
 
 # Root development branch — same resolution as /asome-deploy
 DEV_BRANCH=$(jq -r '.deploy.dev // empty' .asome/config.json 2>/dev/null)
@@ -57,7 +61,8 @@ Before creating anything, verify:
 1. Linked issue number (ask if not provided)
 2. Issue exists: `gh issue view <N> --repo "$REPO"`
 3. Working tree is clean OR staged changes are ready
-4. **For Feature / Improvement / Setup issues**: `/sdd-verify` must have passed (no CRITICAL findings).
+4. **For Feature / Improvement / Setup issues**: `/asome-review` must have passed (no CRITICAL
+   findings). It covers the `verify` phase — OpenSpec profile `core` has no `/opsx:verify`.
    - If SDD verify has not been run, run it now before proceeding.
 5. Tests pass (adapt commands to the project's test setup)
 6. Lint + typecheck pass
@@ -214,7 +219,7 @@ mutation{
 }"
 
 # Archive the SDD change (for Feature/Improvement/Setup)
-# /sdd-archive <change-name>
+# /opsx:archive <change-name>
 
 # Delete local branch
 git branch -d <type>/<slug>

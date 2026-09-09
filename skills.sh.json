@@ -4,7 +4,7 @@
   "groupings": [
     {
       "title": "Setup",
-      "description": "One-time project initialization. Run /asome-setup once per project to discover GitHub Project constants and write .asome/config.json — required by all other board-aware skills.",
+      "description": "Project initialization and manual compliance. /asome-setup writes .asome/config.json and bootstraps OpenSpec, AGENTS.md, the MCP allowlist, secret scanning and the docs/ registers. /asome-setup doctor audits the repo and your machine against the ASOME Engineering Manual without changing anything.",
       "skills": [
         "asome-setup",
         "asome-onboard",

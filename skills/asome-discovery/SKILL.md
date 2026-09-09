@@ -12,7 +12,7 @@ description: >
 license: Apache-2.0
 metadata:
   author: asome
-  version: "1.0"
+  version: "1.1"
 ---
 
 # ASOME — Product Discovery
@@ -217,8 +217,8 @@ Discovery ends where the next skill begins:
 
 - **Technology, framework, schema decisions** → `/asome-sdd` (`sdd-ff`), never this skill.
 - **GitHub issues** → `/asome-create-issue`, once a phase's HUs are written and approved.
-- **Formal specs/acceptance contracts for implementation** → `/sdd-spec`, `/sdd-design`,
-  `/sdd-tasks`.
+- **Formal specs/acceptance contracts for implementation** → `/opsx:propose <change-name>`
+  (generates proposal, design, specs and tasks in one step). See the `asome-sdd` skill.
 
 State this handoff explicitly in the `Estado del descubrimiento` section of
 `docs/product/README.md` when a phase's discovery is complete.
