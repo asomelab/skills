@@ -23,10 +23,14 @@ or the technical debt being addressed. Be specific about the constraint or oppor
 ### <Subsection — adapt to the issue type>
 
 <!--
-Backend: ### Data Model | ### API Endpoints | ### Business Logic | ### Config
-Frontend: ### Routes | ### Components | ### State / Queries
-Infra: ### Architecture | ### Pipeline | ### Config
-Full-stack: combine above
+Default for any feature: ### Datos | ### API | ### Pantalla   (all three, always)
+Infra:                   ### Arquitectura | ### Pipeline | ### Config
+Research / spike:        ### Preguntas | ### Salida
+UX (track:ux):           ### <Rol> — <pantalla> per screen, + ### Dónde entra en el flujo
+
+Fullstack is the DEFAULT, not a special case. An issue split into a backend
+half and a frontend half is sliced wrong: neither half is demonstrable alone.
+If one of the three subsections comes out empty, re-check the slice.
 -->
 
 <Detailed scope per subsection. Use code blocks for Prisma models, architecture flows,

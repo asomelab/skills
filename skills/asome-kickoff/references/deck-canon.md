@@ -105,6 +105,14 @@ Cuatro pasos, con la duración fija arriba:
 
 Esta es la slide que convierte "está listo" de opinión en criterio.
 
+> **Fuente única.** Esta matriz es la vista para el cliente de la Definition of Done canónica, que
+> vive en `skills/asome-sprint/references/sprint-canon.md` §5. Si las dos difieren, manda el canon:
+> actualizá esta slide, no al revés. `/asome-sprint close` verifica el Nivel 2 sprint a sprint.
+>
+> Dos criterios del Nivel 2 son los que más se incumplen y conviene decirlos en voz alta en el
+> kick-off: la demo es **en vivo sobre un entorno accesible** —un sprint que no desplegó nada no
+> puede cumplirla— y la **retro tiene que dejar una acción asignada**.
+
 ## B07 · Reglas del juego — 1 slide
 
 Los acuerdos que evitan el 90% de los conflictos. Cuatro filas, sin adornos:

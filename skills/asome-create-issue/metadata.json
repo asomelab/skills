@@ -1,8 +1,8 @@
 {
-  "version": "1.1.0",
+  "version": "2.0.0",
   "organization": "ASOME Lab",
-  "date": "June 2026",
-  "abstract": "Creates fully enriched GitHub issues for any ASOME project and adds them to the project board with all custom fields populated: Stage, Priority, Kind, Story Points, Area, Start/Target dates, and Sprint iteration. Project constants are resolved from .asome/config.json (run /asome-setup to initialize). Includes SDD reminder and gotcha documentation for silent GraphQL failures.",
+  "date": "September 2026",
+  "abstract": "Creates an enriched GitHub issue for any ASOME project and adds it to the linked GitHub Project board with all custom fields populated. Enforces vertical slicing (one demonstrable slice per issue, never split by layer), requires every feature to trace to a problem in the mapa operativo, and applies the track:dev / track:ux two-lane convention.",
   "references": [
     "https://docs.github.com/en/graphql"
   ]
