@@ -13,16 +13,16 @@ npx skills add asomelab/skills
 
 | Skill | Trigger | Description |
 |---|---|---|
-| `asome-setup` | `setup asome`, `asome config` | One-time project setup — writes `.asome/config.json` with GitHub Project field IDs |
+| `asome-setup` | `setup asome`, `configurar proyecto`, `asome doctor` | Board config **and** manual compliance: OpenSpec, `AGENTS.md`, MCP allowlist, secret scanning, `docs/` registers. `doctor` mode audits repo + machine |
 | `asome-onboard` | `onboard`, `introduce me to the project`, `poneme al día` | Project snapshot for new devs — reads issues, sprint board, stack, and recommends where to start |
 | `asome-create-skill` | `create skill`, `nueva skill`, `add skill` | Scaffold a new ASOME skill with SKILL.md, metadata.json, and registry entry |
 | `asome-discovery` | `product research`, `investigar producto`, `nuevo producto`, `escribir HUs` | Product discovery: docs/product/ doc set, HU template, decision/assumption registers — runs before SDD |
-| `asome-sdd` | `sdd`, `start feature`, `empezar feature` | SDD workflow guide: when to use SDD, board-stage mapping, full command sequence |
-| `asome-create-issue` | `create issue`, `nueva issue` | Create enriched GitHub issue with all project board fields |
+| `asome-sdd` | `sdd`, `start feature`, `empezar feature`, `openspec` | SDD with OpenSpec: when it is required, the `/opsx:*` sequence, board-stage map, and what goes to OpenSpec vs engram |
+| `asome-create-issue` | `create issue`, `nueva issue` | Create an enriched GitHub issue — one vertical demonstrable slice, traced to the mapa operativo |
 | `asome-commit` | `commit`, `commitear` | Conventional commit with type+scope inferred from diff |
 | `asome-branch-pr` | `create PR`, `abrir PR` | Branch + PR with test plan, changes table, board move |
-| `asome-review` | `review PR`, `revisar código` | SDD spec compliance + antipatterns + design-system/shared-component reuse, CRITICAL/WARNING/SUGGESTION |
-| `asome-sprint` | `plan sprint`, `move issue` | Manage sprint board: plan, move stages, report velocity |
+| `asome-review` | `review PR`, `revisar código` | The `verify` phase: diff against `openspec/changes/`, plus antipatterns and design-system reuse. CRITICAL/WARNING/SUGGESTION |
+| `asome-sprint` | `plan sprint`, `cerrar sprint`, `armar los sprints` | Owns the sprint cycle: bootstrap a project from the ASOME canon, plan under a capacity ceiling, close with retro, report velocity per lane |
 | `asome-standup` | `standup`, `daily` | Daily digest: In Progress / Blocked / Done / velocity |
 | `design-system-asome-lab` | `design system`, `tokens` | Design tokens + component specs for ASOME Lab UI |
 | `asome-deploy` | `deploy`, `deploy to staging`, `deploy to main` | Promote code dev→staging→main via guarded PRs (Gitflow), waits on CI checks, halts on red |
@@ -37,16 +37,18 @@ npx skills add asomelab/skills
 
 ```
 # First time in a new project:
-/asome-setup         → discover GitHub Project constants, write .asome/config.json
+/asome-setup         → board config + manual compliance (OpenSpec, AGENTS.md, MCP, secrets)
+/asome-setup doctor  → audit repo and machine against the manual, changes nothing
 
 # For every Feature / Improvement / Setup issue:
 /asome-create-issue  → create issue + add to board
-/asome-sdd           → follow SDD: /sdd-ff <name> before touching code
-/asome-commit        → conventional commit per SDD task
-/asome-branch-pr     → /sdd-verify must pass → open PR, board → In Review
-/asome-review        → SDD compliance + antipatterns + design-system reuse check
+/asome-sdd           → the SDD guide. /opsx:propose <name> before touching code
+/opsx:apply          → implement the tasks
+/asome-commit        → conventional commit per task
+/asome-review        → the verify phase: diff vs openspec/changes/<name>
+/asome-branch-pr     → open PR against dev, board → In Review
 /asome-sprint        → board → Done after merge
-/sdd-archive         → close the SDD change
+/opsx:archive        → close the change, fold specs into openspec/specs/
 
 # For bugs / chores / docs:
 /asome-create-issue  → create issue

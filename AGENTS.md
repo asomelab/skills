@@ -1,23 +1,35 @@
 # ASOME Skills — Agent Registry
 
-Skills published at [skills.sh/asomelab/skills](https://www.skills.sh).  
+Skills published at [skills.sh/asomelab/skills](https://www.skills.sh).
 Install: `npx skills add asomelab/skills`
 
-## Skills
+## Where the registry lives
 
-| Skill | File | Targets |
-|---|---|---|
-| `asome-discovery` | [SKILL.md](skills/asome-discovery/SKILL.md) | Any ASOME project · docs/product/ discovery repos |
-| `asome-create-issue` | [SKILL.md](skills/asome-create-issue/SKILL.md) | asomelab/asome-portal · Project #6 |
-| `asome-commit` | [SKILL.md](skills/asome-commit/SKILL.md) | asomelab/asome-portal |
-| `asome-branch-pr` | [SKILL.md](skills/asome-branch-pr/SKILL.md) | asomelab/asome-portal · Project #6 |
-| `asome-review` | [SKILL.md](skills/asome-review/SKILL.md) | asomelab/asome-portal |
-| `asome-sprint` | [SKILL.md](skills/asome-sprint/SKILL.md) | asomelab/asome-portal · Project #6 |
-| `asome-standup` | [SKILL.md](skills/asome-standup/SKILL.md) | asomelab/asome-portal · Project #6 |
-| `design-system-asome-lab` | [SKILL.md](skills/design-system-asome-lab/SKILL.md) | ASOME Lab projects |
-| `asome-deploy` | [SKILL.md](skills/asome-deploy/SKILL.md) | Any ASOME project |
-| `asome-infra-setup` | [SKILL.md](skills/asome-infra-setup/SKILL.md) | Any ASOME project · asomelab/infrastructure |
-| `asome-infra-audit` | [SKILL.md](skills/asome-infra-audit/SKILL.md) | Any ASOME project |
-| `asome-infra-costs` | [SKILL.md](skills/asome-infra-costs/SKILL.md) | Any ASOME project · AWS |
-| `asome-infra-plan` | [SKILL.md](skills/asome-infra-plan/SKILL.md) | Any ASOME project |
-| `asome-meeting` | [SKILL.md](skills/asome-meeting/SKILL.md) | ASOME calendar · hola@asomelab.com |
+**[`README.md`](README.md) is the registry.** It lists every skill with its triggers and what it
+does, and it is the file kept in sync when a skill is added or changed.
+
+This file used to carry a second table. It drifted — it listed 14 of 19 skills and pinned a
+"Targets" column to `asomelab/asome-portal · Project #6` long after the skills became
+project-agnostic. Two registries that disagree are worse than one, so this one now points at the
+other.
+
+`skills.sh.json` is the machine-readable grouping used for distribution; add new skills there too.
+
+## Conventions
+
+Per-skill file contract, versioning and the steps to add a skill: see [`CLAUDE.md`](CLAUDE.md).
+
+## Process canon
+
+How an ASOME project's sprints are shaped — the method, the S0 → S1..SN → +90d project shape, the
+capacity model, the three-level Definition of Done and the slicing rules — lives in
+[`skills/asome-sprint/references/sprint-canon.md`](skills/asome-sprint/references/sprint-canon.md).
+`asome-sprint` executes it; `asome-create-issue` and `asome-kickoff` cite it.
+
+## Método de especificación
+
+OpenSpec. Los artefactos de cada cambio viven en `openspec/changes/<name>/` del repositorio de
+trabajo, versionados y revisables en el PR. Engram queda como memoria persistente entre sesiones
+(R4 de §7.3 del manual), no como artifact store. Ver `skills/asome-sdd/SKILL.md`.
+
+Las skills `sdd-*` fueron retiradas: `/opsx:*` las reemplaza.
