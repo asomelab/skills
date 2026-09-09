@@ -1,8 +1,8 @@
 {
-  "version": "2.0.0",
+  "version": "2.1.0",
   "organization": "ASOME Lab",
-  "date": "June 2026",
-  "abstract": "Code review for any ASOME project PR that merges SDD spec/contract verification with traditional review. Step 1 pulls the SDD spec/design/tasks for the change referenced in the PR body and checks the diff against requirements, design decisions, and task completion (a code-level pass complementing /sdd-verify). Step 2 flags language-agnostic antipatterns (swallowed errors, god functions, magic numbers, duplicated logic). Step 3 checks design-system/shared-component compliance — flags reinvented UI primitives, raw hex/spacing values where a design token exists, and copy-pasted markup, cross-referencing a project's design-system-<project> skill when present. Plus backend and frontend convention checklists. Reports CRITICAL (blocks merge), WARNING (should fix), SUGGESTION (optional).",
+  "date": "September 2026",
+  "abstract": "Code review for any ASOME project. Covers the verify phase of the specification flow — OpenSpec profile core ships no verify workflow — by checking the diff against the change artifacts in openspec/changes/, then reviewing conventions, antipatterns and design-system compliance. Reports CRITICAL, WARNING and SUGGESTION. Does not replace the non-delegable human review nor the cross-review with the secondary harness.",
   "references": [
     "https://docs.github.com/en/graphql"
   ]

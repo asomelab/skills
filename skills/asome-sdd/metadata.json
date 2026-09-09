@@ -1,8 +1,8 @@
 {
-  "version": "1.0.0",
+  "version": "2.0.0",
   "organization": "ASOME Lab",
-  "date": "June 2026",
-  "abstract": "SDD (Spec-Driven Development) workflow guide for all ASOME projects. Defines when SDD is required vs optional, maps SDD phases (explore/ff/apply/verify/archive) to ASOME board stages (To Do → In Progress → In Review → Done), establishes change name conventions, and enforces spec-before-code for all Feature, Improvement, and Setup issues.",
+  "date": "September 2026",
+  "abstract": "SDD workflow for ASOME projects, implemented with OpenSpec. Defines when SDD is required (by issue kind and story points), the change-name convention, the six /opsx:* commands and what each writes, the board stage to phase map, and the split between OpenSpec as artifact store and engram as persistent memory. Replaces the previous memory-backed flow: artifacts are versioned Markdown that travel in the same PR as the code, so a reviewer sees the contract and the implementation together.",
   "references": [
     "https://docs.github.com/en/graphql"
   ]

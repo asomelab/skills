@@ -21,11 +21,16 @@ Reviews a PR or diff against the SDD contract (when one exists), ASOME conventio
 general code antipatterns, and design-system/shared-component compliance.
 Reports **CRITICAL** (blocks merge) / **WARNING** (should fix) / **SUGGESTION** (optional).
 
-This skill is a merge of `/sdd-verify` (does the code satisfy the spec?) and a
-traditional code review (is the code itself good, and does it reuse what already exists?).
-It does **not** replace `/sdd-verify` as the gating step in the SDD workflow
-(see `/asome-sdd` Phase 4) — run this at PR-review time as the second pass, especially
-useful when reviewing a PR you didn't write or that may have skipped SDD discipline.
+This skill merges spec verification (does the code satisfy the spec?) with a traditional
+code review (is the code itself good, and does it reuse what already exists?).
+
+**This IS the `verify` phase of §7.6.** OpenSpec profile `core` ships no `verify` workflow, so
+this skill is the gating step before opening a PR (`/asome-sdd` Phase 4). Run it again at
+PR-review time as a second pass when reviewing a PR you didn't write, or one that may have
+skipped SDD discipline.
+
+It does not replace the human review of §9.5, which is not delegable, nor the cross-review with
+the secondary harness of §7.10.
 
 ---
 
@@ -48,7 +53,7 @@ Then apply the checks below, in order, to the diff/code.
 
 ---
 
-## Step 1 — SDD spec/contract compliance (merged `/sdd-verify` pass)
+## Step 1 — SDD spec/contract compliance (the `verify` phase)
 
 Look for `> SDD change: \`<name>\`` in `$PR_BODY` (or ask the user for the change name).
 
@@ -57,23 +62,25 @@ Look for `> SDD change: \`<name>\`` in `$PR_BODY` (or ask the user for the chang
 - **SDD change referenced** → pull the artifacts and check the diff against them:
 
 ```bash
-# engram (preferred)
-mem_search(query: "sdd/<change-name>/spec", project: "<project>")
-mem_search(query: "sdd/<change-name>/design", project: "<project>")
-mem_search(query: "sdd/<change-name>/tasks", project: "<project>")
-# then mem_get_observation(id) for full content on each hit
-
-# openspec fallback
-cat openspec/changes/<change-name>/specs/*/spec.md
+# OpenSpec is the artifact store (ADR-0001). Engram is memory, not artifacts.
+openspec show <change-name>
+cat openspec/changes/<change-name>/proposal.md
 cat openspec/changes/<change-name>/design.md
+cat openspec/changes/<change-name>/specs/*/spec.md
 cat openspec/changes/<change-name>/tasks.md
+
+# structural validation of the artifacts themselves
+openspec validate <change-name>
 ```
+
+If `openspec/` does not exist in the repository, the repo was never initialized
+(`openspec init --tools claude,codex,agents --language es`) — flag it as **CRITICAL**.
 
 ### CRITICAL — blocks merge
 - [ ] Every requirement/scenario in the spec has corresponding code in the diff — no silently dropped requirements.
 - [ ] No code in the diff contradicts an explicit design decision (e.g. design says "use X library", diff uses Y).
 - [ ] Every task marked `[x]` in the task list actually has matching code in the diff — no checked-off tasks with no diff.
-- [ ] `/sdd-verify` was run and passed (no CRITICAL findings in the verify report) — check `sdd/<change-name>/verify-report`.
+- [ ] `openspec validate <change-name>` passes — the artifacts themselves are structurally sound.
 
 ### WARNING — should fix
 - [ ] Acceptance criteria from the spec are covered by tests in the diff, not just implemented.

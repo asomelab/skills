@@ -214,6 +214,9 @@ with `Ver también: [a] · [b] · [c]`.
   `## 4. Métricas de honestidad` (a paragraph admitting no cited figure is a real measurement
   until confirmed).
 
+> The doc set stops at `10-metricas.md`. **`11-plan-de-sprints.md` is not produced here** — it is
+> written by `/asome-sprint bootstrap`, which owns the sprint canon. `/asome-kickoff` reads it.
+
 ### Épica block (`06-epicas.md`)
 
 ```markdown
@@ -250,6 +253,20 @@ Close the file with `## Mapa épica × recorrido` (maps the `05` journey stages 
 
 ### Metric block (`10-metricas.md`)
 
+> **Entre dos y cuatro indicadores. No más.** El método de ASOME (Manual de identidad, bloque 01)
+> dice: *"Al cerrar el relevamiento acordamos con el cliente entre dos y cuatro indicadores
+> operativos, su valor de partida y la meta a alcanzar; los volvemos a medir noventa días después
+> de la puesta en marcha del MVP."* Ocho indicadores no es exhaustividad, es no haber elegido: si
+> todo se mide, nada se decide, y el informe comparativo a los 90 días deja de ser legible.
+>
+> **`Valor de partida` es obligatorio y va antes de la meta.** Un indicador cuyo objetivo dice
+> "a definir por el cliente" y no tiene línea de base no es un indicador: es un nombre. Si el
+> valor todavía no se midió, va como `M-NN` en `mediciones-pendientes.md` y se cierra en el
+> relevamiento — nunca se deja abierto hasta el final del proyecto.
+>
+> La medición comparativa a los 90 días la agenda `/asome-sprint bootstrap` como milestone del
+> board. Los indicadores de acá son su insumo.
+
 ```markdown
 ### N.M <Nombre>
 
@@ -257,7 +274,8 @@ Close the file with `## Mapa épica × recorrido` (maps the `05` journey stages 
 **Fórmula:** …
 **Ventana:** …
 **De dónde sale el dato:** …
-**Objetivo:** …
+**Valor de partida:** <número medido, o `M-NN` si todavía no se midió>
+**Meta:** <número acordado con el cliente>
 **Qué decisión cambia:** …
 ```
 
