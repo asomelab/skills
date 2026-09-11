@@ -56,6 +56,7 @@ S0 · KICK-OFF ─────────────────────�
    ► cuenta cloud y repositorio A NOMBRE DEL CLIENTE
      accesos nominados por persona en el gestor de contraseñas
      trámites de terceros iniciados (tienen SLA propio y bloquean sprints)
+   ► registro long-lead abierto (§10.2)
 
 S1 · RELEVAMIENTO + ESQUELETO QUE CAMINA ──────── dos tracks en paralelo ──
      PRODUCTO   entrevistas ≥3 roles -> mapa operativo
@@ -70,6 +71,7 @@ S1 · RELEVAMIENTO + ESQUELETO QUE CAMINA ──────── dos tracks en
 S2 · PRIMERA REBANADA DE PRODUCTO ────────────────────────────────────────
      DEV        rebanada vertical de la entidad raíz
                 SOBRE multi-tenancy + auditoría + permisos
+                ► plantilla de rebanada vertical (§10.4)
      UX         hi-fi de S3 + reactivo de la demo S1
 
 S3..S(N-1) · MÓDULOS ─────────────────────────────────────────────────────
@@ -218,6 +220,8 @@ obsoleto"*.
 Escribir la regla no la sostiene. Lo que la sostiene es **medir el lead time real cada sprint y
 exponerlo en el report**, para que la erosión sea visible en vez de silenciosa.
 
+→ §12 refina qué entrega este carril: patrones + hi-fi de lo complejo + declaración del resto.
+
 ---
 
 ## 5. Definition of Done — tres niveles
@@ -330,13 +334,13 @@ fuentes: [<docs de los que deriva>]
 ## 2. Track <A>                <- por carril: infra · producto · UX
    2.1 <subsección>            <- con trámites de terceros si los hay
 ## 3. Track <B>
-   3.1 Backlog del sprint      <- tabla de HUs con MoSCoW, SP y horas estimadas
+   3.1 Backlog del sprint      <- tabla de HUs con MoSCoW (§11.1), SP y horas estimadas
    3.2 Tareas técnicas por capa
 ## 4. Definition of Done       <- por HU y del sprint (cita el canon)
 ## 5. Plan Día a Día           <- grilla de 10 días, carriles en paralelo
-## 6. Dependencias del Cliente <- qué, quién y para cuándo
+## 6. Dependencias del Cliente <- qué, quién y para cuándo; incluye lo etiquetado needs:client (§10.5)
 ## 7. Demo & Validación        <- agenda por minutos + post-demo
-## 8. Riesgos del Sprint
+## 8. Riesgos del Sprint       <- y la fila de decisión de capacidad si el gap ≥1.3× lo amerita (§11.2)
 ## 9. Documentos Relacionados
 ```
 
@@ -361,6 +365,14 @@ política de cambios de alcance, y los riesgos de cronograma ya identificados.
 compromiso con el cliente y no se mueve; sprint es el compromiso del equipo. Cuando un issue se
 corre de sprint pero el hito no, eso *tiene que* ser visible.
 
+**Tres bloques nuevos, obligatorios cuando aplican** (no todos los proyectos los necesitan desde
+el día uno, pero el documento nombra explícitamente su ausencia en vez de omitirlos en silencio):
+
+- **La lista de recorte** (§11.1) — `scope:cut-1` vs `scope:out`, escrita antes de empezar.
+- **El registro long-lead** (§10.2) — o el pointer a `docs/product/long-lead.md` si vive aparte.
+- **La decisión de capacidad**, si el gap SP-planificados/techo-acumulado llega a ≥1.3× (§11.2) —
+  fecha, salidas con costo, dueño.
+
 ---
 
 ## 9. Reglas de compromiso
@@ -376,3 +388,131 @@ corre de sprint pero el hito no, eso *tiene que* ser visible.
    si suma puntos, infla la velocity y el burndown miente.
 5. **Los ADRs describen lo que corre**, no lo que se planea. Un ADR escrito antes de la primera
    línea es una hipótesis con formato de decisión.
+6. **Ningún issue se asigna a alguien que no tiene el acceso que el issue requiere** — verificado
+   ejecutándolo, no declarándolo (ver `asome-infra-setup/references/access-model.md`).
+7. **Ningún sprint por encima del techo contiene trabajo de profundidad 0** (§10.3) — eso es
+   exactamente lo que sirve para sacar.
+
+---
+
+## 10. Secuenciación: qué va antes que qué
+
+El orden de un backlog priorizado responde al valor para el cliente. El orden de *construcción*
+responde a otra cosa: qué depende de qué. Esta sección fija ese segundo orden — el que un agente
+(o un PM) usa para decidir en qué sprint entra cada pieza, independiente de en qué orden el
+cliente la pidió.
+
+### 10.1 Lo transversal es fundación, no feature
+
+Roles/permisos, multi-tenancy y auditoría se construyen con la **segunda entidad** del sistema, **y
+nunca después de la mitad del proyecto** — no lo ates a "el sprint siguiente a la primera
+rebanada", porque en un proyecto de 3 sprints no hay sprint siguiente; la invariante real es "con
+la segunda entidad, antes de la mitad". Por qué: retrofitear un permiso sobre N pantallas ya
+validadas por el cliente no cuesta N veces construirlo bien — cuesta N veces la revalidación.
+Señal de que está mal ubicado: el issue de permisos vive en el mismo sprint que el módulo con más
+pantallas.
+
+### 10.2 El trabajo de tercero arranca en el sprint más temprano que pueda probarlo
+
+Esa es la ley — "a más tardar en S2" es el *default*, no una obligación fija; cuando no puede ser
+S2, el registro anota por qué y desde cuándo sí es posible. Registro dedicado:
+`docs/product/long-lead.md`, columnas `qué · tercero · SLA declarado · qué desbloquea · sprint del
+trámite · sprint del consumo · dueño · estado`. Regla dura: el issue del trámite se separa del
+feature que lo consume — un issue que mezcla homologación con feature no puede cerrar hasta que
+responda el tercero, y arrastra el sprint entero con él. Lista canónica a evaluar uno por uno en
+`bootstrap`, "no aplica" es respuesta válida si queda escrita: organismo fiscal (ARCA/AFIP WSFE o
+equivalente), pasarela de pago, proveedor de mapas/geocoding, dominio y DNS, correo transaccional
+con dominio verificado, firma digital y certificados, archivos de datos que provee el cliente
+(padrón, catálogo, tarifario).
+
+### 10.3 El CRUD independiente es lastre
+
+Después de planificar, ordenar el trabajo por profundidad de dependencia — profundidad 0 = no
+espera diseño, ni otra entidad, ni un trámite, ni el transversal. **Esto es un reporte, no un
+movimiento automático.** Trabajo de profundidad 0 es exactamente el mejor lastre para llenar un
+sprint liviano o para que un dev nuevo o alguien bloqueado tenga algo que tomar — automatizar su
+movimiento puede vaciar el único sprint donde alguien tenía algo que hacer. El ordenamiento se
+niega a correr si menos del 30% de los issues abiertos tienen algún eje `needs:*` declarado — sin
+eso, todo es "profundidad 0" y el orden es ruido, no señal.
+
+### 10.4 La plantilla de rebanada vertical se construye una vez
+
+Como issue `type:setup` explícito en el sprint que construye la **segunda** entidad — con la
+primera no hay patrón que extraer, con la tercera ya hay tres formas distintas y ninguna es "la"
+plantilla. Contenido esperado: modelo + migración con columna de tenant + repositorio con filtro
+de tenant obligatorio + endpoints CRUD + tabla con filtros y paginación + formulario de
+alta/edición + estados vacío/carga/error + una prueba de la rebanada. Criterio de aceptación
+verificable, no declarativo: **la siguiente entidad CRUD entra en 2-3 SP en vez de ~5, y el PR que
+la construye lo demuestra.** Si el costo de la siguiente entidad no baja, lo que se construyó fue
+un documento, no una plantilla.
+
+### 10.5 Taxonomía de dependencias — cuatro ejes
+
+| Eje | Significa | Se expresa en el board |
+|---|---|---|
+| `needs:ux` | espera diseño | label existente + `⛔ **Bloqueado por UX:** #N` en el cuerpo |
+| `needs:dep` | espera otro issue de dev | label nueva + `⛔ **Depende de:** #N — *título*.` en el cuerpo |
+| `needs:third-party` | espera un tercero con SLA | label nueva + fila en `long-lead.md` |
+| `needs:client` | espera dato, archivo o decisión del cliente | label nueva + fila en §6 (Dependencias del Cliente) del sprint-plan |
+
+Cierre: un issue sin ninguno de los cuatro es profundidad 0 por definición — si eso es falso para
+un caso concreto, lo que falta es declarar la dependencia, no discutir el orden.
+
+---
+
+## 11. El compromiso frente a un contrato de alcance fijo
+
+### 11.1 La lista de recorte se pacta en la planificación
+
+No se descubre en el deadline — escrita en `11-plan-de-sprints.md` antes de empezar, visible para
+el cliente, en dos bloques que **no se mezclan**: `scope:cut-1` (contratado, de menor valor —
+sacarlo requiere conformidad escrita del cliente) y `scope:out` (ya excluido del contrato — se
+lista para que nadie lo dé por incluido a mitad de proyecto). Define MoSCoW (hoy el canon lo
+menciona una vez sin definirlo): **Must** = sin esto el hito no cumple el contrato · **Should** =
+el hito cumple degradado, entra si hay capacidad · **Could** = primera línea de la lista de
+recorte · **Won't** = fuera de contrato, declarado. Regla dura: **Must ≤ 60% de los SP del
+sprint** — un sprint 100% Must no tiene lista de recorte, tiene una sola salida y es correr la
+fecha.
+
+### 11.2 Un gap de capacidad es una decisión con fecha, no una nota
+
+Cuando los SP planificados superan el techo acumulado por más de **1.3×**, el plan no cierra sin
+nombrar: (1) fecha de decisión — default el cierre del primer sprint, primer momento con velocity
+medida; (2) dos o tres salidas concretas con su costo — sumar capacidad (cuántas personas, desde
+qué sprint, quién la paga) · renegociar alcance (qué bloque exacto sale, contra qué cláusula) ·
+aceptar y absorber (cuántas horas, y que el código de ética las convierte en costo de quien
+construye, no del cliente); (3) un dueño de la decisión. Aclaración explícita para que esto no se
+lea como una tolerancia: **1.0× ya es el techo — 1.3× es donde el plan deja de ser un plan y pasa
+a ser una apuesta.** Un gap de 3× no es "un gap que se gestiona": es otro proyecto, y se nombra
+así.
+
+### 11.3 Resecuenciar contra un contrato
+
+La regla que un agente chequea **antes** de tocar el board:
+
+| Movimiento | Requiere |
+|---|---|
+| A un hito **anterior** | nada — interno |
+| **Dentro** del mismo hito | nada — interno |
+| **Fuera** de un hito cuyo entregable lo nombra | conformidad escrita del cliente, **antes** de tocar el board |
+
+§8 ya distingue milestone de sprint; ésta es la consecuencia operativa: **"El Sprint se mueve
+solo; el Milestone no se mueve sin papel."** Cambiar el board no cambia el compromiso — sólo
+esconde que se rompió.
+
+---
+
+## 12. El carril de diseño entrega patrones, no pantallas
+
+Refina §4 (dual-track), no lo reemplaza. Tres capas: **patrones** (biblioteca que crece un sprint
+por vez: tabla con filtros y paginación, formulario de alta/edición, ficha con pestañas,
+confirmación destructiva, estados vacío/carga/error, navegación y layout) · **hi-fi** sólo para lo
+que no se deriva de un patrón (calendarios y grillas de ocupación, mapas, tableros, flujos
+multipaso, cualquier pantalla con una regla de negocio visual propia) · **declaración** para el
+resto, una fila por pantalla: `patrón: tabla+filtros · campos: nombre, tipo, zona, estado ·
+acciones: alta, edición, baja`. Dos reglas que lo mantienen honesto: (1) una pantalla "declarada"
+cuenta como diseñada para el DoD Nivel 2 **sólo si** su patrón ya está construido en código — si
+no, es una promesa; (2) **si el contrato enumera pantallas explícitamente, pasar a esta forma es
+una propuesta al cliente acordada por escrito, no una reinterpretación unilateral** — misma
+disciplina que §11.3. Sin este segundo punto, el patrón se convierte en la forma de reducir el
+alcance sin avisar, que es justo lo que §11 existe para prevenir.
