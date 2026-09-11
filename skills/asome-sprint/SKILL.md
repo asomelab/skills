@@ -17,8 +17,8 @@ metadata:
 
 # ASOME — Sprint Management
 
-Six sub-commands: **bootstrap**, **plan**, **move**, **close**, **report**, **ux-link**.
-Executes directly.
+**Seven** sub-commands: **bootstrap**, **plan**, **move**, **close**, **report**, **ux-link**,
+**resequence**. Executes directly.
 
 > **Prerequisite**: `.asome/config.json` must exist. If missing, run `/asome-setup` first.
 
@@ -39,6 +39,9 @@ Three things from the canon that change how every sub-command behaves:
   current sprint and the next one.
 - **Over-committing costs ASOME money.** The code of ethics makes an unregistered overrun an
   estimation error the company absorbs. The capacity ceiling in `plan` is that rule in code.
+- **"El Sprint se mueve solo; el Milestone no se mueve sin papel."** (§11.3) Moving an issue's
+  Sprint field inside or to an earlier milestone is internal. Moving it out of a milestone whose
+  deliverable names it needs written client conformity before the board changes at all.
 
 ---
 
@@ -81,6 +84,34 @@ for name in STAGE_TODO STAGE_IN_PROGRESS STAGE_DONE; do
   [ -n "$val" ] && [ "$val" != "null" ] || \
     echo "⚠️  $name no resuelve — revisá las opciones de .fields.$STAGE_KEY en .asome/config.json"
 done
+
+# Dependency axes — see references/sprint-canon.md §10.5. Same regex-resolver shape as
+# stage_opt(): boards disagree on label spelling and these four may not exist yet on a
+# project that hasn't run /asome-setup since the labels were added — warn, don't fail.
+dep_axes() {
+  for label in "needs:ux" "needs:dep" "needs:third-party" "needs:client"; do
+    id=$(gh label list --repo "$REPO" --search "$label" --json name,id \
+      --jq --arg l "$label" '.[] | select(.name == $l) | .id' 2>/dev/null)
+    if [ -z "$id" ]; then
+      echo "⚠️  label '$label' no existe todavía en $REPO — correr /asome-setup para crearla"
+    fi
+    printf '%s\t%s\n' "$label" "$id"
+  done
+}
+```
+
+Toda mutación de campo del board sigue `references/board-mutations.md` — no inventes el payload,
+difiere por tipo de campo, y milestone/assignee/labels no son campos del board.
+
+```bash
+# depth0() — flags issues carrying none of the four needs:* labels (references/sprint-canon.md
+# §10.3). Feed it a JSON array of issues with a `.labels[]` array (name strings or {name} objects).
+depth0() {
+  jq '[.[] | select(
+        ((.labels // []) | map(.name // .)) as $l
+        | ($l - ["needs:ux","needs:dep","needs:third-party","needs:client"]) == $l
+      )]'
+}
 ```
 
 **Team and capacity config.** The canon's capacity model needs to know who is on the project and
@@ -147,6 +178,19 @@ silently fix them, they are usually contractual:
 - [ ] **UX leads by one sprint** from S1 onward, and carries a 40% reactive reserve from S2.
 - [ ] **The +90-day comparative measurement exists** as a milestone.
 - [ ] **Only S1 and S2 carry a Sprint.** Everything later gets a Milestone and Status Backlog.
+- [ ] **Lo transversal** (roles/permisos, multi-tenancy, auditoría) está con la segunda entidad,
+      no en el sprint comercial ni en el de administración (§10.1).
+- [ ] Existe `docs/product/long-lead.md` con los trámites canónicos evaluados uno por uno, cada
+      uno con issue abierto lo antes posible y separado del feature que lo consume (§10.2).
+- [ ] Hay un issue `type:setup` de plantilla de rebanada vertical en el sprint de la segunda
+      entidad (§10.4).
+- [ ] Las dependencias están declaradas con los cuatro ejes `needs:*`, no sólo `needs:ux` (§10.5).
+- [ ] La lista de recorte está escrita, dividida en contratado-de-menor-valor vs
+      fuera-de-contrato (§11.1).
+- [ ] SP planificados / techo acumulado ≤ 1.3×. Si no: fecha de decisión, salidas con costo,
+      dueño (§11.2).
+- [ ] El carril UX entrega patrones + hi-fi de lo complejo + declaración del resto, y el contrato
+      admite esa forma (§12).
 
 ### Step 3 — create the board structure
 
@@ -266,7 +310,8 @@ CAPACITY · Sprint 3 · focus 0.65 · 5h/SP
   ux         12 SP         5 SP        4 SP      9 SP   ✓   (+8 SP de reserva reactiva)
 
 ⚠️  El carril dev queda 15% sobre el techo.
-    Opciones: sacar un issue de 3 SP · repuntear · declarar más dedicación al carril.
+    Opciones: sacar un issue de 3 SP · sacar trabajo de profundidad 0 del sprint (§10.3) ·
+    repuntear · declarar más dedicación al carril.
 ```
 
 If a lane exceeds its ceiling, **show the breakdown and ask for an explicit confirmation** before
@@ -299,6 +344,43 @@ fi
 Report the conflict to the user and let them decide — do not silently skip the issue or
 silently plan it anyway.
 
+### Gate 3 — dependency gate: `needs:dep` / `needs:third-party` / `needs:client`
+
+Same shape as Gate 2. Before assigning, check the other three axes from
+`references/sprint-canon.md` §10.5 the same way Gate 2 checks `needs:ux` — grep the body for the
+matching pointer string, report the blocking issue's state.
+
+```bash
+DEP_BLOCKED=$(gh issue view $ISSUE_NUM --repo "$REPO" --json labels \
+  --jq '[.labels[].name] | index("needs:dep") // empty')
+
+if [ -n "$DEP_BLOCKED" ]; then
+  # the pointer is "⛔ **Depende de:** #N — *título*." — see /asome-setup §10.5, don't reword it
+  DEP_NUM=$(gh issue view $ISSUE_NUM --repo "$REPO" --json body \
+    --jq '.body' | grep -m1 -oE 'Depende de:\*\* #[0-9]+' | grep -oE '[0-9]+')
+  echo "⚠️  #$ISSUE_NUM depende de #${DEP_NUM:-???}"
+  gh issue view "$DEP_NUM" --repo "$REPO" --json state,title,milestone \
+    --jq '"    dep #'"$DEP_NUM"' [\(.state)] \(.milestone.title // "sin milestone") — \(.title)"'
+fi
+
+TP_BLOCKED=$(gh issue view $ISSUE_NUM --repo "$REPO" --json labels \
+  --jq '[.labels[].name] | index("needs:third-party") // empty')
+
+if [ -n "$TP_BLOCKED" ]; then
+  echo "⚠️  #$ISSUE_NUM espera un tercero — revisar el estado en docs/product/long-lead.md (§10.2)"
+fi
+
+CLIENT_BLOCKED=$(gh issue view $ISSUE_NUM --repo "$REPO" --json labels \
+  --jq '[.labels[].name] | index("needs:client") // empty')
+
+if [ -n "$CLIENT_BLOCKED" ]; then
+  echo "⚠️  #$ISSUE_NUM espera dato/archivo/decisión del cliente — revisar §6 del sprint-plan"
+fi
+```
+
+Report the conflict to the user and let them decide — do not silently skip the issue or
+silently plan it anyway.
+
 ### Apply — assign the issue to the sprint
 
 Only after both gates have passed (or the overrun has been explicitly confirmed).
@@ -307,11 +389,11 @@ Only after both gates have passed (or the overrun has been explicitly confirmed)
 ISSUE_NUM=5
 SPRINT_ITER_ID=$(jq -r '.fields.Sprint.iterations[] | select(.title | test("Sprint 1")) | .id' .asome/config.json)
 
-# Get item ID from issue
-ISSUE_NODE=$(gh api repos/$REPO/issues/$ISSUE_NUM --jq .node_id)
-ITEM_ID=$(gh api graphql -f query="
-{node(id:\"$ISSUE_NODE\"){...on Issue{projectItems(first:5){nodes{id}}}}}" \
-  --jq '.data.node.projectItems.nodes[0].id')
+# Item id — one-call map, see references/board-mutations.md. Replaces the old two-call
+# per-issue resolution (gh api repos/.../issues/N --jq .node_id, then a projectItems query),
+# which costs ~2x the API calls for no benefit.
+ITEM_ID=$(gh project item-list "$PROJECT_NUM" --owner "$ORG" --format json --limit 500 \
+  | jq -r --arg n "$ISSUE_NUM" '.items[] | select((.content.number|tostring) == $n) | .id')
 
 # Set Sprint
 gh api graphql -f query="mutation{updateProjectV2ItemFieldValue(input:{
@@ -346,10 +428,10 @@ STAGE_OPT=$(stage_opt '^in ?progress$')
 ISSUE_NUM=3
 TARGET_STAGE_ID=$(stage_opt '^in ?progress$')
 
-ISSUE_NODE=$(gh api repos/$REPO/issues/$ISSUE_NUM --jq .node_id)
-ITEM_ID=$(gh api graphql -f query="
-{node(id:\"$ISSUE_NODE\"){...on Issue{projectItems(first:5){nodes{id}}}}}" \
-  --jq '.data.node.projectItems.nodes[0].id')
+# Item id — one-call map, see references/board-mutations.md (replaces the old two-call
+# per-issue resolution).
+ITEM_ID=$(gh project item-list "$PROJECT_NUM" --owner "$ORG" --format json --limit 500 \
+  | jq -r --arg n "$ISSUE_NUM" '.items[] | select((.content.number|tostring) == $n) | .id')
 
 gh api graphql -f query="mutation{updateProjectV2ItemFieldValue(input:{
   projectId:\"$PROJECT_ID\",itemId:\"$ITEM_ID\",
@@ -527,6 +609,102 @@ Close with the two lists the user actually has to act on:
 - **UX issues with no dev counterpart** — needs a `track:dev` issue created (`/asome-create-issue`).
 - **Dev issues that look UI-facing with no design at all** — needs a `track:ux` issue for the
   designer. Name them and say why; do not create them unprompted.
+
+---
+
+## Sub-command: resequence
+
+**Trigger:** "resecuenciar", "reordenar los sprints", "rebalancear el board", "el sprint N está
+reventado", "mover trabajo de sprint"
+
+Re-sequences a batch of issues across Sprint/Status/Milestone against the capacity ceiling and the
+contract. Two modes:
+
+| Mode | What it does |
+|---|---|
+| `--suggest` | Read-only. Sorts by dependency depth (§10.3), reports the proposed plan. Writes nothing. |
+| `--apply` | Dry-run → confirmation → verified, resumable execution against the live board. |
+
+All the field-mutation mechanics below — payload shapes, the one-call item map, the drift query,
+the dry-run/apply/verify protocol, pacing — live in `references/board-mutations.md`. This
+sub-command is the driver; read that file once and cite it, don't re-derive it here.
+
+### Gate 1 — drift
+
+Before anything else, re-query the live project's fields (the drift-check query is in
+`references/board-mutations.md`) and diff it against `.asome/config.json`: field ids, option ids,
+iteration ids. **Any mismatch halts the run** — tell the user to re-run `/asome-setup` and stop.
+No auto-fix: auto-fixing would hide that the board changed under someone, which is exactly how
+this board drifted twice already.
+
+### Gate 2 — contrato (§11.3)
+
+Classify every proposed move:
+
+| Clase | Cuándo |
+|---|---|
+| Earlier | El issue se mueve a un hito anterior al que tiene hoy |
+| Same-milestone | El issue se queda dentro del mismo hito, sólo cambia el Sprint |
+| Out-of-milestone | El issue sale del hito que hoy lo tiene, y ese hito tiene un entregable contractual que lo nombra |
+
+For every **Out-of-milestone** row, print the milestone's contractual deliverable text right next
+to it and **halt** until the user states in so many words that written client conformity exists
+for that row, or drops the row from the plan. Nothing in this class writes to the board on an
+assumption.
+
+### Gate 3 — nada se cancela
+
+Assert the plan contains:
+- **Zero** `Status → Cancelled` rows.
+- **Zero** rows touching an item whose *current* status is `Done` or `Cancelled` — moving a Done
+  item's sprint corrupts the velocity that `report` reads.
+
+Work that leaves scope goes to **Backlog + `scope:cut-1`**, never to Cancelled — visible on the
+board, not erased from it.
+
+### Step 1 — snapshot the board
+
+The only rollback source ProjectV2 has — it has no native undo:
+
+```bash
+gh project item-list "$PROJECT_NUM" --owner "$ORG" --format json --limit 500 \
+  > /tmp/resequence-items-$(date +%Y%m%d%H%M%S).json
+
+gh api "repos/$REPO/issues?state=all" --paginate \
+  > /tmp/resequence-issues-$(date +%Y%m%d%H%M%S).json
+```
+
+### Step 2 — build the map and the plan file
+
+From the single `item-list` call, build `{issue → item id, iterationId, status, story Points,
+milestone}` in one pass — see `references/board-mutations.md` for the exact `jq`. Generate a plan
+file with **one row per field change, not per issue**: an issue moving both Sprint and Status is
+two rows. Drop rows where `from == to`. Give each row a stable `row_id = sha1(issue+field+destino)
+[:8]` so a resumed run can tell what it already did.
+
+### Step 3 — dry-run and confirmation
+
+Print, then ask for confirmation:
+
+1. A before/after **SP-per-sprint table against the ceiling** (same shape as `plan`'s Gate 1
+   breakdown).
+2. A **mutation-type summary** — `N Sprint changes · N Status · N Story Points · …` — with the
+   Gate-2-flagged rows called out **separately**, not folded into the totals.
+
+**One confirmation for the whole run**, plus a **second, separate confirmation** that covers only
+the Gate-2-flagged block. Two different questions get two different yeses.
+
+### Step 4 — execute
+
+Serial, paced — see the pacing/backoff rules in `references/board-mutations.md`. Verify each
+mutation from its own GraphQL response (`fieldValueByName` requested in the same round-trip — no
+extra read-back call). Log every attempt append-only, so the run is resumable:
+`grep -q "$row_id" "$LOG" || { run it; log it; }`.
+
+### Step 5 — final verification
+
+One more full `item-list`, diffed against the plan. Report any residual mismatch — should be
+zero, since every row already verified itself from its own mutation response in Step 4.
 
 ---
 
@@ -727,5 +905,8 @@ Two Nivel 2 criteria are the ones that actually slip, so check them explicitly:
 - **Demo en vivo con entorno accesible.** Not a static deliverable, not a slide deck. If the
   sprint deployed nothing, this criterion cannot be met and the sprint is not Done.
 - **Retro completada con una acción asignada**, and the sprint's hours registered.
+
+A "declared" screen (`references/sprint-canon.md` §12) counts as designed for the Nivel 2 gate
+**only if** its pattern is already built in code — otherwise it is a promise, not a design.
 
 > Changes to the DoD require agreement in a retrospective and are versioned with date and owner.
