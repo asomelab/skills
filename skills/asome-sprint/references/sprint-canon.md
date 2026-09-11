@@ -62,7 +62,9 @@ S1 · RELEVAMIENTO + ESQUELETO QUE CAMINA ──────── dos tracks en
                 ► 2-4 indicadores con valor de partida y meta
      INFRA/DEV  cuenta + repo + CI/CD + entorno productivo
                 ► login/registro DESPLEGADO EN PRODUCCIÓN DEL CLIENTE
-     UX         design system · inventario de pantallas · navegación
+     UX         BASES del design system (tokens + componentes de auth)
+                inventario de pantallas · navegación
+                ► AUTH COMPLETA EN FIGMA: login, registro, recuperacion de clave
                 ► hi-fi de lo que construye S2          (reserva reactiva 0)
 
 S2 · PRIMERA REBANADA DE PRODUCTO ────────────────────────────────────────
@@ -85,6 +87,33 @@ SN · CIERRE ──────────────────────�
 
 **S1** — *"El cliente entra a su propio sistema, en su propia nube, con su propio usuario — y
 nosotros entendimos su operación."*
+
+Los tres entregables obligatorios de S1, uno por carril. No es una lista deseable: es lo que hace
+que S1 cierre con una URL en vez de con una carpeta.
+
+| Carril | Entregable de S1 |
+|---|---|
+| Producto | mapa operativo + 2-4 indicadores con valor de partida y meta |
+| UX | bases del design system + **auth completa en Figma** (login, registro, recuperacion) + hi-fi de S2 |
+| Dev | cuenta cloud y repo del cliente + CI/CD + entorno productivo + **auth desplegada en produccion** |
+
+**Alcance de la auth en S1 — donde se corta.** Entra: login, registro, recuperacion de clave, alta
+de usuarios y estructura de roles. **No** entra la matriz de permisos por accion: eso es transversal
+y §2 ya dice que lo transversal se prueba en S2 contra una entidad real. Prometer el modulo de
+permisos cerrado en S1 obliga a reabrirlo entero cuando aparece la primera entidad.
+
+**El design system en S1 son bases, no el sistema completo.** Tokens (color, tipografia, spacing,
+grid) y los componentes que la auth necesita: input, boton, formulario, estados de error, layout,
+navegacion. Crece un sprint por vez. Un design system "terminado" en S1 se rehace en S2, cuando
+aparece la primera pantalla de datos reales — y bajo una clausula de correccion sin costo, esa
+rehechura la paga ASOME.
+
+**Nomenclatura frente al cliente.** En documentos internos y en el board es S0 (semana previa, sin
+sprint) y S1 (fundaciones). En un deck comercial el S0 va dentro de "Proximos pasos" — firma, pago,
+cuentas a nombre del cliente, tramites de terceros — y el S1 se presenta como **"Sprint 1 ·
+Fundaciones"**. Nunca "Sprint 0" de cara al cliente: se lee como sprint que no cuenta, y es
+justamente donde se pide el primer pago. Ademas numerar desde 0 rompe la consistencia con los
+niveles de precio, que se venden como "Sprints 1 a N".
 
 **S2** — *"La primera entidad del negocio vive en el sistema, con todo lo transversal probado
 encima."*
