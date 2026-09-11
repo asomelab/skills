@@ -1,5 +1,5 @@
 {
-  "version": "2.0.0",
+  "version": "2.1.0",
   "organization": "ASOME Lab",
   "date": "September 2026",
   "abstract": "Setup and compliance skill for any ASOME project. Two layers. The board layer discovers the GitHub Project linked to the repo, fetches every field and option ID via GraphQL, writes .asome/config.json and bootstraps the label set. The compliance layer installs what the ASOME Engineering Manual requires: OpenSpec as the specification method, AGENTS.md as the single source of agent context, the MCP allowlist backed by deny rules that actually enforce it, secret scanning in two independent layers, and the docs/ registers for decisions, debt and exceptions. A doctor mode audits both the repository and the developer's own machine against the manual, reports each gap with the consequence it carries, and fixes nothing without asking. Values that cannot be derived from the repository are marked as gaps in place, never invented.",

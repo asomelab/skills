@@ -38,7 +38,7 @@
     },
     {
       "title": "Infrastructure",
-      "description": "Skills for ASOME infrastructure: bootstrapping from canonical patterns, auditing against best practices, analyzing AWS costs, and safely applying Terraform changes.",
+      "description": "Skills for ASOME infrastructure: bootstrapping from canonical patterns, the team's AWS access profiles, auditing against best practices, analyzing AWS costs, and safely applying Terraform changes.",
       "skills": [
         "asome-infra-setup",
         "asome-infra-audit",
@@ -48,7 +48,7 @@
     },
     {
       "title": "Sprint & Board",
-      "description": "Skills for managing the ASOME sprint board, tracking velocity, and generating daily standups.",
+      "description": "Skills for managing the ASOME sprint board, resequencing it against dependencies and contract milestones, tracking velocity, and generating daily standups.",
       "skills": [
         "asome-sprint",
         "asome-standup"

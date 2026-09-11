@@ -22,7 +22,8 @@ Per-skill file contract, versioning and the steps to add a skill: see [`CLAUDE.m
 ## Process canon
 
 How an ASOME project's sprints are shaped — the method, the S0 → S1..SN → +90d project shape, the
-capacity model, the three-level Definition of Done and the slicing rules — lives in
+capacity model, the three-level Definition of Done, the slicing rules, la secuenciación y el modelo
+de dependencias, la lista de recorte y la decisión de capacidad — lives in
 [`skills/asome-sprint/references/sprint-canon.md`](skills/asome-sprint/references/sprint-canon.md).
 `asome-sprint` executes it; `asome-create-issue` and `asome-kickoff` cite it.
 
