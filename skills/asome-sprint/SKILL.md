@@ -150,8 +150,33 @@ silently fix them, they are usually contractual:
 
 ### Step 3 — create the board structure
 
+> **Guard — run this before touching the Sprint field, no exceptions.**
+> `updateProjectV2Field` + `iterationConfiguration` does not append — it **replaces the whole
+> iteration set** of the field. On a board that already has live iterations this mints new ids
+> and silently orphans every issue's existing `sprint.iterationId`. It has already happened to a
+> real board once (see `.asome/config.json` → `fields.Sprint._note` when present). Query the live
+> field first and abort if it is not empty:
+>
+> ```bash
+> LIVE_ITERATIONS=$(gh api graphql -f query="
+> {node(id:\"$PROJECT_ID\"){... on ProjectV2{
+>   field(name:\"Sprint\"){... on ProjectV2IterationField{
+>     configuration{iterations{id title startDate}}}}}}}" \
+>   --jq '.data.node.field.configuration.iterations | length')
+>
+> if [ "${LIVE_ITERATIONS:-0}" -gt 0 ]; then
+>   echo "✖ El campo Sprint ya tiene $LIVE_ITERATIONS iteración(es) viva(s) en el board."
+>   echo "  Esta mutación reescribe el set completo y orfanea los ids ya asignados a issues."
+>   echo "  No corras bootstrap Step 3 contra este board. Para agregar sprints a un board vivo:"
+>   echo "  hacelo desde la UI del Project (Settings → campo Sprint → + Add iteration) y después"
+>   echo "  corré /asome-setup para regenerar .asome/config.json con los ids reales."
+>   exit 1
+> fi
+> ```
+
 ```bash
-# Sprint iterations (iteration fields are created/extended, not appended one by one)
+# Sprint iterations (iteration fields are created/extended, not appended one by one) —
+# ONLY reaches here when the guard above confirmed the field has zero live iterations.
 gh api graphql -f query='
 mutation($field:ID!,$start:Date!){
   updateProjectV2Field(input:{
