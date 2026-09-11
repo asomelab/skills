@@ -28,7 +28,7 @@ Run once per project. Re-run when the GitHub Project changes (fields added, spri
 
 | Invocation | What it does |
 | --- | --- |
-| `/asome-setup` | Full bootstrap: board config + labels (Steps 1–8) **and** manual compliance (Steps 9–14) |
+| `/asome-setup` | Full bootstrap: board config + labels (Steps 1–8) **and** manual compliance (Steps 9–15) |
 | `/asome-setup doctor` | **Audits only. Changes nothing.** Reports what is missing and what each gap breaks. Jump straight to Step 14 |
 | `/asome-setup board` | Steps 1–8 only — when you just need the board config refreshed |
 
@@ -40,7 +40,7 @@ Run once per project. Re-run when the GitHub Project changes (fields added, spri
 2. **The repo's label set** — `type:*`, `priority:*`, `area:*`, `effort:*`, plus `track:*` and
    `needs:ux` on software projects and `funnel:*` / `formato:*` on content projects. See Step 7.
 
-**Manual compliance layer (Steps 9–14)**
+**Manual compliance layer (Steps 9–15)**
 
 3. `openspec/` + the `/opsx:*` commands — the specification method (§7.6).
 4. `AGENTS.md` — single source of agent context, with the MCP allowlist (§7.4, §7.8).
@@ -48,6 +48,8 @@ Run once per project. Re-run when the GitHub Project changes (fields added, spri
 6. Secret scanning in two layers: `secretlint` in pre-commit, `gitleaks` in CI (§8.2).
 7. `docs/adr/`, `docs/DEBT.md`, `docs/EXCEPTIONS.md`, `docs/RUNBOOK.md` (§4.2, §4.3, §14.3, §12.2).
 8. A report of what the **developer's own machine** is missing to satisfy §7.3 and §15.1.
+9. An audit of the product's access model (auth/roles/permisos/tenancy) against
+   `references/foundations-canon.md`, or issue candidates when no auth module exists yet.
 
 > A repository that passes Steps 1–8 but fails 9–14 is configured for the board and
 > unconfigured for the manual. Both halves matter.
@@ -271,6 +273,15 @@ mk "track:ux"  "CC317C" "UX/UI design track — leads implementation by one spri
 mk "track:dev" "0052CC" "Development (code) track"
 mk "needs:ux"  "C2185B" "Blocked: needs the UX/UI design closed before implementation starts"
 
+# dependency axes beyond needs:ux — see sprint-canon.md §10.5
+mk "needs:dep"         "C2185B" "Blocked: waits on another dev issue — pointer 'Depende de: #N' in the body"
+mk "needs:third-party" "C2185B" "Blocked: waits on a third party with its own SLA — row in docs/product/long-lead.md"
+mk "needs:client"      "C2185B" "Blocked: waits on data, a file or a decision from the client"
+
+# scope / cut list — see sprint-canon.md §11.1
+mk "scope:cut-1" "5319E7" "First on the cut list — contracted, lowest value. Dropping it needs written client conformity"
+mk "scope:out"   "EDEDED" "Out of contract — listed so nobody assumes it is included"
+
 # content / marketing projects — mirror the production pipeline
 mk "area:idea"        "C5DEF5" "Idea bank and scoring"
 mk "area:guion"       "1D76DB" "Script writing"
@@ -344,6 +355,27 @@ Do not use GitHub sub-issues to express this dependency. An issue has a single p
 slot belongs to the EPIC hierarchy — reparenting a dev issue under its UX issue silently drops
 it out of its EPIC.
 
+#### La taxonomía de dependencias
+
+Cinco ejes en total — `needs:ux` (arriba) más los cuatro que este step acaba de crear, uno por
+tipo de bloqueo (`sprint-canon.md` §10.5):
+
+| Eje | Espera | Se expresa en el board |
+|---|---|---|
+| `needs:ux` | el diseño | pointer `⛔ **Bloqueado por UX:** #N — *título*.` como primeras líneas del cuerpo |
+| `needs:dep` | otro issue de dev | pointer `⛔ **Depende de:** #N — *título*.` como primeras líneas del cuerpo |
+| `needs:third-party` | un tercero con SLA propio | fila en `docs/product/long-lead.md` |
+| `needs:client` | dato, archivo o decisión del cliente | fila en §6 (Dependencias del Cliente) del sprint-plan |
+
+El pointer de `needs:dep` — `⛔ **Depende de:** #N — *título*.` — es tan machine-readable como
+`Bloqueado por UX:` y **no se reformula**: `/asome-sprint plan` (Gate 3) y cualquier tooling
+futuro lo greppean tal cual; cambiar la redacción rompe el grep en silencio, igual que reescribir
+`Bloqueado por UX:` rompería `ux-link`.
+
+La misma prohibición de arriba aplica acá: no uses sub-issues de GitHub para expresar `needs:dep`.
+El slot de padre único pertenece a la jerarquía de EPICs — colgar un issue del que depende como
+"padre" lo saca de su EPIC en silencio.
+
 Verify:
 
 ```bash
@@ -373,7 +405,7 @@ grep -vE '^\.asome/(config\.json)?$' .gitignore > /tmp/gitignore.tmp 2>/dev/null
 
 ---
 
-# Manual compliance — Steps 9 to 14
+# Manual compliance — Steps 9 to 15
 
 Everything below implements the ASOME Engineering Manual. Each step names the section it
 satisfies. **Skip nothing silently:** if a step cannot run, say so and record it in
@@ -484,6 +516,7 @@ Create them empty rather than not at all: an absent register makes the debt invi
 | `docs/EXCEPTIONS.md` | §14.3 | Registered rule breaks. Max 90 days, always with mitigation |
 | `docs/RUNBOOK.md` | §12.2 | Mandatory for anything in production |
 | `.env.example` | §5.9 | Every variable, commented, **no real values** |
+| `docs/product/long-lead.md` | `asome-sprint` canon §10.2 | Trámites de terceros: qué, tercero, SLA, qué desbloquea, sprint del trámite, sprint del consumo, dueño, estado |
 
 `docs/RUNBOOK.md` and `.env.example` need environment knowledge. If it is not available, create
 them with the section skeleton and `<<HUECO M-NN>>` markers — never with plausible values.
@@ -507,6 +540,7 @@ echo "docs/adr       : $([ -d docs/adr ] && echo ok || echo FALTA)"
 echo "docs/DEBT.md   : $([ -f docs/DEBT.md ] && echo ok || echo FALTA)"
 echo "docs/RUNBOOK   : $([ -f docs/RUNBOOK.md ] && echo ok || echo FALTA)"
 echo ".env.example   : $([ -f .env.example ] && echo ok || echo FALTA)"
+echo "long-lead.md   : $([ -f docs/product/long-lead.md ] && echo ok || echo 'FALTA — los trámites de terceros no tienen dueño ni fecha y aparecen como bloqueo recién el sprint que los necesita')"
 echo "ramas entorno  : $(git ls-remote --heads origin dev staging main 2>/dev/null | wc -l)/3"
 echo "default branch : $(gh repo view --json defaultBranchRef --jq .defaultBranchRef.name)"
 ```
@@ -554,7 +588,33 @@ Never report a rule as satisfied because the file exists. `AGENTS.md` full of `<
 markers is honest and incomplete; a hook that is present but inactive is a **CRITICAL**, not a
 pass.
 
-### Step 15 — how it lands
+### Step 15 — el modelo de acceso del producto (auth, roles, permisos, tenancy)
+
+**Procedimiento únicamente — las normas viven en `references/foundations-canon.md`.** Este step
+audita contra ese estándar; nunca escribe código de producto por su cuenta.
+
+```bash
+# Heurística de detección — ajustar el patrón al stack real del repo
+AUTH_MODULE=$(find . -maxdepth 4 -type d \( -iname "auth" -o -iname "auth*" \) \
+  -not -path "*/node_modules/*" 2>/dev/null | head -1)
+echo "módulo de auth: ${AUTH_MODULE:-no encontrado}"
+```
+
+**Si existe un módulo de auth**, probar los cuatro invariantes de
+`references/foundations-canon.md`: punto único de evaluación de permisos (nunca `if role ===
+'admin'` repartido) · columna de tenant en la primera migración con filtro obligatorio a nivel
+repositorio/ORM · auditoría instrumentada en ese mismo punto único · la prueba de aceptación de 2
+tenants × 3 roles (el de menor rol recibe 403 y no ve el recurso del otro tenant, el evento de
+auditoría queda registrado). Reportar cada gap encontrado en `docs/DEBT.md` — este step **audita y
+registra la deuda, no la corrige** en el mismo paso.
+
+**Si no existe ningún módulo de auth todavía**, listar los cuatro invariantes como candidatos de
+issue para que el equipo los cree y **parar ahí** — nunca scaffoldear código de auth por su
+cuenta. Auth es la fundación de S1 (`asome-sprint/references/sprint-canon.md` §2); construirla sin
+que un humano lo pida es exactamente el tipo de decisión que el manual no delega en un agente
+(§9.5, el review humano no es delegable).
+
+### Step 16 — how it lands
 
 Everything from Steps 9 to 13 goes in **one PR against the development branch**, never pushed
 straight to an environment branch (§5.1). Split the commits by concern (§5.3): OpenSpec, secret
