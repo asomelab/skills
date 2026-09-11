@@ -12,7 +12,7 @@ description: >
 license: Apache-2.0
 metadata:
   author: asome
-  version: "2.0"
+  version: "2.1"
 ---
 
 # ASOME — Sprint Management

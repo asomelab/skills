@@ -1,5 +1,5 @@
 {
-  "version": "2.0.0",
+  "version": "2.1.0",
   "organization": "ASOME Lab",
   "date": "September 2026",
   "abstract": "Owns the ASOME sprint cycle end to end: bootstraps a new project sprint structure from the ASOME canon (relevamiento + walking skeleton in S1, vertical slice in S2, +90-day comparative measurement), plans sprints under an hours-and-story-points capacity ceiling, moves issue stages, closes sprints with measurement and a retro artifact, reports velocity per lane, and audits UX-dev design lead time. Reads .asome/config.json; writes board fields, sprint plan docs and retro files.",

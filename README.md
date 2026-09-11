@@ -13,7 +13,7 @@ npx skills add asomelab/skills
 
 | Skill | Trigger | Description |
 |---|---|---|
-| `asome-setup` | `setup asome`, `configurar proyecto`, `asome doctor` | Board config **and** manual compliance: OpenSpec, `AGENTS.md`, MCP allowlist, secret scanning, `docs/` registers. `doctor` mode audits repo + machine |
+| `asome-setup` | `setup asome`, `configurar proyecto`, `asome doctor` | Board config, manual compliance (OpenSpec, `AGENTS.md`, MCP allowlist, secret scanning, `docs/` registers) **and** the product's foundations canon (auth/roles/tenancy scope, dependency taxonomy, cut-list labels). `doctor` mode audits repo + machine |
 | `asome-onboard` | `onboard`, `introduce me to the project`, `poneme al día` | Project snapshot for new devs — reads issues, sprint board, stack, and recommends where to start |
 | `asome-create-skill` | `create skill`, `nueva skill`, `add skill` | Scaffold a new ASOME skill with SKILL.md, metadata.json, and registry entry |
 | `asome-discovery` | `product research`, `investigar producto`, `nuevo producto`, `escribir HUs` | Product discovery: docs/product/ doc set, HU template, decision/assumption registers — runs before SDD |
@@ -22,11 +22,11 @@ npx skills add asomelab/skills
 | `asome-commit` | `commit`, `commitear` | Conventional commit with type+scope inferred from diff |
 | `asome-branch-pr` | `create PR`, `abrir PR` | Branch + PR with test plan, changes table, board move |
 | `asome-review` | `review PR`, `revisar código` | The `verify` phase: diff against `openspec/changes/`, plus antipatterns and design-system reuse. CRITICAL/WARNING/SUGGESTION |
-| `asome-sprint` | `plan sprint`, `cerrar sprint`, `armar los sprints` | Owns the sprint cycle: bootstrap a project from the ASOME canon, plan under a capacity ceiling, close with retro, report velocity per lane |
+| `asome-sprint` | `plan sprint`, `cerrar sprint`, `armar los sprints`, `resecuenciar` | Owns the sprint cycle: bootstrap a project from the ASOME canon, plan under a capacity ceiling, resequence a board against dependencies/contract with a dry-run, close with retro, report velocity per lane |
 | `asome-standup` | `standup`, `daily` | Daily digest: In Progress / Blocked / Done / velocity |
 | `design-system-asome-lab` | `design system`, `tokens` | Design tokens + component specs for ASOME Lab UI |
 | `asome-deploy` | `deploy`, `deploy to staging`, `deploy to main` | Promote code dev→staging→main via guarded PRs (Gitflow), waits on CI checks, halts on red |
-| `asome-infra-setup` | `setup infra`, `bootstrap infra` | Scaffold infra from asomelab/infrastructure patterns by architecture |
+| `asome-infra-setup` | `setup infra`, `bootstrap infra` | Scaffold infra from asomelab/infrastructure patterns by architecture, and the team's AWS access profiles (day-1 verification, never read-only for an active dev) |
 | `asome-infra-audit` | `audit infra`, `check terraform` | Audit Terraform, AWS, GHA against best practices (CRITICAL/WARNING/SUGGESTION) |
 | `asome-infra-costs` | `aws costs`, `reduce costs` | Explore AWS spend, find idle resources, get cost-reduction recommendations |
 | `asome-infra-plan` | `terraform plan`, `apply infra` | Safe terraform plan+apply wrapper with destroy guards and confirmation |
