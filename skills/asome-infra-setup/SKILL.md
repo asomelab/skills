@@ -11,7 +11,7 @@ description: >
 license: Apache-2.0
 metadata:
   author: asome
-  version: "1.1"
+  version: "1.2"
 ---
 
 # ASOME — Infrastructure Setup
@@ -182,6 +182,37 @@ echo "terraform init complete."
 echo "Next: run /asome-infra-plan to preview, then /asome-infra-audit to validate."
 ```
 
+### Step 8 — el modelo de acceso: cada dev puede hacer su primer issue el día 1
+
+**Procedimiento únicamente — los tres perfiles y sus reglas viven en
+`references/access-model.md`.** Este step nunca crea usuarios ni permisos IAM en silencio.
+
+```bash
+# El equipo lo escribe /asome-setup en .asome/config.json
+jq -r '.team[]? | "\(.name)\t\(.role // "sin rol declarado")"' .asome/config.json
+```
+
+Para cada persona, asignar uno de los tres perfiles de `references/access-model.md` (`asome-dev` /
+`asome-infra` / `asome-readonly`) según su rol declarado, e imprimir:
+
+1. El perfil asignado y por qué (ej. "dev de producto → `asome-dev`").
+2. El bloque de comandos de verificación día 1 para ese perfil — ver `references/access-model.md`
+   (`sts get-caller-identity` y el resto según el perfil).
+3. Si el perfil, la cuenta o el usuario IAM **no existen todavía**, el cambio exacto que hace
+   falta aplicar — y **preguntar antes de aplicarlo**. Nunca crear usuarios o permission sets IAM
+   en silencio: siempre imprimir el cambio y esperar confirmación.
+
+```bash
+mkdir -p docs
+[ -f docs/ACCESOS.md ] || cat > docs/ACCESOS.md << 'EOF'
+# Accesos
+
+| Persona | Perfil | Cuenta | Alta | Quién verificó | Última verificación |
+|---|---|---|---|---|---|
+EOF
+echo "docs/ACCESOS.md listo (perfiles y roles únicamente — nunca credenciales, ARNs ni ids de cuenta)"
+```
+
 ---
 
 ## Gitignore
@@ -213,3 +244,8 @@ echo "Added Terraform entries to .gitignore"
 - If `asomelab/infrastructure` is private, ensure `gh auth` has org access before cloning.
 - `base` architecture must be applied first — other architectures depend on its VPC outputs.
 - After copying, always run `/asome-infra-audit` before `/asome-infra-plan`.
+- El perfil de acceso se verifica **antes** de asignar el issue, nunca después — un `AccessDenied`
+  descubierto a mitad de sprint es tiempo perdido que un comando de dos segundos evitaba.
+- El acceso se pide por **nombre de perfil** (`asome-dev`, `asome-infra`, `asome-readonly`), nunca
+  describiendo permisos sueltos — describirlos produce un perfil distinto por persona, que es
+  exactamente el problema que los tres perfiles fijos de `references/access-model.md` evitan.
