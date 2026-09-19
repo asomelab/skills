@@ -32,6 +32,7 @@ npx skills add asomelab/skills
 | `asome-infra-plan` | `terraform plan`, `apply infra` | Safe terraform plan+apply wrapper with destroy guards and confirmation |
 | `asome-meeting` | `agenda una reunion`, `schedule a meeting`, `sprint review` | Schedule ASOME calendar events with ASOME title/reminder/Meet conventions and history-based attendee resolution |
 | `asome-kickoff` | `kickoff`, `reunión de inicio`, `armar el kickoff`, `acta de kickoff` | Project kick-off: batched relevamiento, then a ready-to-paste Claude Design prompt for the fixed 13-block / 15-slide deck, plus the same-day acta and calendar events |
+| `asome-sprint-demo` | `sprint demo`, `preparar la demo`, `deck de la review`, `acta de la demo` | Sprint Review from the board: reads the sprint's issues with `gh` plus the doc set, asks only the gaps, and emits a ready-to-paste Claude Design prompt for the Sprint Review deck, the demo script and a pre-demo checklist; after the demo, the same-day acta that opens the validation window |
 
 ## Dev flow
 
@@ -58,6 +59,11 @@ npx skills add asomelab/skills
 
 # Daily:
 /asome-standup       → digest of board state
+
+# Sprint close:
+/asome-sprint-demo       → deck prompt + demo script + checklist (1-2 days before the demo)
+/asome-sprint-demo acta  → same-day summary email, opens the validation window
+/asome-sprint close      → rollover, hours, retro
 ```
 
 ## Project config
