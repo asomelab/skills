@@ -1,0 +1,7 @@
+{
+  "version": "1.0.0",
+  "organization": "ASOME Lab",
+  "date": "September 2026",
+  "abstract": "Prepares every ASOME sprint demo from the project root: a read-only collector pulls the sprint's issues from the GitHub Project board, its milestones, releases, merged PRs and the docs/product doc set into one bundle, and the skill asks only what GitHub cannot know. It emits a ready-to-paste Claude Design prompt that fills the Sprint Review template (objective, indicator with baseline and target, live-demo flows, what is still open and why, validation window, next sprint), plus the demo script, a pre-demo checklist and internal notes that never reach a slide. After the demo, mode acta produces the same-day summary email that opens the validation window and records the client's requests for the next review; unresolved values always appear as visible PENDIENTE markers, never as guesses.",
+  "references": []
+}
