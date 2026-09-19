@@ -1,7 +1,7 @@
 # Canon del deck de Sprint Review
 
 The skeleton is fixed per sprint type; what changes between projects and sprints is the content
-of the slots. The Claude Design template **"Sprint Review ASOME"** implements this canon
+of the slots. The Claude Design template **"ASOME · Template de Sprint Review"** implements this canon
 visually; the prompt this skill emits fills it. If a project's Claude Design workspace does not
 have the template yet, the prompt carries enough of the visual system to build the deck anyway.
 

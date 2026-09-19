@@ -4,7 +4,7 @@ description: >
   Prepares an ASOME sprint demo (Sprint Review) end to end, from the project root: reads the
   sprint's issues from the GitHub Project board with gh, plus the sprint plan, milestones,
   releases and the docs/product doc set; asks only what GitHub cannot know, in one batched
-  message; and emits a ready-to-paste Claude Design prompt that fills the "Sprint Review ASOME"
+  message; and emits a ready-to-paste Claude Design prompt that fills the "ASOME · Template de Sprint Review"
   template, the demo script and pre-demo checklist, and — after the demo — the same-day summary
   email that opens the validation window. Use it whenever someone is getting ready for a client
   demo or sprint review, even if they only ask "qué mostramos el jueves" or "armame las slides".

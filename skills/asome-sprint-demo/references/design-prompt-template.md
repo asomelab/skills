@@ -9,7 +9,7 @@ contenido se omite entera: no se deja vacía ni con "N/A". Un dato no resuelto v
 ---
 
 ```
-Armá la Sprint Review de {{proyecto}} — Sprint {{n}} usando el template "Sprint Review ASOME" de
+Armá la Sprint Review de {{proyecto}} — Sprint {{n}} usando el template "ASOME · Template de Sprint Review" de
 este proyecto. Si el template no está, construí el deck con el sistema visual de abajo.
 
 REGLAS
@@ -20,6 +20,8 @@ REGLAS
 - Título ≤ 60 caracteres, viñeta ≤ 90, ≤ 6 viñetas por tarjeta, ≤ 3 tarjetas por lámina. Si algo
   no entra, paginá (1/2, 2/2) con el mismo diseño; nunca achiques la letra.
 - Texto editable, nada convertido a curvas ni a imagen: se presenta en Google Slides.
+- El template trae textos de ayuda (cómo llenar la lámina, "borrá esto si no aplica"): borralos
+  todos. Si un texto fijo del template contradice este prompt, manda el prompt.
 
 SISTEMA VISUAL (sólo si no usás el template)
 Penn Blue #011F5B · Persian Blue #1C39BB · Cornflower Blue #6495ED · White Smoke #F5F5F5 · blanco y
