@@ -18,7 +18,7 @@ npx skills add asomelab/skills
 | `asome-create-skill` | `create skill`, `nueva skill`, `add skill` | Scaffold a new ASOME skill with SKILL.md, metadata.json, and registry entry |
 | `asome-discovery` | `product research`, `investigar producto`, `nuevo producto`, `escribir HUs` | Product discovery: docs/product/ doc set, HU template, decision/assumption registers — runs before SDD |
 | `asome-sdd` | `sdd`, `start feature`, `empezar feature`, `openspec` | SDD with OpenSpec: when it is required, the `/opsx:*` sequence, board-stage map, and what goes to OpenSpec vs engram |
-| `asome-create-issue` | `create issue`, `nueva issue` | Create an enriched GitHub issue — one vertical demonstrable slice, traced to the mapa operativo |
+| `asome-create-issue` | `create issue`, `nueva issue` | Create one or many enriched GitHub issues — vertical slices traced to the mapa operativo; recommends sprint/priority/assignee from board load, dedupes, creates the [UX] twin, verifies the board |
 | `asome-commit` | `commit`, `commitear` | Conventional commit with type+scope inferred from diff |
 | `asome-branch-pr` | `create PR`, `abrir PR` | Branch + PR with test plan, changes table, board move |
 | `asome-review` | `review PR`, `revisar código` | The `verify` phase: diff against `openspec/changes/`, plus antipatterns and design-system reuse. CRITICAL/WARNING/SUGGESTION |
