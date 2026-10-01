@@ -1,91 +1,390 @@
 ---
 name: asome-create-issue
 description: >
-  Create an enriched GitHub issue for any ASOME project following ASOME conventions:
-  one vertical, demonstrable slice per issue, traced to a problem in the mapa operativo.
+  Create one or many enriched GitHub issues for any ASOME project following ASOME conventions:
+  one vertical, demonstrable slice per issue, traced to a problem in the mapa operativo, with
+  Priority, Sprint, dates and assignee always set from a load-based recommendation the user
+  approves. Detects duplicates, creates the [UX] twin when the slice needs design, and verifies
+  every board field after writing it.
   Trigger: "create issue", "new issue", "agregar issue", "crear issue", "asome issue",
-  or when the user describes a task/bug/research item for the current project.
+  "crear estos issues", "cargar issues", or when the user describes one or more
+  tasks/bugs/research items for the current project.
 license: Apache-2.0
 metadata:
   author: asome
-  version: "2.0"
+  version: "3.0"
 ---
 
 # ASOME — Create Issue
 
-Creates a fully enriched GitHub issue in the current project AND adds it to the linked
-GitHub Project board with all custom fields populated (Stage, Priority, Kind, Story Points,
-Area, Start, Target, Sprint).
+Creates fully enriched GitHub issues in the current project AND adds them to the linked GitHub
+Project board with every custom field populated (Stage, Priority, Kind, Story Points, Area, Start,
+Target, Sprint) plus milestone, labels and assignee.
 
-**Executes directly** — no preview step.
+Two modes, same pipeline:
+
+- **Single** — the user describes one issue.
+- **Batch** — the user describes two or more (a list, a pasted HU set, "creá estos 5"). One plan
+  table, one approval, created in dependency order.
+
+**Executes directly**, with ONE decision point: the skill **recommends** Sprint, Priority,
+assignee and the UX twin from the board's load; the **user decides**. Nothing else is asked.
 
 > **Prerequisite**: `.asome/config.json` must exist. If missing, run `/asome-setup` first.
+
+---
+
+## Pipeline
+
+```
+1 Draft → 2 Dedupe → 3 UX twin → 4 Plan (load + recommend) → 5 Ask → 6 Preflight → 7 Create + verify → 8 Summary
+```
+
+Steps 1–5 write nothing. Step 6 aborts before anything is created if any id or label is missing.
+In batch mode steps 1–4 run for the whole set before the single question in step 5.
 
 ---
 
 ## Resolve project context
 
 ```bash
-REPO=$(jq -r '.repo' .asome/config.json)
-PROJECT_ID=$(jq -r '.project_id' .asome/config.json)
+CFG=.asome/config.json
+REPO=$(jq -r '.repo' $CFG)
+PROJECT_ID=$(jq -r '.project_id' $CFG)
+PROJECT_NUM=$(jq -r '.project_num' $CFG)
+ORG=${REPO%%/*}
+TODAY=$(date +%F)
 
-# The status field is named `Status` on some boards and `Stage` on others —
-# resolve the key, never hardcode it. Reading the wrong one returns null and
-# the mutation dies with "Could not resolve to a node with the global id of 'null'".
-STAGE_KEY=$(jq -r '.fields | if has("Status") then "Status" else "Stage" end' .asome/config.json)
-F_STAGE=$(jq -r --arg k "$STAGE_KEY" '.fields[$k].id' .asome/config.json)
-F_PRIORITY=$(jq -r '.fields.Priority.id' .asome/config.json)
-F_KIND=$(jq -r '.fields.Kind.id' .asome/config.json)
-F_SP=$(jq -r '."fields"."Story Points".id' .asome/config.json)
-F_AREA=$(jq -r '.fields.Area.id' .asome/config.json)
-F_START=$(jq -r '.fields.Start.id' .asome/config.json)
-F_TARGET=$(jq -r '.fields.Target.id' .asome/config.json)
-F_SPRINT=$(jq -r '.fields.Sprint.id' .asome/config.json)
+# The status field is `Status` on some boards and `Stage` on others — resolve, never hardcode.
+STAGE_KEY=$(jq -r '.fields | if has("Status") then "Status" else "Stage" end' $CFG)
+F_STAGE=$(jq -r --arg k "$STAGE_KEY" '.fields[$k].id' $CFG)
+F_PRIORITY=$(jq -r '.fields.Priority.id' $CFG)
+F_KIND=$(jq -r '.fields.Kind.id' $CFG)
+F_SP=$(jq -r '.fields."Story Points".id' $CFG)
+F_AREA=$(jq -r '.fields.Area.id' $CFG)
+F_START=$(jq -r '.fields.Start.id' $CFG)
+F_TARGET=$(jq -r '.fields.Target.id' $CFG)
+F_SPRINT=$(jq -r '.fields.Sprint.id' $CFG)
+
+# opt FIELD REGEX → option id. ALWAYS by case-insensitive regex: boards disagree on spelling
+# ("To Do"/"Todo", "Med"/"Medium"); a literal key returns null and the mutation fails.
+opt() { jq -r --arg f "$1" --arg r "$2" \
+  '.fields[$f].options | to_entries[] | select(.key | test($r; "i")) | .value' $CFG | head -1; }
 ```
 
-Look up option IDs by name at execution time:
+### Label → board option mapping
 
-```bash
-# Stage option (e.g. "To Do", "Todo" or "Backlog") — resolve by regex, boards disagree
-STAGE_OPT=$(jq -r --arg k "$STAGE_KEY" \
-  '.fields[$k].options | to_entries[] | select(.key | test("^to ?do$"; "i")) | .value' \
-  .asome/config.json)
+Labels and board options are two vocabularies. Map the **label** (the source of truth) to the
+board option with these regexes:
 
-# Priority option (e.g. "High")
-PRIORITY_OPT=$(jq -r '.fields.Priority.options["High"]' .asome/config.json)
+| Label | Board field | Regex |
+|---|---|---|
+| `priority:high` · `priority:med` · `priority:low` | Priority | `^high` · `^med` · `^low` |
+| `type:feature` · `type:setup` · `type:improvement` | Kind | `^feat` · `^setup` · `^improv` |
+| `type:research` · `type:bug` · `type:docs` | Kind | `research\|spike` · `^bug` · `^doc` |
+| `area:fullstack` · `area:ux` · `area:infra` · `area:producto` | Area | `full.?stack` · `^ux\|design` · `^infra` · `^product` |
+| (always) | Stage | `^to ?do$` |
 
-# Kind option (e.g. "Feature")
-KIND_OPT=$(jq -r '.fields.Kind.options["Feature"]' .asome/config.json)
+If a regex matches no option (e.g. a board whose Area only has `Backend`/`Frontend`), **do not
+pick the nearest one** — `Backend` on a fullstack issue is exactly the layer split the slicing
+rules forbid. Stop and tell the user to add the option on the board and re-run `/asome-setup`.
 
-# Area option (e.g. "Backend")
-AREA_OPT=$(jq -r '.fields.Area.options["Backend"]' .asome/config.json)
+---
 
-# Sprint iteration ID — match by title substring or exact title
-SPRINT_ID=$(jq -r '.fields.Sprint.iterations[] | select(.title | test("Sprint 1")) | .id' .asome/config.json)
+## Step 1 — Draft
+
+For each issue, decide title, labels, Story Points, lane and body. Read the **Slicing rules** and
+**Issue title format** below first.
+
+**Story Points — recommend from hours** (scale from `/asome-sprint` `references/sprint-canon.md`):
+
+| SP | horas | `effort:` |
+|---|---|---|
+| 1 | 5h | `effort:S` |
+| 2 | 10h | `effort:S` |
+| 3 | 15h | `effort:M` |
+| 5 | 25h | `effort:M` |
+| 8 | 40h | `effort:L` |
+| 13 | 65h | `effort:XL` — **split the issue**, don't create it at 13 |
+
+Use `.capacity.hours_per_sp` from config instead of 5h when `/asome-sprint close` has measured it.
+
+**SDD gate.** A `type:feature`, `type:improvement` or `type:setup` with SP ≥ 3 requires SDD.
+Add to `## Technical notes`:
+
+```markdown
+- **SDD obligatorio** — antes de codear: `/opsx:propose <change-name>` (ver `/asome-sdd`).
 ```
 
-List available milestones from the repo when in doubt:
+**Dependencies.** If the issue cannot start until another dev issue is done, add `needs:dep` and
+this pointer as the **first line of the body** — exact string, other skills grep it:
+
+```markdown
+> ⛔ **Depende de:** #N — *título*.
+```
+
+Body: use `references/issue-template.md` — the single source for every body structure.
+
+---
+
+## Step 2 — Dedupe
+
+Before planning, search the repo for each draft. Search **all states** — a closed duplicate is
+still a duplicate.
 
 ```bash
-gh api repos/$REPO/milestones --jq '.[].title'
+# By ref when there is one (HU-001, D-04…), else by 2-3 distinctive nouns from the title
+gh issue list --repo "$REPO" --state all --limit 10 \
+  --search '"HU-001" in:title' --json number,title,state,url \
+  --jq '.[] | "#\(.number) [\(.state)] \(.title)"'
+```
+
+A hit with the same ref, or the same outcome in other words, is a **possible duplicate**. Do not
+create silently: it becomes an option in Step 5 — *crear igual · usar el existente · descartar*.
+"Usar el existente" means: no new issue; report the URL (and, if fields are empty, offer to
+fill them via `/asome-sprint`).
+
+---
+
+## Step 3 — UX twin
+
+A `track:dev` feature needs a `[UX]` twin when it adds a **new screen or surface**, or changes an
+existing flow's information architecture. It does **not** need one for: infra or backend-only
+work with no new surface, bugs restoring already-designed behavior, docs/research/chores, or UI
+that only assembles existing components against a design that already shipped (criteria from
+`/asome-setup` Step 7 — keep them in sync).
+
+When a twin is needed:
+
+1. Dedupe it too: search `"[UX] HU-001" in:title`. If it exists, **link to it**, don't create one.
+2. Otherwise draft it: title `[UX] <same ref> — <screens>`, labels
+   `track:ux,area:ux,type:feature,priority:<same>`, body from the UX template, its own SP (UX lane).
+3. The dev issue gets `needs:ux` and this pointer as the **first lines of its body** (exact
+   string — `/asome-sprint ux-link` greps it):
+
+```markdown
+> ⛔ **Bloqueado por UX:** #N — *[UX] HU-001 — título*.
+> El diseño tiene que estar cerrado antes de empezar a implementar esto.
+```
+
+The twin is a **recommendation**: offered in Step 5, the user can decline it.
+
+---
+
+## Step 4 — Plan: measure load, recommend
+
+### Load per sprint and lane
+
+The ceiling comes from `/asome-sprint` **plan → Gate 1** (`ceiling_sp()`, capacity constants,
+`.capacity` and lane dedication from config). Reuse it — do not reinvent the capacity model.
+
+```bash
+# Open sprints (not yet ended)
+jq -r --arg t "$TODAY" '.fields.Sprint.iterations[] | select(.end >= $t)
+  | "\(.title)\t\(.start)\t\(.end)"' $CFG
+
+# Board snapshot — fetch ONCE per run, reuse for every issue in the batch
+ITEMS=$(gh project item-list "$PROJECT_NUM" --owner "$ORG" --format json --limit 1000)
+
+# Committed SP per sprint × lane
+jq -r '.items[] | select(.sprint.title != null)
+  | [.sprint.title,
+     (if ((.labels // []) | index("track:ux")) then "ux" else "dev" end),
+     (."story Points" // 0)] | @tsv' <<<"$ITEMS" \
+| awk -F'\t' '{sp[$1"\t"$2]+=$3} END {for (k in sp) printf "%s\t%d\n", k, sp[k]}'
+
+# Committed SP per person in a sprint (for the assignee recommendation)
+jq -r --arg s "$SPRINT_TITLE" '.items[] | select(.sprint.title == $s)
+  | (.assignees // [])[] as $a | [$a, (."story Points" // 0)] | @tsv' <<<"$ITEMS" \
+| awk -F'\t' '{sp[$1]+=$2} END {for (p in sp) printf "%s\t%d\n", p, sp[p]}'
+```
+
+If no sprint is open, **stop**: tell the user to run `/asome-sprint bootstrap`. No issue is
+created without a sprint.
+
+### Recommend
+
+Keep a **running total** per sprint × lane and per person: every issue planned in this run
+(twins included) adds its SP before the next one is placed. Without it, a batch of five lands
+all five in the same "free" sprint.
+
+Place issues in **dependency order** (twins and `Depende de` targets first):
+
+- **Sprint** — the earliest open sprint where `running + SP ≤ ceiling` for the issue's lane, and:
+  - a dev issue with a UX twin goes **at least one sprint after** the twin (design leads by one
+    sprint — `/asome-sprint` plan → Gate 2);
+  - an issue never lands before an issue it depends on.
+  - Exception: `type:bug` + `priority:high` → current sprint even if it overflows; say so.
+- **Priority** — `high` if it blocks other issues, is a production bug, or sits on the current
+  milestone's critical path; `low` if nice-to-have with no dependents; else `med`.
+- **Milestone** — derived from the sprint: a sprint titled `Sprint 4 (M2)` → the repo milestone
+  whose title starts with `M2`. If the sprint title has no `(Mx)` or no milestone matches, the
+  milestone becomes a question in Step 5 (list from `gh api repos/$REPO/milestones --jq '.[].title'`).
+- **Dates** — Start/Target = the sprint's `start` / `end`.
+- **Assignee** — candidates from `.team` in config if present, else
+  `gh api repos/$REPO/assignees --jq '.[].login'`. Recommend the person in the issue's lane with
+  the lowest running SP in that sprint. "Sin asignar" is always a valid choice.
+
+---
+
+## Step 5 — Ask: the user decides
+
+Print the load table first, then ask with `AskUserQuestion` (recommended option first, labelled
+"(Recommended)").
+
+### Single mode — one call, up to four questions
+
+```
+CARGA · carril dev · issue de 5 SP
+
+  sprint      fechas                 techo   comprometido   + este   estado
+  Sprint 3    2026-10-06 → 10-17     20 SP        18 SP      23 SP   ⚠️ +3 sobre el techo
+  Sprint 4    2026-10-20 → 10-31     20 SP         9 SP      14 SP   ✓  recomendado
+  Sprint 5    2026-11-03 → 11-14     20 SP         0 SP       5 SP   ✓
+
+Prioridad recomendada: med — no bloquea a nadie, no está en el camino crítico de M2.
+Responsable recomendado: @ana — 6 SP en Sprint 4 (vs @leo 12 SP).
+Gemelo UX: [UX] HU-001 (3 SP) en Sprint 3 → dev en Sprint 4.
+```
+
+| # | Question | Options |
+|---|---|---|
+| 1 | Sprint | one per open sprint, max 4 |
+| 2 | Priority | high · med · low |
+| 3 | Responsable | recommended person · next least loaded · Sin asignar |
+| 4 | Gemelo UX / duplicado / milestone | only the one that applies; omit if none |
+
+If more than one of row 4 applies, use the 4th slot for the duplicate (it can cancel everything)
+and ask the remaining one in a follow-up call.
+
+### Batch mode — one plan, one approval
+
+```
+PLAN · 6 issues (incl. 1 gemelo UX) · 21 SP
+
+  #  título                                        carril  SP  prio  sprint    resp.   notas
+  1  [UX] HU-003 — Alta de contrato: formulario    ux       3  high  Sprint 3  @sofi   gemelo de 2
+  2  HU-003 — Alta de contrato                     dev      5  high  Sprint 4  @ana    needs:ux → 1
+  3  HU-004 — Listado de contratos con filtros     dev      3  med   Sprint 4  @leo
+  4  Bug — Total mal calculado sin pagos           dev      2  high  Sprint 3  @ana    bug high → sprint actual
+  5  Spike — Proveedor de firma digital            dev      2  med   Sprint 4  @leo    time-box 10h
+  6  HU-005 — Exportar contratos a PDF             dev      5  low   Sprint 5  —       ⚠️ posible duplicado de #212
+
+  CARGA DESPUÉS DEL PLAN
+  Sprint 3   dev 20/20 ✓   ux 8/12 ✓
+  Sprint 4   dev 19/20 ✓   ux 0/12 ✓
+  Sprint 5   dev  5/20 ✓
+```
+
+Ask once: **Crear así (Recommended)** · **Ajustar** · **Cancelar**. On "Ajustar" the user types
+the changes in free text ("3 a Sprint 5, 6 descartar, 2 prioridad med"); recompute the running
+totals, re-print the table, ask again. Flag possible duplicates and overflowing sprints in the
+`notas` column — approving the plan registers those decisions.
+
+Either mode: if the chosen sprint overflows its ceiling, the user's choice stands but must be
+explicit — never overflow on the default.
+
+---
+
+## Step 6 — Preflight (nothing is created if this fails)
+
+Resolve **every** id for **every** issue first, then check labels exist. Any `null` or missing
+label aborts the whole run — a half-created batch is worse than none.
+
+```bash
+PRIORITY_OPT=$(opt Priority '^med')            # from the user's choice, via the mapping table
+KIND_OPT=$(opt Kind '^feat')
+AREA_OPT=$(opt Area 'full.?stack')
+STAGE_OPT=$(opt "$STAGE_KEY" '^to ?do$')
+SPRINT=$(jq -c --arg s "$SPRINT_TITLE" '.fields.Sprint.iterations[] | select(.title == $s)' $CFG)
+SPRINT_ID=$(jq -r '.id' <<<"$SPRINT")
+START=${START:-$(jq -r '.start' <<<"$SPRINT")}   # user may override dates
+TARGET=${TARGET:-$(jq -r '.end' <<<"$SPRINT")}
+SP=5
+LABELS="track:dev,area:fullstack,type:feature,priority:med"   # + needs:ux / needs:dep / effort:*
+
+for v in "$PRIORITY_OPT" "$KIND_OPT" "$AREA_OPT" "$STAGE_OPT" "$SPRINT_ID" "$START" "$TARGET"; do
+  case "$v" in ""|null) echo "✖ id sin resolver — no se crea nada"; exit 1;; esac
+done
+
+# Labels must exist — gh issue create fails on a missing label
+EXISTING=$(gh label list --repo "$REPO" --limit 500 --json name --jq '.[].name')
+MISSING_LABELS=$(tr , '\n' <<<"$LABELS" | grep -vxF -f <(echo "$EXISTING"))   # bash + zsh
+[ -z "$MISSING_LABELS" ] || { echo "✖ faltan labels: $MISSING_LABELS — correr /asome-setup (Step 7)"; exit 1; }
 ```
 
 ---
 
-## Information to gather
+## Step 7 — Create and verify
 
-Before creating, confirm with the user (or infer from context):
+Create in the order of Step 4 (twins and dependencies first) so each pointer can carry the real
+`#N`. After creating a twin or a dependency, substitute its number into the dependent's body
+before creating the dependent.
 
-| Field        | How to resolve                                                                              |
-| ------------ | ------------------------------------------------------------------------------------------- |
-| Title        | Short imperative description                                                                |
-| Milestone    | List from `gh api repos/$REPO/milestones`; pick the relevant one                           |
-| Area         | Available options in `.fields.Area.options` keys                                            |
-| Kind         | Available options in `.fields.Kind.options` keys                                            |
-| Priority     | Available options in `.fields.Priority.options` keys                                        |
-| Story Points | 1, 2, 3, 5, 8, 13 (Fibonacci)                                                               |
-| Sprint       | Available iterations in `.fields.Sprint.iterations[].title`                                 |
-| Body         | Context (WHY) + Scope (subsections with models/flows) + Technical notes + DoD + Dates table |
+```bash
+# 7.1 — Issue. Assignee only when chosen: NEVER pass --assignee "" (fails silently, no issue).
+ARGS=()
+[ -n "$ASSIGNEE" ] && ARGS+=(--assignee "$ASSIGNEE")
+ISSUE_URL=$(gh issue create --repo "$REPO" \
+  --title "<title — see Issue title format>" \
+  --body-file "$BODY_FILE" \
+  --milestone "$MILESTONE" \
+  --label "$LABELS" "${ARGS[@]}") || { echo "✖ gh issue create falló"; exit 1; }
+ISSUE_NUM=${ISSUE_URL##*/}
+ISSUE_NODE=$(gh api repos/$REPO/issues/$ISSUE_NUM --jq .node_id)
+
+# 7.2 — Add to board
+ITEM_ID=$(gh api graphql -f query="
+mutation{addProjectV2ItemById(input:{projectId:\"$PROJECT_ID\",contentId:\"$ISSUE_NODE\"}){item{id}}}" \
+  --jq '.data.addProjectV2ItemById.item.id')
+
+# 7.3 — Every field in ONE mutation (aliases). Story Points inlined as a number, never a string.
+upd() { echo "$1: updateProjectV2ItemFieldValue(input:{projectId:\"$PROJECT_ID\",itemId:\"$ITEM_ID\",fieldId:\"$2\",value:{$3}}){clientMutationId}"; }
+gh api graphql --silent -f query="mutation{
+  $(upd stage    "$F_STAGE"    "singleSelectOptionId:\"$STAGE_OPT\"")
+  $(upd priority "$F_PRIORITY" "singleSelectOptionId:\"$PRIORITY_OPT\"")
+  $(upd kind     "$F_KIND"     "singleSelectOptionId:\"$KIND_OPT\"")
+  $(upd area     "$F_AREA"     "singleSelectOptionId:\"$AREA_OPT\"")
+  $(upd sp       "$F_SP"       "number:$SP")
+  $(upd start    "$F_START"    "date:\"$START\"")
+  $(upd target   "$F_TARGET"   "date:\"$TARGET\"")
+  $(upd sprint   "$F_SPRINT"   "iterationId:\"$SPRINT_ID\"")
+}" || echo "✖ mutation de campos falló — reintentar 7.3 (es idempotente)"
+
+# 7.4 — Read back. Trust the board, not the exit code.
+GOT=$(gh api graphql -f query="
+query{node(id:\"$ITEM_ID\"){... on ProjectV2Item{fieldValues(first:30){nodes{
+  ... on ProjectV2ItemFieldSingleSelectValue{v:name   field{... on ProjectV2FieldCommon{name}}}
+  ... on ProjectV2ItemFieldNumberValue      {v:number field{... on ProjectV2FieldCommon{name}}}
+  ... on ProjectV2ItemFieldDateValue        {v:date   field{... on ProjectV2FieldCommon{name}}}
+  ... on ProjectV2ItemFieldIterationValue   {v:title  field{... on ProjectV2FieldCommon{name}}}
+}}}}}" --jq '[.data.node.fieldValues.nodes[] | select(.field) | {(.field.name): .v}] | add')
+MISSING=$(jq -r --arg s "$STAGE_KEY" \
+  '[$s,"Priority","Kind","Area","Story Points","Start","Target","Sprint"] - keys | join(", ")' <<<"$GOT")
+[ -z "$MISSING" ] || echo "✖ #$ISSUE_NUM sin: $MISSING — reintentar 7.3"
+```
+
+If 7.3 still fails after one retry, **do not delete the issue**: report it as created-but-incomplete
+in the summary with the missing fields, and continue with the rest of the batch.
+
+---
+
+## Step 8 — Summary
+
+One table, built from the read-back (7.4), not from what was intended:
+
+```
+CREADOS · 5 de 6 (1 descartado: duplicado de #212)
+
+  #     título                                  sprint    prio  SP  resp.   board
+  #231  [UX] HU-003 — Alta de contrato          Sprint 3  high   3  @sofi   ✓
+  #232  HU-003 — Alta de contrato               Sprint 4  high   5  @ana    ✓  needs:ux → #231 · SDD
+  #233  HU-004 — Listado de contratos           Sprint 4  med    3  @leo    ✓  SDD
+  #234  Bug — Total mal calculado sin pagos     Sprint 3  high   2  @ana    ✓
+  #235  Spike — Proveedor de firma digital      Sprint 4  med    2  @leo    ⚠️ falta Area
+```
+
+Mark issues that require SDD so the user knows the next command is `/opsx:propose`, not code.
 
 ---
 
@@ -127,7 +426,7 @@ relevamiento resuelve. Si no hay respuesta, no se construye."*
 
 So `## Context` on a feature issue **must name the problem from the mapa operativo it resolves**.
 If you cannot name one, do not create the issue — raise it as an out-of-scope request instead, which
-is what *"Solo lo necesario"* requires.
+is what *"Solo lo necesario"* requires. In batch mode, drop that row from the plan and say why.
 
 ---
 
@@ -147,262 +446,58 @@ Examples:
 
 **Do not put the milestone or the area in the title.** Both are board fields. A title like
 `S3 · Backend — HU-001: …` duplicates two fields and rots the moment the issue slips a sprint —
-and `Backend` is exactly the axis the slicing rules above forbid.
-
----
-
-## Issue body template
-
-Use `references/issue-template.md`. The body must read like a **mini design doc** — not a
-bullet dump.
-
-### Structure (Feature / Setup / Improvement)
-
-```markdown
-## Context
-
-<WHY this is needed — business motivation, technical constraint, or product decision.
-Be specific. 2-4 sentences. Include a decision blockquote if a non-obvious choice was made.>
-
-> **Decision YYYY-MM-DD:** <key design/arch decision, if any>
-
-## Scope
-
-### <Subsection — adapt to issue type>
-
-<!--
-Default for any feature → ### Datos | ### API | ### Pantalla    (all three, always)
-Infra                   → ### Arquitectura | ### Pipeline
-Research / spike        → ### Preguntas | ### Salida
-UX (track:ux)           → ### <Rol> — <pantalla> per screen, plus ### Dónde entra en el flujo
-
-Fullstack is the DEFAULT, not a special case. If one of the three subsections
-comes out empty, ask yourself whether the issue is sliced wrong.
--->
-
-<Rich content per subsection: data models in code blocks, architecture flows, endpoint
-signatures, FSM tables, permission matrices. Not bullet lists — structured docs.>
-
-## Technical notes
-
-- <gotcha, constraint, or pattern to follow>
-- <env var, dependency, or infra prerequisite>
-
----
-
-## Definition of Done
-
-<!-- Nivel 1 of the three-level DoD. The canonical version lives in
-     /asome-sprint references/sprint-canon.md §5 — keep this in sync with it.
-     Nivel 2 (per sprint) is verified by `/asome-sprint close`. -->
-
-- [ ] Feature implemented and working locally
-- [ ] Tests written
-- [ ] Linting passes
-- [ ] Type-check passes
-- [ ] PR opened, reviewed, merged to `main`
-- [ ] Issue closed, Stage → Done on board
-
----
-
-|                  |            |
-| ---------------- | ---------- |
-| **Sprint start** | YYYY-MM-DD |
-| **Sprint end**   | YYYY-MM-DD |
-```
-
-### Structure (Research / Spike)
-
-```markdown
-## Context
-
-<What question are we answering and why does it block implementation?>
-
-> **Time-box:** N hours max
-
-## Scope
-
-- [ ] <specific experiment / question>
-- [ ] Document chosen approach in `docs/ARCHITECTURE.md` or as issue comment
-
-## Output
-
-<Where the decision lands: CLAUDE.md, ARCHITECTURE.md, package.json dep added, etc.>
-
----
-
-|                  |            |
-| ---------------- | ---------- |
-| **Sprint start** | YYYY-MM-DD |
-| **Sprint end**   | YYYY-MM-DD |
-```
-
-### Structure (Bug)
-
-```markdown
-## Context
-
-<What broke and what is the impact.>
-
-## Steps to reproduce
-
-1. ...
-
-## Expected / Actual
-
-**Expected:** ...
-**Actual:** ...
-
-## Relevant logs
-```
-
-<paste here>
-```
-
-## Technical notes
-
-- Suspected area: `src/...`
-
----
-
-## Definition of Done
-
-- [ ] Root cause documented as a comment
-- [ ] Fix implemented and verified locally
-- [ ] Regression test added
-- [ ] PR opened, reviewed, merged to `main`
-- [ ] Issue closed, Stage → Done on board
-
----
-
-|                  |            |
-| ---------------- | ---------- |
-| **Sprint start** | YYYY-MM-DD |
-| **Sprint end**   | YYYY-MM-DD |
-
-````
-
-### Quality checklist (before submitting any issue body)
-
-- [ ] **The issue is demonstrable on its own** — closing it means something can be shown
-- [ ] **No sibling issue holds "the other half"** of the same feature (see Slicing rules)
-- [ ] For a feature: `## Context` **names the problem from the mapa operativo** it resolves
-- [ ] `## Context` present and explains WHY (not just what)
-- [ ] `## Scope` has meaningful subsections — no flat bullet dumps
-- [ ] Data models in code blocks when relevant
-- [ ] Architecture flows in plain code blocks when relevant
-- [ ] `## Technical notes` has at least one implementation constraint
-- [ ] `## Definition of Done` checklist present
-- [ ] Dates table at the bottom with sprint start/end
+and `Backend` is exactly the axis the slicing rules forbid.
 
 ---
 
 ## Labels to apply
 
-Apply exactly ONE from each group. All three are required; `effort:*` is optional.
+Every issue carries **exactly one** label from each of the four required groups.
 
-| Group | Options |
-|---|---|
-| track | `track:dev` · `track:ux` (+ `needs:ux` on a dev issue waiting on a design) |
-| area | `area:fullstack` · `area:ux` · `area:infra` · `area:producto` |
-| type | `type:feature` · `type:setup` · `type:research` · `type:bug` · `type:docs` · `type:improvement` |
-| priority | `priority:high` · `priority:med` · `priority:low` |
-| effort (opt) | `effort:S` · `effort:M` · `effort:L` · `effort:XL` |
+| Group | Required | Options |
+|---|---|---|
+| track | yes | `track:dev` · `track:ux` |
+| area | yes | `area:fullstack` · `area:ux` · `area:infra` · `area:producto` |
+| type | yes | `type:feature` · `type:setup` · `type:research` · `type:bug` · `type:docs` · `type:improvement` |
+| priority | yes | `priority:high` · `priority:med` · `priority:low` — matches the board Priority |
+| effort | no | `effort:S` · `effort:M` · `effort:L` · `effort:XL` — from the SP table |
+| needs | when it applies | `needs:ux` (UX twin) · `needs:dep` (`Depende de:` pointer) · `needs:third-party` · `needs:client` |
 
 ---
 
-## Execution steps
+## Quality checklist (per issue, before Step 6)
 
-```bash
-# Resolve project context
-REPO=$(jq -r '.repo' .asome/config.json)
-PROJECT_ID=$(jq -r '.project_id' .asome/config.json)
-# The status field is named `Status` on some boards and `Stage` on others —
-# resolve the key, never hardcode it. Reading the wrong one returns null and
-# the mutation dies with "Could not resolve to a node with the global id of 'null'".
-STAGE_KEY=$(jq -r '.fields | if has("Status") then "Status" else "Stage" end' .asome/config.json)
-F_STAGE=$(jq -r --arg k "$STAGE_KEY" '.fields[$k].id' .asome/config.json)
-F_PRIORITY=$(jq -r '.fields.Priority.id' .asome/config.json)
-F_KIND=$(jq -r '.fields.Kind.id' .asome/config.json)
-F_SP=$(jq -r '."fields"."Story Points".id' .asome/config.json)
-F_AREA=$(jq -r '.fields.Area.id' .asome/config.json)
-F_START=$(jq -r '.fields.Start.id' .asome/config.json)
-F_TARGET=$(jq -r '.fields.Target.id' .asome/config.json)
-F_SPRINT=$(jq -r '.fields.Sprint.id' .asome/config.json)
-
-# Resolve option IDs for chosen values
-STAGE_OPT=$(jq -r --arg k "$STAGE_KEY" \
-  '.fields[$k].options | to_entries[] | select(.key | test("^to ?do$"; "i")) | .value' \
-  .asome/config.json)
-PRIORITY_OPT=$(jq -r '.fields.Priority.options["High"]' .asome/config.json)
-KIND_OPT=$(jq -r '.fields.Kind.options["Feature"]' .asome/config.json)
-AREA_OPT=$(jq -r '.fields.Area.options["Backend"]' .asome/config.json)
-SPRINT_ID=$(jq -r '.fields.Sprint.iterations[] | select(.title | test("Sprint 1")) | .id' .asome/config.json)
-SP=5
-
-# Step 1 — Create the issue
-ISSUE_URL=$(gh issue create \
-  --repo "$REPO" \
-  --title "<milestone>: <title>" \
-  --body "$(cat <<'BODY'
-<body content>
-BODY
-)" \
-  --milestone "<milestone title>" \
-  --label "area:<x>,type:<x>,priority:<x>")
-echo "Issue: $ISSUE_URL"
-
-# Step 2 — Get issue node ID
-ISSUE_NUM=$(echo "$ISSUE_URL" | grep -oE '[0-9]+$')
-ISSUE_NODE=$(gh api repos/$REPO/issues/$ISSUE_NUM --jq .node_id)
-
-# Step 3 — Add to project board
-ITEM_ID=$(gh api graphql -f query="
-mutation {
-  addProjectV2ItemById(input:{projectId:\"$PROJECT_ID\",contentId:\"$ISSUE_NODE\"}){
-    item{id}
-  }
-}" --jq '.data.addProjectV2ItemById.item.id')
-echo "Item: $ITEM_ID"
-
-# Step 4 — Set Stage
-gh api graphql -f query="mutation{updateProjectV2ItemFieldValue(input:{projectId:\"$PROJECT_ID\",itemId:\"$ITEM_ID\",fieldId:\"$F_STAGE\",value:{singleSelectOptionId:\"$STAGE_OPT\"}}){projectV2Item{id}}}"
-
-# Step 5 — Set Priority
-gh api graphql -f query="mutation{updateProjectV2ItemFieldValue(input:{projectId:\"$PROJECT_ID\",itemId:\"$ITEM_ID\",fieldId:\"$F_PRIORITY\",value:{singleSelectOptionId:\"$PRIORITY_OPT\"}}){projectV2Item{id}}}"
-
-# Step 6 — Set Kind
-gh api graphql -f query="mutation{updateProjectV2ItemFieldValue(input:{projectId:\"$PROJECT_ID\",itemId:\"$ITEM_ID\",fieldId:\"$F_KIND\",value:{singleSelectOptionId:\"$KIND_OPT\"}}){projectV2Item{id}}}"
-
-# Step 7 — Set Area
-gh api graphql -f query="mutation{updateProjectV2ItemFieldValue(input:{projectId:\"$PROJECT_ID\",itemId:\"$ITEM_ID\",fieldId:\"$F_AREA\",value:{singleSelectOptionId:\"$AREA_OPT\"}}){projectV2Item{id}}}"
-
-# Step 8 — Set Story Points (NOTE: inline number, NOT a string variable)
-gh api graphql -f query="mutation{updateProjectV2ItemFieldValue(input:{projectId:\"$PROJECT_ID\",itemId:\"$ITEM_ID\",fieldId:\"$F_SP\",value:{number:$SP}}){projectV2Item{id}}}"
-
-# Step 9 — Set Start + Target dates
-gh api graphql -f query="mutation{updateProjectV2ItemFieldValue(input:{projectId:\"$PROJECT_ID\",itemId:\"$ITEM_ID\",fieldId:\"$F_START\",value:{date:\"YYYY-MM-DD\"}}){projectV2Item{id}}}"
-gh api graphql -f query="mutation{updateProjectV2ItemFieldValue(input:{projectId:\"$PROJECT_ID\",itemId:\"$ITEM_ID\",fieldId:\"$F_TARGET\",value:{date:\"YYYY-MM-DD\"}}){projectV2Item{id}}}"
-
-# Step 10 — Set Sprint
-gh api graphql -f query="mutation{updateProjectV2ItemFieldValue(input:{projectId:\"$PROJECT_ID\",itemId:\"$ITEM_ID\",fieldId:\"$F_SPRINT\",value:{iterationId:\"$SPRINT_ID\"}}){projectV2Item{id}}}"
-````
+- [ ] **Demonstrable on its own** — closing it means something can be shown
+- [ ] **No sibling issue holds "the other half"** of the same feature
+- [ ] **Not a duplicate** — Step 2 ran, hits resolved by the user
+- [ ] For a feature: `## Context` **names the problem from the mapa operativo** it resolves
+- [ ] `## Scope` has meaningful subsections — no flat bullet dumps
+- [ ] `## Technical notes` has at least one constraint; SDD line when SP ≥ 3 on feature/improvement/setup
+- [ ] `## Definition of Done` present
+- [ ] Pointers (`Bloqueado por UX:` / `Depende de:`) are the first lines, with real `#N`
+- [ ] Dates table at the bottom = Start/Target on the board
+- [ ] Priority, Sprint and assignee chosen by the user from the recommendation, not defaulted
 
 ---
 
 ## Known gotchas
 
 - **NEVER** use `--assignee ""` in `gh issue create` — fails silently (no issue created, no error shown).
-- **Story Points MUST be inlined** as `value:{number:5}` in the mutation — passing via `-f val=5` sends a string and GraphQL rejects it silently.
+- **Story Points MUST be inlined** as `number:5` in the mutation — passing via `-f val=5` sends a
+  string and GraphQL rejects it silently.
 - `--milestone` expects the exact milestone title string, not the number.
-- **Milestone always. Sprint only if the issue is committed** to the current sprint or the next
-  one. Beyond that: leave Sprint empty and Stage on `Backlog`. Pre-assigning six sprints of work
-  is waterfall wearing a scrum name, and it freezes estimates made before the relevamiento closed.
+- **Milestone, Priority, Sprint, Start and Target — always.** A sprint far out is a placeholder,
+  not a commitment: move it later with `/asome-sprint resequence` instead of leaving it empty.
 - **Resolve the status FIELD name too, not just its options.** The field is `Status` on some
   boards (`asomelab/de-wall`) and `Stage` on others; `.fields.Stage.id` on a `Status` board
   returns `null` and the mutation dies with `Could not resolve to a node with the global id of
-  'null'`. Resolve with `if has("Status") then "Status" else "Stage" end`.
-- **Resolve Stage/Area option ids by regex, not by literal key.** Boards disagree on spelling
-  (`To Do` vs `Todo`); a literal `.options["To Do"]` returns `null` and the mutation then fails
-  silently. See `/asome-sprint` "Resolve project context".
-- If `.asome/config.json` is missing, run `/asome-setup` first — all field IDs and option IDs come from there.
+  'null'`.
+- **Every option id by regex (`opt`), never by literal key** — Stage, Priority, Kind and Area alike.
+- **A non-zero exit is not the only failure mode.** Always run the read-back (7.4); a field can
+  come back empty with exit 0.
+- **Don't use GitHub sub-issues for `needs:ux` / `needs:dep`.** The single parent slot belongs to
+  the EPIC hierarchy; reparenting drops the issue out of its EPIC. Use the body pointers.
+- **Pointer strings are machine-read** (`Bloqueado por UX:`, `Depende de:`) — never reword them.
+- `gh project item-list` caps at `--limit`; on boards above 1000 items the load under-counts —
+  raise the limit.
+- If `.asome/config.json` is missing, run `/asome-setup` first — all field and option ids come from there.
