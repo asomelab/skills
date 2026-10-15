@@ -52,7 +52,8 @@ del sprint 1 y el slice de Auth se entregó end-to-end adentro del sprint 1.
 
 ```
 S0 · KICK-OFF ─────────────────────────────────────── no es un sprint ────
-     contrato firmado · NDA · deck + acta (/asome-kickoff)
+     contrato firmado · NDA · plan de sprints (/asome-sprint bootstrap)
+     deck + acta (/asome-kickoff) — el deck lee ese plan
    ► cuenta cloud y repositorio A NOMBRE DEL CLIENTE
      accesos nominados por persona en el gestor de contraseñas
      trámites de terceros iniciados (tienen SLA propio y bloquean sprints)

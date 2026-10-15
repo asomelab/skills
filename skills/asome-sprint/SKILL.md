@@ -149,8 +149,9 @@ jq -r '.fields.Sprint.iterations[] | "\(.title): \(.id) (\(.start) – \(.end))"
 
 **Trigger:** "armar los sprints", "bootstrap sprints", "plan de sprints", "arrancar el proyecto"
 
-Lays out a new project's whole sprint structure from the canon. Run once, right after
-`/asome-setup` and the kick-off. **Read `references/sprint-canon.md` first** — this sub-command
+Lays out a new project's whole sprint structure from the canon. Run once, after `/asome-setup`
+and **before the kick-off deck**: `/asome-kickoff` reads the `11-plan-de-sprints.md` written here
+for its roadmap and demo dates. **Read `references/sprint-canon.md` first** — this sub-command
 executes that document.
 
 ### Step 1 — gather the shape (batched, one round of questions)

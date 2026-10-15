@@ -530,7 +530,7 @@ Si falta, la skill te avisa y te manda a `/asome-setup`.
 
 | Subcomando | Qué hace | Cuándo |
 |---|---|---|
-| `bootstrap` | Arma todos los sprints, hitos y documentos del plan | Una vez por proyecto, después de `/asome-setup` |
+| `bootstrap` | Arma todos los sprints, hitos y documentos del plan | Una vez por proyecto, después de `/asome-setup` y antes del deck del kick-off |
 | `plan` | Asigna issues a un sprint (quedan en To Do) | Al planificar cada sprint |
 | `move` | Cambia un issue de etapa | Cuando cambia su estado |
 | `report` | Muestra la velocidad por carril y los bloqueos | A mitad o al final del sprint |
