@@ -69,6 +69,13 @@
         "asome-kickoff",
         "asome-sprint-demo"
       ]
+    },
+    {
+      "title": "Content",
+      "description": "Skills for ASOME marketing content: turning raw footage into branded Instagram reels on the ASOME design system, with captions, motion graphics tied to the speech, sound design and covers, ready to upload. Built for people who are not technical.",
+      "skills": [
+        "asome-video"
+      ]
     }
   ]
 }

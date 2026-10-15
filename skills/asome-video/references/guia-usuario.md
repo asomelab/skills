@@ -1,0 +1,124 @@
+# Cómo editar un reel de ASOME con Claude
+
+Guía para quien graba el video. No hace falta saber programar: vos grabás y decidís,
+Claude instala, edita, te muestra el resultado y exporta.
+
+## Qué vas a lograr
+
+Un reel vertical con la marca de ASOME, listo para Instagram:
+
+- Las mejores tomas de tu video, sin errores ni silencios.
+- Subtítulos con la tipografía y los colores de la marca, sincronizados con tu voz.
+- Dos a cuatro momentos de gráficos animados (motion graphics) que explican lo que decís.
+- Música de fondo suave y efectos de sonido discretos.
+- Un cierre con el logo, una frase y tu llamada a la acción.
+- La portada del reel hecha con una imagen real de tu video.
+
+Recibís el archivo para subir a Instagram, una copia en 4K para guardar y las portadas.
+
+## Qué necesitás
+
+- Una Mac (mejor con procesador Apple, M1 o posterior). En Windows también se puede, con
+  algunos pasos extra.
+- Claude Code: en la app de Claude (pestaña Code) o en la Terminal.
+- Tu video grabado en vertical.
+- Acceso al Drive de ASOME, porque ahí está Maax, la tipografía de la marca
+  (carpeta brand > Tipografia > Maax).
+- Internet y unos 3 GB libres en la compu.
+- Tiempo: la primera vez, entre 15 y 30 minutos de instalación (la hace Claude).
+  Las siguientes veces se va directo a editar.
+
+## Cómo grabar para que quede bien
+
+- **Vertical**, con la cámara a la altura de los ojos.
+- **Dejá aire arriba de la cabeza**: ahí aparecen las tarjetas y los gráficos.
+- **Luz de frente** (una ventana delante tuyo) y un fondo ordenado.
+- **Micrófono corbatero** si tenés, y sin ruido de fondo.
+- **Si te equivocás, frená dos segundos y repetí la frase entera.** Claude encuentra las
+  tomas buenas y descarta las otras; no hace falta cortar la grabación.
+- Frases cortas y una llamada a la acción clara al final, por ejemplo
+  "escribinos por WhatsApp".
+- Quedate un par de segundos quieto mirando a cámara, al principio o al final:
+  de ahí sale la portada.
+
+## Cómo es el proceso
+
+1. **Te explico** todo esto.
+2. **Reviso tu compu e instalo lo que falte.** Por ejemplo Node.js (el programa que hace
+   funcionar el editor) y la tipografía. Te aviso cada cosa antes de hacerla. Si algún paso
+   pide la contraseña de tu Mac, te digo exactamente qué hacer: la escribís vos, Claude
+   nunca la ve.
+3. **Creo la carpeta del proyecto** en Documentos > asome-videos.
+4. **Me pasás el video**: arrastralo al chat o decime dónde está. Lo transcribo para saber
+   qué decís y en qué segundo. La primera vez tarda unos minutos porque se descarga el
+   modelo de transcripción.
+5. **Te propongo un plan de edición**: qué partes quedan y cuáles se cortan, el texto de
+   los subtítulos corregido, los momentos con gráficos, el cierre y la portada.
+   Vos decís "dale" o pedís cambios. **Nada se arma sin tu OK.**
+6. **Armo el video y te lo muestro** en Remotion Studio.
+7. **Pedís cambios con tus palabras** y los aplico. Repetimos hasta que te guste.
+8. **Exporto** los archivos finales y te los dejo en la carpeta Descargas.
+
+## Remotion Studio en un minuto
+
+Es la ventana donde ves el video mientras lo editamos.
+
+- Funciona como un reproductor: botón Play (o la barra espaciadora) y una línea de tiempo
+  abajo para ir a cualquier momento.
+- No hace falta tocar nada. Si arrastrás algo dentro del video, cambia de lugar en el
+  proyecto: contale a Claude si fue a propósito.
+- En la app de Claude se abre en el panel del navegador. En la Terminal, en tu navegador,
+  en una dirección del tipo `http://localhost:3000`.
+
+## Cómo pedir cambios
+
+Decilo como se lo dirías a una persona. Por ejemplo:
+
+- "En el subtítulo dice 'hallamos' y es 'ayudamos'."
+- "Sacá la parte donde digo 'eh, perdón'."
+- "Que la tarjeta de WhatsApp aparezca un segundo antes."
+- "Bajá la música" o "sin música".
+- "El cierre que diga: 'Ordená tu operación antes de crecer'."
+- "Usá otra imagen para la portada, una donde sonría."
+- "Hacé una versión más corta, de 30 segundos."
+
+## Qué archivos recibís
+
+Quedan en Descargas, en una carpeta con la fecha y el tema del video. El nombre sigue la
+regla de marca: fecha, formato, tema y versión.
+
+| Archivo | Para qué sirve |
+|---|---|
+| `…_reel_…_v01.mp4` | El que subís a Instagram (1080 × 1920) |
+| `…_reel-4k_…_v01.mp4` | La copia en 4K para guardar |
+| `…_portada-reel_…_v01.jpg` | La portada, que se sube junto con el reel |
+| `…_portada-feed_…_v01.jpg` | Te muestra cómo queda la portada en la grilla del perfil |
+
+## Cómo subirlo a Instagram
+
+- **Desde el celular:** pasate el video y la portada (AirDrop o Drive). En Instagram:
+  nuevo Reel, elegís el video, "Editar portada" y "Agregar de la galería" con la portada.
+- **Desde la compu:** en instagram.com o Meta Business Suite, creás el reel, subís el video
+  y en la portada subís la imagen.
+- Mirá la versión "feed" de la portada: así se va a ver recortada en tu perfil.
+
+## Si algo sale mal
+
+- **"No encuentro la tipografía Maax":** entrá al Drive de ASOME, descargá la carpeta
+  brand > Tipografia > Maax a tu carpeta Descargas y avisale a Claude.
+- **"Aparece una ventana que pide contraseña":** es la de tu Mac. La escribís vos.
+- **"La transcripción no funciona":** pasa en algunas compus sin una placa de video
+  compatible. Claude te propone otra forma de sacar los subtítulos.
+- **Cualquier otro error:** copiá el mensaje y pegáselo a Claude, o consultá al equipo
+  de ASOME.
+
+## Palabras que vas a escuchar
+
+- **Terminal:** la ventana donde se escriben comandos. La usa Claude, no vos.
+- **Node.js:** el programa que hace funcionar el editor de video.
+- **Remotion:** el editor de video que usamos: arma el video con código.
+- **Studio:** la vista previa de Remotion, donde mirás el video.
+- **Exportar (render):** convertir el proyecto en el archivo de video final.
+- **Toma:** cada vez que dijiste una frase; si la repetiste, hay varias tomas.
+- **Motion graphics:** textos, tarjetas y gráficos animados.
+- **Máster 4K:** la copia en máxima calidad, para archivo.

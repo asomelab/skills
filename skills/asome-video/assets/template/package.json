@@ -1,0 +1,42 @@
+{
+  "name": "asome-video",
+  "version": "1.0.0",
+  "description": "ASOME branded reel, edited with Remotion (template from the asome-video skill)",
+  "private": true,
+  "license": "UNLICENSED",
+  "scripts": {
+    "dev": "remotion studio",
+    "audio": "node scripts/make-audio.mjs",
+    "transcribe": "tsx scripts/transcribe.mts",
+    "frames": "bash scripts/frames.sh",
+    "render": "bash scripts/render.sh",
+    "lint": "eslint src && tsc"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "4.2.0",
+    "@mediabunny/server": "1.61.3",
+    "@remotion/captions": "4.0.535",
+    "@remotion/cli": "4.0.535",
+    "@remotion/effects": "4.0.535",
+    "@remotion/fonts": "4.0.535",
+    "@remotion/google-fonts": "4.0.535",
+    "@remotion/media": "4.0.535",
+    "@remotion/paths": "4.0.535",
+    "@remotion/transitions": "4.0.535",
+    "@remotion/whisper-webgpu": "4.0.535",
+    "@tabler/icons-react": "3.49.0",
+    "mediabunny": "1.61.3",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "remotion": "4.0.535"
+  },
+  "devDependencies": {
+    "@remotion/eslint-config-flat": "4.0.535",
+    "@types/react": "19.2.7",
+    "@types/web": "0.0.166",
+    "eslint": "9.39.5",
+    "prettier": "3.8.1",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  }
+}
