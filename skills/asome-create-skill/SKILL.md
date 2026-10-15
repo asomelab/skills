@@ -1,8 +1,8 @@
 ---
 name: asome-create-skill
 description: >
-  Create a new ASOME skill following repo conventions — generates SKILL.md, metadata.json,
-  and registers it in skills.sh.json.
+  Create a new ASOME skill following repo conventions — generates SKILL.md and metadata.json,
+  adds its row to README.md (the registry) and its name to skills.sh.json.
   Trigger: "create skill", "nueva skill", "add skill", "agregar skill", "new asome skill",
   or when the user describes a reusable workflow to encode as a skill.
 license: Apache-2.0
@@ -13,8 +13,8 @@ metadata:
 
 # ASOME — Create Skill
 
-Creates a fully structured ASOME skill with `SKILL.md`, `metadata.json`, and entry in
-`skills.sh.json`. Must be run from the root of the **asome-skills** repo.
+Creates a fully structured ASOME skill with `SKILL.md`, `metadata.json`, a row in `README.md`
+and an entry in `skills.sh.json`. Must be run from the root of the **asome-skills** repo.
 
 **Executes directly — no preview step.**
 
@@ -29,7 +29,8 @@ asome-skills/
 │   ├── metadata.json     # Required — version, org, abstract, references
 │   ├── references/       # Optional — local doc pointers
 │   └── assets/           # Optional — templates, schemas, examples
-├── skills.sh.json        # Registry — add skill name here
+├── README.md             # Registry — one row per skill (AGENTS.md says so)
+├── skills.sh.json        # Distribution groups — add skill name here
 └── CLAUDE.md
 ```
 
@@ -130,7 +131,18 @@ Fill in: name, description, trigger phrases, intro, sections, gotchas.
 Write `skills/$SKILL_NAME/metadata.json` using the template above.
 Fill in: abstract matching the skill's actual behavior.
 
-### Step 4 — register in skills.sh.json
+### Step 4 — add the row to README.md
+
+`README.md` is the registry. Add one row to its **Skills** table, next to the skills of the same
+group:
+
+```markdown
+| `asome-<name>` | `trigger 1`, `trigger 2` | What it does, in one line |
+```
+
+If the skill adds a step to a daily flow, add its line to **Dev flow** too.
+
+### Step 5 — register in skills.sh.json
 
 Open `skills.sh.json` and add the skill name to the correct group's `"skills"` array:
 
@@ -146,12 +158,13 @@ Open `skills.sh.json` and add the skill name to the correct group's `"skills"` a
 
 If no group fits, propose a new one to the user and add it.
 
-### Step 5 — confirm
+### Step 6 — confirm
 
 Print:
 ```
 ✓ skills/<name>/SKILL.md
 ✓ skills/<name>/metadata.json
+✓ README.md — row added to Skills
 ✓ skills.sh.json — added to "<Group>" group
 ```
 
@@ -163,6 +176,7 @@ Print:
 - [ ] `description` block includes trigger keywords (for autocomplete)
 - [ ] `SKILL.md` has a prerequisite note if it reads `.asome/config.json`
 - [ ] `metadata.json` abstract is 2-3 sentences
+- [ ] Row in `README.md`'s Skills table — the registry
 - [ ] Registered in `skills.sh.json` under the right group
 - [ ] No web URLs in `references/` — local paths only
 
@@ -170,7 +184,8 @@ Print:
 
 ## Known gotchas
 
-- `skills.sh.json` is the source of truth for autocomplete — skip it and the skill won't appear.
+- `README.md` is the registry; `skills.sh.json` drives distribution and autocomplete — skip it and
+  the skill won't appear. Update both: two lists that disagree are worse than one (`AGENTS.md`).
 - ASOME skills are **project-agnostic**: never hardcode repo names or IDs. Always read from `.asome/config.json`.
 - If the skill needs `.asome/config.json`, add the prerequisite note — user must run `/asome-setup` first.
 - Author is always `"asome"`, not `"gentleman-programming"` (that's the generic skill-creator default).

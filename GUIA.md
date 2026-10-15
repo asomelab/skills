@@ -248,7 +248,7 @@ Si falta, la skill te avisa y te manda a `/asome-setup`.
 
 ### `/asome-create-skill`
 
-**Para qué sirve.** Crea una skill nueva para este repositorio: genera el `SKILL.md` (las instrucciones, con sus frases gatillo), el `metadata.json` y la anota en `skills.sh.json`, en el grupo que corresponde.
+**Para qué sirve.** Crea una skill nueva para este repositorio: genera el `SKILL.md` (las instrucciones, con sus frases gatillo) y el `metadata.json`, le suma su fila a la tabla del README (el registro de skills) y la anota en `skills.sh.json`, en el grupo que corresponde.
 
 **Cuándo usarla.** Cuando un flujo de trabajo se repite y querés dejarlo escrito para todo el equipo. La usa quien mantiene el repo de skills.
 
@@ -258,12 +258,12 @@ Si falta, la skill te avisa y te manda a `/asome-setup`.
 
 **Qué necesitás antes.** Abrir Claude Code en la raíz del repo de skills. Tené a mano el nombre (`asome-<verbo>` o `asome-<sustantivo>`), una descripción de una línea con las frases gatillo, el grupo y un resumen de dos o tres oraciones. Lo que falte, lo infiere del contexto o te lo pregunta.
 
-**Qué te devuelve / qué cambia.** Archivos nuevos `skills/<nombre>/SKILL.md` y `metadata.json`, y una línea en `skills.sh.json`. Al final imprime lo que creó. Ejecuta directo, sin vista previa.
+**Qué te devuelve / qué cambia.** Archivos nuevos `skills/<nombre>/SKILL.md` y `metadata.json`, una fila en la tabla del README y una línea en `skills.sh.json`. Al final imprime lo que creó. Ejecuta directo, sin vista previa.
 
 **Cuidado con.**
 - Si no queda registrada en `skills.sh.json`, la skill no aparece en el autocompletado.
 - Las skills no llevan nombres de repos ni IDs fijos: esos datos salen de `.asome/config.json` de cada proyecto.
-- Según el `AGENTS.md` del repo, el README es el registro de skills y hay que mantenerlo al día. Esta skill no lo toca, así que sumá la fila a mano.
+- Esta guía no se actualiza sola: si la skill es para todo el equipo, sumale su sección acá.
 
 ---
 
