@@ -3,6 +3,11 @@
 Agent skills for the ASOME dev workflow.  
 Compatible with [Claude Code](https://claude.ai/code) and other agents via [skills.sh](https://www.skills.sh).
 
+## Guía de uso
+
+¿Primera vez con estas skills? [`GUIA.md`](GUIA.md) explica en español cómo instalarlas y cómo
+usar cada una, con ejemplos, para personas técnicas y no técnicas.
+
 ## Install
 
 ```bash
