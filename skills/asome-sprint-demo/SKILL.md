@@ -151,7 +151,8 @@ In this order, in the chat:
    - if the sprint closes a hito and `warnings` reports no promotion to main, the hito DoD
      (Nivel 3) asks for production: `/asome-deploy main`, or say in the meeting what is missing;
    - realistic data loaded, the video recorded, the ficha with no `⟨PENDIENTE⟩`;
-   - the event exists (`/asome-meeting` → `ASOME <> {Cliente} | Sprint Review`);
+   - the event exists (`/asome-meeting`, from a session outside the repo →
+     `ASOME <> {Cliente} | Sprint Review`);
    - who presents each block: each person presents what they built.
 5. **Notas internas — no van al deck**: SP hechos vs comprometidos, rollover that still needs its
    written justification (DoD Nivel 2), the next sprint against real velocity, `needs:client`

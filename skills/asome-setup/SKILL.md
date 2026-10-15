@@ -508,6 +508,12 @@ ad spend. §8.12 forbids an agent sending external communications, and §8.9 kee
 servers out of autonomous sessions. Put the rules in the **repository** settings, not the global
 one, so the developer's commercial work outside the repo keeps working.
 
+That has one visible consequence, and it is intended: inside the repo, `/asome-meeting` and
+`/asome-kickoff agenda` cannot reach the Calendar or Gmail — reads included, because a
+server-level `deny` covers every tool of that server. They run from a session opened outside the
+repo; Claude Code loads project settings only from the folder a session starts in. Never add an
+`allow` to make them work here: a `deny` at any settings level wins over every `allow`.
+
 Watch for the sharp case: a server that reaches the client's **production data** — an
 integration the product itself uses — must be denied. §8.6 admits no exception.
 

@@ -37,7 +37,7 @@ Las skills viven en un repositorio de GitHub y se instalan con un solo comando. 
 | Git y GitHub CLI (`gh`) | Trabajar con repositorios, issues, PRs y el tablero | Las skills que hablan con GitHub (ver más abajo) |
 | `jq` y `python3` | Leer `.asome/config.json` y armar resúmenes | `asome-create-issue`, `asome-sprint`, `asome-standup`, `asome-sprint-demo` y otras |
 | Terraform y AWS CLI | Infraestructura en la nube | `asome-infra-setup` y `asome-infra-plan` (las dos); `asome-infra-costs` (solo AWS) |
-| Conector de Google Calendar (y Gmail) | Agendar reuniones y encontrar mails de invitados | `asome-meeting`, `asome-kickoff agenda` |
+| Conector de Google Calendar (y Gmail) | Agendar reuniones y encontrar mails de invitados | `asome-meeting`, `asome-kickoff agenda` (las dos, desde una sesión abierta fuera del repo del proyecto) |
 | Claude Design | Armar presentaciones a partir del texto que te dan las skills | `asome-kickoff`, `asome-sprint-demo` |
 
 Un **conector** (también se lo llama MCP) es una conexión de Claude con otra herramienta, como Google Calendar o Gmail.
@@ -628,7 +628,7 @@ Si falta, la skill te avisa y te manda a `/asome-setup`.
 - Ejecuta directo, sin vista previa: revisá fecha, hora e invitados antes de mandar el pedido.
 - Nunca adivina un mail externo: lo busca en el historial y, si no lo encuentra, te lo pide. Las cuentas `@asomelab.com` de ex integrantes del equipo ya no existen y rebotan: usá un mail personal.
 - Los títulos siguen un formato: `ASOME <> Acme | Sprint Review` para clientes, `ASOME | Sprint Planning` para reuniones internas.
-- En un proyecto preparado con `/asome-setup`, el repo puede bloquear los conectores que escriben, como el calendario. Si pasa, agendá desde una sesión abierta fuera de ese repo.
+- Adentro de un repo preparado con `/asome-setup` no funciona: el repo bloquea a propósito el calendario y Gmail, también para leer, y ningún permiso lo destraba. Abrí la sesión fuera del repo (por ejemplo, en tu carpeta personal) y agendá desde ahí.
 
 ### `/asome-kickoff`
 
@@ -643,7 +643,7 @@ Si falta, la skill te avisa y te manda a `/asome-setup`.
 - `/asome-kickoff full`: las tres cosas, en ese orden.
 - "armar el kickoff", "deck de kickoff", "acta de kickoff", "reunión de inicio".
 
-**Qué necesitás antes.** Nada obligatorio. Si existen, lee el contrato firmado y `docs/product/` para completar casi todo, y después te pregunta en un solo mensaje lo que falta: cliente y nombre del proyecto, fecha, asistentes y quién decide, qué queda fuera del alcance, canales, accesos, riesgos y contactos (técnico, comercial y de facturación). Para el roadmap necesita el plan de sprints (`docs/product/11-plan-de-sprints.md`); si falta, corré antes `/asome-sprint bootstrap`. El modo `agenda` pide `.asome/config.json`. La skill no dibuja las diapositivas: eso lo hace Claude Design con el texto que te da.
+**Qué necesitás antes.** Nada obligatorio. Si existen, lee el contrato firmado y `docs/product/` para completar casi todo, y después te pregunta en un solo mensaje lo que falta: cliente y nombre del proyecto, fecha, asistentes y quién decide, qué queda fuera del alcance, canales, accesos, riesgos y contactos (técnico, comercial y de facturación). Para el roadmap necesita el plan de sprints (`docs/product/11-plan-de-sprints.md`); si falta, corré antes `/asome-sprint bootstrap`. El modo `agenda` lee `.asome/config.json` y crea los eventos con `/asome-meeting`, así que se corre desde una sesión abierta fuera del repo, diciéndole dónde está el repo. La skill no dibuja las diapositivas: eso lo hace Claude Design con el texto que te da.
 
 **Qué te devuelve / qué cambia.** Un único bloque de código listo para copiar y pegar en Claude Design, y aparte la lista de datos `⟨PENDIENTE⟩` con quién tiene que responder cada uno. En `acta`, el texto del mail para enviar el mismo día (lo enviás vos). En `agenda`, los eventos creados.
 
@@ -722,7 +722,7 @@ Orden sugerido: cada paso usa lo que dejó el anterior.
 1. `/asome-setup`: config del tablero, etiquetas y los requisitos del manual (en un PR).
 2. `/asome-discovery nuevo <producto>`: documentos de producto y HU de la fase 1. Respondé las preguntas abiertas.
 3. `/asome-sprint bootstrap`: sprints, hitos y plan de sprints (el kick-off lo necesita).
-4. `/asome-kickoff full`: texto de la presentación, acta y eventos del calendario.
+4. `/asome-kickoff`: texto de la presentación y, después de la reunión, `acta`. Los eventos del calendario, con `/asome-kickoff agenda` desde una sesión abierta fuera del repo.
 5. Si el proyecto necesita nube: `/asome-infra-setup <arquitectura>`, después `/asome-infra-audit` y `/asome-infra-plan`.
 6. `/asome-create-issue` con las HU aprobadas, en lote.
 7. Cada persona que se suma: `/asome-setup doctor` antes de su primer PR y `/asome-onboard`.
@@ -782,6 +782,7 @@ Los bugs con causa conocida no llevan SDD. Si la causa no está clara, primero i
 
 - **Arranque del proyecto:** `/asome-kickoff full`.
 - **Una reunión puntual:** `/asome-meeting`.
+- Todo lo que crea eventos (`/asome-meeting`, `/asome-kickoff agenda`) se corre desde una sesión abierta fuera del repo del proyecto: adentro, el calendario está bloqueado a propósito.
 - **Cada demo de sprint:** `/asome-sprint-demo`, y `/asome-meeting` para el evento.
 - **A los 90 días:** `/asome-sprint-demo +90d`, la medición comparativa, antes y después.
 - **Después de cada reunión:** un acta o un mail de resumen el mismo día. Sin eso, lo hablado no queda escrito.
