@@ -76,12 +76,15 @@ echo "Account: $ACCOUNT | Region: $REGION | Repo: $REPO"
 
 ### Step 1 — monthly cost by service (last 3 months)
 
+Three monthly buckets: the two previous full months plus this month to date.
+
 ```bash
-LAST_MONTH=$(date -v-1m +%Y-%m-01 2>/dev/null || date -d "1 month ago" +%Y-%m-01)
+# Anchor on day 1 before subtracting: GNU date overflows "-2 months" from the 29th-31st.
+START=$(date -v1d -v-2m +%Y-%m-%d 2>/dev/null || date -d "$(date +%Y-%m-01) -2 months" +%Y-%m-%d)
 TODAY=$(date +%Y-%m-%d)
 
 aws ce get-cost-and-usage \
-  --time-period Start="$LAST_MONTH",End="$TODAY" \
+  --time-period Start="$START",End="$TODAY" \
   --granularity MONTHLY \
   --metrics UnblendedCost \
   --group-by Type=DIMENSION,Key=SERVICE \
@@ -204,7 +207,7 @@ Buckets without lifecycle rules = objects accumulate at S3 Standard pricing inde
 ## Known gotchas
 
 - `aws ce get-cost-and-usage` requires Cost Explorer enabled (AWS console → Billing → Cost Explorer → Enable). Takes up to 24h for first data.
-- `date -v-1m` is macOS syntax; Linux uses `date -d "1 month ago"`. The commands above include both.
+- `date -v1d -v-2m` is macOS syntax; Linux uses `date -d "<YYYY-MM-01> -2 months"`. The commands above include both.
 - Always respect `AWS_PROFILE` and `AWS_DEFAULT_REGION` env vars if set — they override `aws configure` defaults.
 - Never print `AWS_SECRET_ACCESS_KEY` or the output of `aws sts get-caller-identity --query 'Credentials'`.
 - Cost data lags ~8 hours; same-day changes won't appear immediately.

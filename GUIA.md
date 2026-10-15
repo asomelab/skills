@@ -478,7 +478,7 @@ Si falta, la skill te avisa y te manda a `/asome-setup`.
 
 ### `/asome-infra-costs`
 
-**Para qué sirve.** Revisa cuánto se gasta en AWS y por qué: gasto por servicio, instancias paradas o sobredimensionadas, discos sin usar, copias viejas, IP sin usar, NAT Gateways, bases de datos y buckets sin reglas de ciclo de vida. Termina con una lista priorizada de recomendaciones con ahorro estimado.
+**Para qué sirve.** Revisa cuánto se gasta en AWS y por qué: gasto por servicio mes a mes (los dos meses anteriores y lo que va del actual), instancias paradas o sobredimensionadas, discos sin usar, copias viejas, IP sin usar, NAT Gateways, bases de datos y buckets sin reglas de ciclo de vida. Termina con una lista priorizada de recomendaciones con ahorro estimado.
 
 **Cuándo usarla.** Para revisar el gasto en la nube o para reducirlo.
 
