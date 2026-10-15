@@ -670,7 +670,7 @@ Si falta, la skill te avisa y te manda a `/asome-setup`.
 
 **Cuidado con.**
 - Los números de actividad (puntos, horas, cantidad de tareas) no van nunca en una diapositiva: se quedan en las notas internas.
-- La fecha límite de validación se cuenta en días hábiles: revisá los feriados antes de que llegue al mail.
+- La fecha límite de validación se cuenta en días hábiles. La skill saltea sábados y domingos, pero no conoce los feriados: te pregunta cuáles caen en la ventana (nacionales y del cliente), y cada uno corre la fecha un día hábil.
 - Al cliente nunca se le habla de "Sprint 0": el primero es "Sprint 1 · Fundaciones".
 - Lo que se entrega es el avance validado, no las slides: antes de la demo, staging tiene que tener todo (`/asome-deploy staging`).
 - El repo de skills es público: no pegues datos de clientes en la skill, esos datos viven en cada proyecto.

@@ -82,7 +82,7 @@ def iso(d):
 
 
 def add_business_days(start, n):
-    """Weekends only. Holidays are NOT discounted — the SKILL tells the agent to check."""
+    """Skips Saturdays and Sundays only. Holidays are NOT discounted — a person confirms them (SKILL Step B)."""
     d, left = start, n
     while left > 0:
         d += timedelta(days=1)
