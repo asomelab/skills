@@ -20,7 +20,7 @@ metadata:
 Discovers project constants for the current ASOME project and writes `.asome/config.json`.
 Run once per project. Re-run when the GitHub Project changes (fields added, sprints added, etc.).
 
-**Executes directly. Safe to re-run — overwrites config.**
+**Executes directly. Safe to re-run — refreshes the board keys and keeps `team` and `capacity`.**
 
 ---
 
@@ -61,6 +61,9 @@ Run once per project. Re-run when the GitHub Project changes (fields added, spri
   "repo": "<org>/<repo>",
   "project_num": 6,
   "project_id": "PVT_...",
+  "team": [
+    { "name": "Ana Gómez", "github": "agomez", "role": "Product Designer" }
+  ],
   "fields": {
     "Status": {
       "id": "PVTSSF_...",
@@ -190,9 +193,13 @@ echo "Deploy branches: dev=$DEV_BRANCH staging=$STG_BRANCH prod=$PROD_BRANCH"
 
 ### Step 6 — write config
 
+Setup owns the five keys below and refreshes them on every run. Every other key survives a
+re-run — `team` (next) and `capacity`, which `/asome-sprint` writes and recalibrates at each
+`close`. Merge, never overwrite:
+
 ```bash
 mkdir -p .asome
-cat > .asome/config.json << 'EOF'
+cat > /tmp/asome-setup.$$.json << 'EOF'
 {
   "repo": "<REPO>",
   "project_num": <PROJECT_NUM>,
@@ -207,11 +214,47 @@ cat > .asome/config.json << 'EOF'
   }
 }
 EOF
-echo "Written: .asome/config.json"
+[ -f .asome/config.json ] || echo '{}' > .asome/config.json
+jq -s '.[0] + .[1]' .asome/config.json /tmp/asome-setup.$$.json > /tmp/asome-cfg.$$.json \
+  && mv /tmp/asome-cfg.$$.json .asome/config.json && rm -f /tmp/asome-setup.$$.json \
+  && echo "Written: .asome/config.json"
 ```
 
 The `deploy` block is optional but enables `/asome-deploy` to skip auto-detection on every run.
 Update manually if you rename environment branches.
+
+**The `team` block.** Who works on the project. Nothing on GitHub says it, and four skills need
+it: `/asome-sprint` (lane dedication → the capacity ceiling), `/asome-create-issue` (assignee
+candidates), `/asome-sprint-demo` (the ASOME team on the cover) and `/asome-infra-setup` (one AWS
+access profile per person).
+
+Write it when it is missing or when the user says someone joined or left; on any other re-run,
+print it and leave it alone. Propose candidates, then ask once, in one message, for each
+person's name, GitHub login and role:
+
+```bash
+gh project item-list "$PROJECT_NUM" --owner "$ORG" --format json --limit 500 \
+  | jq -r '[.items[].assignees[]?] | unique | .[]'
+gh api "repos/$REPO/assignees" --jq '.[].login'
+```
+
+| Key | Rule |
+|---|---|
+| `name` | as it goes on a slide in front of the client |
+| `github` | the exact login — `/asome-create-issue` matches it against the board's assignees |
+| `role` | the role by result (`Software Developer`, `Product Designer`); `/asome-infra-setup` picks the AWS profile from it |
+| `dedication_by_sprint` | **not written here.** `/asome-sprint` adds it per person when a sprint is planned: `{"Sprint 1": {"dev": 0.75}}` |
+
+```bash
+jq --argjson team '[{"name":"Ana Gómez","github":"agomez","role":"Product Designer"}]' \
+  '.team = $team' .asome/config.json > /tmp/asome-cfg.$$.json \
+  && mv /tmp/asome-cfg.$$.json .asome/config.json
+```
+
+`team` is an array of people. A config edited by hand before this schema may carry another shape
+— `{"members": [...], "lanes_active": [...]}` exists on real boards, and readers that iterate
+`.team[]` break on it. Convert it to the array, keep the names and any per-sprint dedication, and
+show the diff before writing.
 
 ### Step 7 — bootstrap repo labels
 
@@ -643,6 +686,7 @@ Re-run `/asome-setup board` whenever:
 - A new field option is added (e.g., new Kind or Area)
 - The GitHub Project number changes
 - A new team member clones the repo and needs the config locally
+- Someone joins or leaves the project — say so, and Step 6 rewrites `team`
 
 Run `/asome-setup doctor` whenever:
 - Somebody joins the project, before their first PR (§15.5)

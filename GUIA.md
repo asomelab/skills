@@ -106,7 +106,7 @@ Casi todas las skills leen archivos de la carpeta donde estás parado: `.asome/c
 
 ### Qué skills necesitan `.asome/config.json`
 
-Es el archivo con los datos del tablero del proyecto (número del GitHub Project, campos, sprints, ramas de despliegue). Lo crea `/asome-setup`, que se corre **una vez por proyecto**. El archivo queda guardado en git, así que lo comparte todo el equipo.
+Es el archivo con los datos del tablero del proyecto (número del GitHub Project, campos, sprints, ramas de despliegue) y del equipo (nombre, usuario de GitHub y rol de cada persona). Lo crea `/asome-setup`, que se corre **una vez por proyecto**. El archivo queda guardado en git, así que lo comparte todo el equipo.
 
 - **Lo necesitan:** `asome-create-issue`, `asome-branch-pr`, `asome-deploy`, `asome-standup`, `asome-sprint`, `asome-sprint-demo` y `asome-infra-setup`.
 - **Lo aprovechan si está:** `asome-onboard` (con el archivo muestra el tablero completo), `asome-review` y `asome-infra-costs` (para saber de qué repo se trata) y `asome-kickoff` (solo en el modo `agenda`).
@@ -219,13 +219,13 @@ Si falta, la skill te avisa y te manda a `/asome-setup`.
 
 **Qué necesitás antes.** Estar en la carpeta del repo, con `gh` autenticado y con acceso a los GitHub Projects de la organización. Si hay varios tableros, te pregunta cuál usar. Para la parte del manual hace falta Node.js; si falta OpenSpec, lo instala en tu compu. Como también agrega paquetes al proyecto, conviene que lo corra alguien del equipo de desarrollo.
 
-**Qué te devuelve / qué cambia.** Crea `.asome/config.json` (queda en git y no tiene secretos) y las etiquetas del repo en GitHub. En el modo completo suma `openspec/`, `AGENTS.md`, reglas en `.claude/settings.json`, escaneo de secretos y los registros en `docs/`. Todo eso tiene que entrar en un solo PR contra la rama de desarrollo, con commits separados por tema. El modo `doctor` solo imprime un informe con tres niveles: CRITICAL (se incumple una regla obligatoria), WARNING (un estándar) y TARGET (está bien, pero depende de algo externo, como el plan de GitHub), y pregunta antes de arreglar nada.
+**Qué te devuelve / qué cambia.** Crea `.asome/config.json` (queda en git y no tiene secretos) y las etiquetas del repo en GitHub. La primera vez te pregunta quién trabaja en el proyecto (nombre, usuario de GitHub y rol de cada persona) y lo guarda en el config: lo usan `asome-sprint`, `asome-create-issue`, `asome-sprint-demo` y `asome-infra-setup`. En el modo completo suma `openspec/`, `AGENTS.md`, reglas en `.claude/settings.json`, escaneo de secretos y los registros en `docs/`. Todo eso tiene que entrar en un solo PR contra la rama de desarrollo, con commits separados por tema. El modo `doctor` solo imprime un informe con tres niveles: CRITICAL (se incumple una regla obligatoria), WARNING (un estándar) y TARGET (está bien, pero depende de algo externo, como el plan de GitHub), y pregunta antes de arreglar nada.
 
 **Cuidado con.**
 - Nunca inventa datos: lo que no puede deducir queda como `<<HUECO M-NN>>` en `AGENTS.md`, para preguntárselo al cliente.
 - Un archivo que existe no alcanza para dar algo por cumplido: `doctor` marca como crítico, por ejemplo, una protección automática (un hook) que está instalada pero inactiva.
 - Si no hay módulo de login en el producto, lo deja como candidato de issue y no escribe código de auth por su cuenta.
-- Volver a correrlo es seguro: reescribe el archivo de config con los datos actuales del tablero.
+- Volver a correrlo es seguro: actualiza los datos del tablero y conserva el equipo y la capacidad medida por `asome-sprint`. Si alguien entra o sale del proyecto, decíselo y actualiza el equipo.
 
 ### `/asome-onboard`
 
@@ -450,7 +450,7 @@ Si falta, la skill te avisa y te manda a `/asome-setup`.
 
 **Qué necesitás antes.** Las CLI `gh`, `terraform` y `aws` instaladas y autenticadas, `.asome/config.json`, y permiso para clonar `asomelab/infrastructure`.
 
-**Qué te devuelve / qué cambia.** Las carpetas `infra/` y `.github/workflows/` con lo copiado, entradas de Terraform en `.gitignore`, una lista de pendientes para completar (estado remoto, variables, región, secretos de GitHub) y `docs/ACCESOS.md`. Para cada persona del equipo asigna un perfil (`asome-dev`, `asome-infra` o `asome-readonly`) e imprime los comandos para verificar el acceso el primer día.
+**Qué te devuelve / qué cambia.** Las carpetas `infra/` y `.github/workflows/` con lo copiado, entradas de Terraform en `.gitignore`, una lista de pendientes para completar (estado remoto, variables, región, secretos de GitHub) y `docs/ACCESOS.md`. Para cada persona del equipo (lo carga `/asome-setup` en el config) asigna un perfil (`asome-dev`, `asome-infra` o `asome-readonly`) e imprime los comandos para verificar el acceso el primer día.
 
 **Cuidado con.**
 - Revisá lo copiado antes de commitear. No copia archivos de estado ni `*.tfvars`, y no pisa un `infra/` existente sin tu confirmación.
@@ -543,7 +543,7 @@ Si falta, la skill te avisa y te manda a `/asome-setup`.
 - `/asome-sprint resequence --suggest` (solo propone) o `--apply` (ensaya, pide confirmación y ejecuta).
 - "plan sprint 3", "mover el #12 a Done", "cuántos puntos hicimos", "cerrar sprint", "armar los sprints".
 
-**Qué necesitás antes.** `.asome/config.json` y `gh` autenticado con acceso al proyecto (y `python3`). Para `bootstrap`, los datos del contrato: cantidad de sprints y fecha de inicio, equipo, hitos y días de validación; los pide juntos. Para `close`, las horas realmente trabajadas.
+**Qué necesitás antes.** `.asome/config.json` y `gh` autenticado con acceso al proyecto (y `python3`). Para `bootstrap`, los datos del contrato (cantidad de sprints y fecha de inicio, hitos y días de validación) y cuánto le dedica cada persona del equipo a cada carril en cada sprint; los pide juntos y guarda la dedicación en el config. Para `close`, las horas realmente trabajadas.
 
 **Qué te devuelve / qué cambia.**
 - `bootstrap`: las iteraciones del campo Sprint, un hito por sprint (más el hito de medición comparativa a los 90 días), `docs/product/11-plan-de-sprints.md`, un `sprint-NN-plan.md` por sprint y los valores iniciales de capacidad en el config. Antes verifica el plan contra el método y te avisa cada desvío, sin corregirlo en silencio.
