@@ -563,7 +563,7 @@ Si falta, la skill te avisa y te manda a `/asome-setup`.
 
 ### `/asome-standup`
 
-**Para qué sirve.** Arma en segundos el resumen diario del tablero: qué está en curso, bloqueado y en revisión, qué se terminó hace poco y qué falta del sprint, con puntos y velocidad.
+**Para qué sirve.** Arma en segundos el resumen diario del tablero: qué está en curso, bloqueado y en revisión, qué se cerró en las últimas 48 horas y qué falta del sprint en curso, con puntos y la velocidad de ese sprint.
 
 **Cuándo usarla.** Antes de la daily, o cuando quieras saber cómo viene el proyecto.
 
@@ -577,7 +577,7 @@ Si falta, la skill te avisa y te manda a `/asome-setup`.
 
 **Cuidado con.**
 - Muestra lo que dice el tablero: si los issues no se mueven de etapa, el resumen no los refleja.
-- Si se sumó un sprint o un campo al tablero, volvé a correr `/asome-setup board` para que el resumen use los datos nuevos.
+- "Cerrado en las últimas 48 horas" se cuenta por la fecha en que se cerró el issue: uno que está en Done pero sigue abierto no aparece ahí.
 
 ---
 
