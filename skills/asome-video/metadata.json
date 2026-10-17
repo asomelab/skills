@@ -1,0 +1,12 @@
+{
+  "version": "1.0.0",
+  "organization": "ASOME Lab",
+  "date": "October 2026",
+  "abstract": "Turns a raw talking-head recording into an ASOME branded Instagram reel with Remotion, for people who are not technical: it explains the process in Spanish, checks the machine and installs what is missing (Node.js, the Remotion skill, a project template with the ASOME brand components, the licensed Maax font from the ASOME Drive), transcribes the footage and proposes an edit plan that waits for the user's OK. It then builds the reel on the ASOME design system (brand captions, motion graphics tied to the speech, end card, sound design), previews it in Remotion Studio, applies changes asked in plain words, and exports the 1080x1920 Instagram file, a 4K master and the 9:16 and 4:5 covers, named per the brand rule and copied to Downloads.",
+  "references": [
+    "references/guia-usuario.md",
+    "references/brand-video.md",
+    "references/motion-recipes.md",
+    "references/example-reel.tsx"
+  ]
+}

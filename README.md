@@ -3,6 +3,11 @@
 Agent skills for the ASOME dev workflow.  
 Compatible with [Claude Code](https://claude.ai/code) and other agents via [skills.sh](https://www.skills.sh).
 
+## Guía de uso
+
+¿Primera vez con estas skills? [`GUIA.md`](GUIA.md) explica en español cómo instalarlas y cómo
+usar cada una, con ejemplos, para personas técnicas y no técnicas.
+
 ## Install
 
 ```bash
@@ -33,6 +38,7 @@ npx skills add asomelab/skills
 | `asome-meeting` | `agenda una reunion`, `schedule a meeting`, `sprint review` | Schedule ASOME calendar events with ASOME title/reminder/Meet conventions and history-based attendee resolution |
 | `asome-kickoff` | `kickoff`, `reunión de inicio`, `armar el kickoff`, `acta de kickoff` | Project kick-off: batched relevamiento, then a ready-to-paste Claude Design prompt for the fixed 13-block / 15-slide deck, plus the same-day acta and calendar events |
 | `asome-sprint-demo` | `sprint demo`, `preparar la demo`, `deck de la review`, `acta de la demo` | Sprint Review from the board: reads the sprint's issues with `gh` plus the doc set, asks only the gaps, and emits a ready-to-paste Claude Design prompt for the Sprint Review deck, the demo script and a pre-demo checklist; after the demo, the same-day acta that opens the validation window |
+| `asome-video` | `editar video`, `editar reel`, `armar un reel`, `/asome-video` | Turns raw footage into an ASOME branded Instagram reel with Remotion, for non-technical people: explains everything in Spanish, installs what is missing, transcribes, proposes an edit plan and waits for the OK, builds captions, motion graphics and sound on the ASOME design system, previews in Remotion Studio and exports the 1080×1920 file, a 4K master and the covers |
 
 ## Dev flow
 
@@ -59,6 +65,9 @@ npx skills add asomelab/skills
 
 # Daily:
 /asome-standup       → digest of board state
+
+# Content:
+/asome-video         → raw footage to an ASOME reel: plan, captions, motion, sound, IG export
 
 # Sprint close:
 /asome-sprint-demo       → deck prompt + demo script + checklist (1-2 days before the demo)
