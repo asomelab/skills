@@ -1,7 +1,14 @@
 import { loadFont } from "@remotion/fonts";
 import { loadFont as loadInter } from "@remotion/google-fonts/Inter";
 import type React from "react";
-import { AbsoluteFill, Easing, Img, Interactive, staticFile } from "remotion";
+import {
+  AbsoluteFill,
+  Easing,
+  Img,
+  Interactive,
+  interpolate,
+  staticFile,
+} from "remotion";
 
 // ASOME brandbook (agosto 2025) + Sistema visual de marketing v2.0.
 // Every value below comes from those two documents; change them there first.
@@ -36,6 +43,19 @@ export const ease = {
   in: Easing.bezier(0.7, 0, 0.84, 0), // things leaving
   inOut: Easing.bezier(0.76, 0, 0.24, 1), // camera-like moves
 };
+
+// The standard arrival at frame `start`: fade in 0.3 s while rising 28 px over ~0.5 s.
+export const rise = (frame: number, start: number): React.CSSProperties => ({
+  opacity: interpolate(frame, [start, start + 9], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  }),
+  translate: interpolate(frame, [start, start + 16], ["0px 28px", "0px 0px"], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+    easing: ease.out,
+  }),
+});
 
 // Maax from ASOME/brand/Tipografia. loadFont() holds the render until each is ready.
 loadFont({

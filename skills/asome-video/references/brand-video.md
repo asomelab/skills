@@ -1,9 +1,10 @@
 # ASOME design system for video
 
 Distilled from the **Brandbook** (agosto 2025) and the **Sistema visual de marketing ASOME
-v2.0** (octubre 2026), plus the decisions taken on the first reel (2026-10-14). Every value
-here is already coded in `assets/template/src/brand.tsx` and the components; this file says
-**why** and **when**, so new scenes stay on brand.
+v2.0** (octubre 2026), plus the decisions taken on the first reel (2026-10-14) and on the
+"Consejo" talking-head reel (2026-10-17, `lecciones-consejo.md`). Every value here is already
+coded in `assets/template/src/brand.tsx` and the components; this file says **why** and
+**when**, so new scenes stay on brand.
 
 ## Canvas and safe zones
 
@@ -65,6 +66,10 @@ A long title steps down one size; never more than 4 lines.
 - Full bleed, always with the **black bottom gradient, 86% to 0% upward, no hard edge**
   (`PhotoGradient`). Text only where it gives contrast. Never cover a face.
 - Light grade only: `contrast 1.04`, `saturation 0.96`. No LUT looks, vignettes or light leaks.
+- The speaker looks at the lens in every kept frame: glances away, a dropping head, false
+  starts and long silences are cut. What remains must read as one coherent speech.
+- The face is never framed in a box or a rounded card. When motion needs room, the screen
+  splits: motion on Penn Blue above, the speaker full width below (R3).
 
 ## Emphasis: one per level
 
@@ -112,7 +117,9 @@ on dark, inside a White Smoke box or circle. One family per piece. The brand's t
 ## Motion
 
 - **Motion must explain.** Each animation shows hierarchy, a sequence in the story, or a change
-  of state. Budget: 2 to 4 motion moments per 30 s; the rest is the speaker and the captions.
+  of state. Budget: **1 or 2 split-screen moments per reel**, only where they show what the
+  voice alone cannot (a calculation, the list of what ASOME does); the rest is the speaker and
+  the captions. Motion on every sentence reads as a template.
 - **Easing tokens** (`ease` in brand.tsx): `out` for arrivals (0.4–0.6 s), `in` for exits
   (0.2–0.3 s), `inOut` for camera-like moves (0.6 s).
 - **One direction for the whole film:** things enter rising (24–40 px up to rest) and leave
@@ -120,11 +127,14 @@ on dark, inside a White Smoke box or circle. One family per piece. The brand's t
 - **Sync to speech:** an element lands on its word (± 0.1 s). A title may lead by ~0.3 s.
 - **Stagger** lines and cards by 0.1–0.15 s; in a list, one card per spoken item.
 - **Then hold still.** No idle wobble, no looping micro-motion, no constant zoom.
-- **Camera:** footage often has an in-camera zoom; do not stack a push-in on top. Hide a jump
-  cut between takes with a scale change (1.0 → 1.08–1.12) on a hard cut, never a transition.
+- **Camera:** never a punch-in or a push-in on the speaker (footage often has an in-camera
+  zoom already). Joins between takes are a centered **cross-dissolve of 4–6 frames** with an
+  equal-power audio crossfade (±60 ms), 4 frames inside one take (R2). A split opens 6 frames
+  before a cut and settles 12 after it, so the layout move carries the cut.
 - **Banned (they read as "edited by AI"):** light leaks, glitches, whip pans, emoji, pills or
   boxes behind caption words, bouncing words, progress bars, neon glows, gradient text,
-  invented statistics.
+  invented statistics, a rounded box framing the face, punch-in zooms, hard jump cuts with
+  alternating zoom (1.0 / 1.08), motion on every sentence, template-looking edits in general.
 
 ## Captions
 
@@ -134,14 +144,19 @@ on dark, inside a White Smoke box or circle. One family per piece. The brand's t
 - Highlights: 1–4 words in Cornflower, only the key ideas (about one every 2–3 phrases).
 - Fix the transcript before inlining it: brand names (Whisper writes "Asom" for ASOME),
   mis-heard verbs, voseo spelling ("envianos"), stray commas after names.
-- Hide the captions while a Penn plate carries the message on screen.
+- Hide the captions while a split screen carries the message on screen.
+- In the pre-cut workflow the captions come from transcribing `public/cut.mp4` (already reel
+  time); text fixes go by phrase (`FIXES` in `src/speech.ts`), so they survive re-transcription.
 
 ## Sound
 
-- The voice leads. Music bed at volume 0.14 under the voice, 0.32 on the end card.
-- SFX are soft and few: `whoosh-soft` 0.3–0.35 on camera moves · `tick` 0.3–0.35 when a card
-  lands · `rise` 0.2 under a line drawing itself · `whoosh` 0.4 into the end card · `thump`
-  0.45 when the logo lands. No meme or cartoon sounds.
+- The voice leads. Music bed at 0.10 under the voice when the speaker talks the whole reel
+  (0.14 for short pieces), up to 0.30 on the end card.
+- SFX are soft and few: `whoosh-soft` 0.25 when a split opens and 0.2 when it closes · `tick`
+  0.22 per number or card landing in a panel · `rise` 0.18 under a total or a line drawing
+  itself · `whoosh` 0.35 into the end card · `thump` 0.4 when the logo lands. No meme or
+  cartoon sounds.
+- Every cut is crossfaded in the audio; audible inhales inside a kept take are lowered 12 dB.
 
 ## Copy on screen
 
@@ -151,7 +166,9 @@ on dark, inside a White Smoke box or circle. One family per piece. The brand's t
 
 ## Cover (portada)
 
-- A real frame of the take: eyes to camera, mouth closed, hands calm.
+- A real frame of the take: eyes open to the lens, mouth closed, a relaxed face (a slight
+  smile works), hands calm. A serious neutral "foto carnet" face and a mid-word frame were
+  both rejected. Show the user a sheet of 6 options and let them pick.
 - Penn Blue gradient from the bottom (team reference, 2026-10-15), unlike the black gradient
   used over footage. Title in Maax Regular, the closing phrase in Maax Bold Cornflower on its
   own line, logotipo 230 wide under it.
@@ -163,6 +180,10 @@ on dark, inside a White Smoke box or circle. One family per piece. The brand's t
   (`20261015_reel_crecer-sin-estructura_v01.mp4`).
 - Video 1080 × 1920 MP4 H.264, sRGB/BT.709, AAC 48 kHz: the file to upload. A 4K master
   (2160 × 3840) is kept for archive. Covers as JPG at 90%.
+- With them: the captions as SRT (`_subtitulos_`) and the caption copy (`_copy_…md`: hook of at
+  most 125 characters, body, call to action, hashtags, first comment, alt text; no invented
+  metrics, no emoji).
+- Delivered to Downloads and to the ASOME Drive in `ASOME/marketing/reels/<YYYY-MM-DD> <tema>/`.
 
 ## Before exporting
 
@@ -173,3 +194,5 @@ on dark, inside a White Smoke box or circle. One family per piece. The brand's t
 - Logo version by background, minimum sizes, @ in Persian.
 - One icon family in Persian Blue.
 - Every motion moment lands on its word; no AI tells from the list above.
+- Eyes on the lens in every kept frame; no false start, repeated phrase or long pause left.
+- Every cut dissolves; the end card visibly slides up and its logo arrives with it.

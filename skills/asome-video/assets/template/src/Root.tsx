@@ -1,10 +1,10 @@
 import { Composition, Still } from "remotion";
 import { EndCard } from "./EndCard";
-import { Reel } from "./Reel";
+import { Reel, REEL_FRAMES } from "./Reel";
 import { ReelCover } from "./ReelCover";
 
-// Reel: 1080x1920 @ 30 fps. durationInFrames = frames of footage kept + 84
-// (the 3.4 s end card minus the 0.6 s slide that overlaps the last take).
+// Reel: 1080x1920 @ 30 fps. Its length follows src/cuts.ts: the kept frames plus the
+// 3.4 s end card, minus the 0.5 s slide that overlaps the last take.
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -12,7 +12,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="Reel"
         component={Reel}
-        durationInFrames={300}
+        durationInFrames={REEL_FRAMES}
         fps={30}
         width={1080}
         height={1920}

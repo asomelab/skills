@@ -28,6 +28,16 @@ else
 fi
 command -v npx >/dev/null 2>&1 && ok "npx" || bad "npx (viene con Node.js)"
 
+if command -v python3 >/dev/null 2>&1; then
+  if python3 -c "import PIL" >/dev/null 2>&1; then
+    ok "Python 3 con Pillow (análisis de cortes y miradas)"
+  else
+    bad "Pillow para Python 3 (arma las hojas de caras y portadas)"
+  fi
+else
+  bad "Python 3 (mide silencios y arma las hojas de caras)"
+fi
+
 if command -v brew >/dev/null 2>&1; then
   ok "Homebrew (para instalar Node.js si falta)"
 else
@@ -57,6 +67,14 @@ if [ -d "$HOME/.claude/skills/remotion-best-practices" ] || [ -d "$HOME/.agents/
   ok "Skill remotion-best-practices"
 else
   bad "Skill remotion-best-practices (conocimiento de Remotion para el agente)"
+fi
+
+if [ "$os" = "Darwin" ]; then
+  if [ -x "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" ]; then
+    ok "Google Chrome (exporta en paralelo, más rápido)"
+  else
+    warn "Google Chrome no está: se exporta igual, más lento (un solo proceso)"
+  fi
 fi
 
 if [ "$os" = "Darwin" ] && [ "$arch" != "arm64" ]; then

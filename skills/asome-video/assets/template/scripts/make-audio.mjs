@@ -163,6 +163,7 @@ const rise = () => {
 };
 
 // Bed: four-chord pad (A maj9, F#m9, D maj9, E6/9), soft partials, slow crossfades.
+// About 6 s per chord, the progression repeating, so a long talk never drags on one chord.
 const bed = (dur) => {
   const n = Math.round(dur * SR);
   const L = new Float32Array(n),
@@ -174,7 +175,8 @@ const bed = (dur) => {
     [50, 62, 66, 69, 73], // D3 D4 F#4 A4 C#5
     [52, 59, 61, 66, 68], // E3 B3 C#4 F#4 G#4
   ];
-  const len = dur / chords.length;
+  const count = Math.max(chords.length, Math.round(dur / 6));
+  const len = dur / count;
   const fade = 1.6;
   const lpL = lowpass(1700),
     lpR = lowpass(1700);
@@ -182,13 +184,13 @@ const bed = (dur) => {
     const s = i / SR;
     let l = 0,
       r = 0;
-    chords.forEach((notes, c) => {
+    for (let c = 0; c < count; c++) {
+      const notes = chords[c % chords.length];
       const start = c * len - (c === 0 ? 0 : fade / 2);
-      const end = (c + 1) * len + (c === chords.length - 1 ? 0 : fade / 2);
-      if (s < start || s > end) return;
+      const end = (c + 1) * len + (c === count - 1 ? 0 : fade / 2);
+      if (s < start || s > end) continue;
       const gIn = c === 0 ? 1 : smooth(Math.min(1, (s - start) / fade));
-      const gOut =
-        c === chords.length - 1 ? 1 : smooth(Math.min(1, (end - s) / fade));
+      const gOut = c === count - 1 ? 1 : smooth(Math.min(1, (end - s) / fade));
       const g = gIn * gOut;
       notes.forEach((m, k) => {
         const f = hz(m);
@@ -199,7 +201,7 @@ const bed = (dur) => {
           r += a * g * Math.sin(2 * Math.PI * f * h * s * 1.0023);
         }
       });
-    });
+    }
     const swell = 0.94 + 0.06 * Math.sin(2 * Math.PI * 0.12 * s);
     L[i] = lpL(l) * swell;
     R[i] = lpR(r) * swell;

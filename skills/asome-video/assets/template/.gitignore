@@ -3,7 +3,7 @@ out
 .DS_Store
 # Maax is licensed to ASOME: it is copied from the ASOME Drive, never committed.
 public/fonts/*.ttf
-# Raw footage and generated audio stay local.
+# Raw footage, the built cut and blend files, and generated audio stay local.
 public/*.mp4
 public/*.mov
 public/audio
