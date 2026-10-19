@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0",
+  "organization": "ASOME Lab",
+  "date": "October 2026",
+  "abstract": "Makes an ASOME product or case-study Instagram reel (9:16, ~50 s, Remotion) presenting software ASOME built for a client: it explains the process and ETA in Spanish, asks the product, repo path, user sides, naming permission and format in one message, writes and iterates a five-line script (hook, reveal, business side, emotional side, ASOME close), and generates an ElevenLabs voiceover with word timings and SRT from a key the user loads in their own environment. It rebuilds the product's screens from the client's code with invented data inside neutral device mockups (never logging into client environments), builds the scenes with parallel agents and one adversarial review each, generates copy, cover and a scene-synced beat in parallel, runs contact-sheet QA on the rendered MP4, and delivers MP4, cover, copy, SRT, script and voice, optionally copied to the ASOME Drive. It depends on asome-video for setup, the Remotion template and the brand system, and targets under two hours end to end.",
+  "references": [
+    "references/guia-usuario.md",
+    "references/brand-producto.md",
+    "references/guion-y-voz.md",
+    "references/brief-template.md",
+    "references/prompt-pantallas.md",
+    "references/prompt-escena.md",
+    "references/prompt-revisor.md",
+    "references/prompt-copy.md"
+  ]
+}
