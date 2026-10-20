@@ -2,7 +2,9 @@
 
 Una **skill** es una receta escrita que Claude Code lee para hacer una tarea como la hace ASOME: con los mismos pasos, los mismos nombres y las mismas reglas cada vez. Vos pedís lo que necesitás ("poneme al día con este proyecto", "armame las slides de la demo") y Claude sigue la receta que corresponde.
 
-Esta guía es para todas las personas de ASOME que usan Claude Code, desde la terminal o desde la app de escritorio de Claude, sepan programar o no. Explica las 21 skills del repositorio [asomelab/skills](https://github.com/asomelab/skills): para qué sirve cada una, cuándo usarla, cómo pedirla, qué necesitás antes y qué cambia cuando termina. Está escrita a partir de las instrucciones de cada skill, tal como estaban en octubre de 2026. Si una skill se comporta distinto de lo que dice acá, mandan las instrucciones de la skill: avisale al equipo para corregir la guía.
+Esta guía es para todas las personas de ASOME que usan Claude Code, desde la terminal o desde la app de escritorio de Claude, sepan programar o no. Explica las 22 skills del repositorio [asomelab/skills](https://github.com/asomelab/skills): para qué sirve cada una, cuándo usarla, cómo pedirla, qué necesitás antes y qué cambia cuando termina. Está escrita a partir de las instrucciones de cada skill, tal como estaban en octubre de 2026. Si una skill se comporta distinto de lo que dice acá, mandan las instrucciones de la skill: avisale al equipo para corregir la guía.
+
+¿Venís a hacer tu primer reel? Empezá por [`TUTORIAL-VIDEO.md`](TUTORIAL-VIDEO.md): es un paso a paso desde cero hasta publicarlo.
 
 ## En esta guía
 
@@ -33,7 +35,7 @@ Las skills viven en un repositorio de GitHub y se instalan con un solo comando. 
 | Herramienta | Para qué sirve | Quién la necesita |
 |---|---|---|
 | Claude Code | Es donde corrés las skills (terminal o app de escritorio) | Todas |
-| Node.js (trae `npx`) | Instalar las skills y OpenSpec. Se descarga de nodejs.org; conviene la versión 20.19 o más nueva, que es la que pide OpenSpec | Instalación, `asome-setup`, `asome-sdd`. `asome-video` la instala sola si falta |
+| Node.js (trae `npx`) | Instalar las skills y OpenSpec. Se descarga de nodejs.org; conviene la versión 20.19 o más nueva, que es la que pide OpenSpec | Instalación, `asome-setup`, `asome-sdd`. `asome-video` y `asome-video-producto` la instalan solas si falta |
 | Git y GitHub CLI (`gh`) | Trabajar con repositorios, issues, PRs y el tablero | Las skills que hablan con GitHub (ver más abajo) |
 | `jq` y `python3` | Leer `.asome/config.json` y armar resúmenes | `asome-create-issue`, `asome-sprint`, `asome-standup`, `asome-sprint-demo` y otras |
 | Terraform y AWS CLI | Infraestructura en la nube | `asome-infra-setup` y `asome-infra-plan` (las dos); `asome-infra-costs` (solo AWS) |
@@ -89,7 +91,7 @@ Parado en la carpeta de un proyecto, pedí `/asome-setup doctor`. Revisa Node.js
 
 ### Abrí Claude Code en la carpeta del proyecto
 
-Casi todas las skills leen archivos de la carpeta donde estás parado: `.asome/config.json`, `docs/`, `infra/`. Abrí Claude Code apuntando a la carpeta del proyecto (la raíz del repositorio, o **repo**: la carpeta del proyecto con todo su historial, guardada en GitHub). Las excepciones son `asome-meeting`, `asome-video` y `design-system-asome-lab`, que no dependen de un proyecto, y `asome-create-skill`, que se corre parado en el repo de skills.
+Casi todas las skills leen archivos de la carpeta donde estás parado: `.asome/config.json`, `docs/`, `infra/`. Abrí Claude Code apuntando a la carpeta del proyecto (la raíz del repositorio, o **repo**: la carpeta del proyecto con todo su historial, guardada en GitHub). Las excepciones son `asome-meeting`, `asome-video`, `asome-video-producto` y `design-system-asome-lab`, que no dependen de un proyecto (las de video trabajan en su propio repositorio, `asomelab/videos`), y `asome-create-skill`, que se corre parado en el repo de skills.
 
 ### Dos formas de pedir una skill
 
@@ -110,7 +112,7 @@ Es el archivo con los datos del tablero del proyecto (número del GitHub Project
 
 - **Lo necesitan:** `asome-create-issue`, `asome-branch-pr`, `asome-deploy`, `asome-standup`, `asome-sprint`, `asome-sprint-demo` y `asome-infra-setup`.
 - **Lo aprovechan si está:** `asome-onboard` (con el archivo muestra el tablero completo), `asome-review` y `asome-infra-costs` (para saber de qué repo se trata) y `asome-kickoff` (solo en el modo `agenda`).
-- **No lo usan:** `asome-commit`, `asome-discovery`, `asome-sdd`, `asome-infra-audit`, `asome-infra-plan`, `asome-meeting`, `design-system-asome-lab`, `asome-video` y `asome-create-skill`.
+- **No lo usan:** `asome-commit`, `asome-discovery`, `asome-sdd`, `asome-infra-audit`, `asome-infra-plan`, `asome-meeting`, `design-system-asome-lab`, `asome-video`, `asome-video-producto` y `asome-create-skill`.
 
 Si falta, la skill te avisa y te manda a `/asome-setup`.
 
@@ -119,6 +121,7 @@ Si falta, la skill te avisa y te manda a `/asome-setup`.
 `gh` es la herramienta de línea de comandos de GitHub. Para ver si estás conectado: `gh auth status`. Si no, `gh auth login` (en Claude Code podés escribir `! gh auth login` para correrlo sin salir de la sesión).
 
 - **Lo necesitan:** `asome-setup`, `asome-create-issue`, `asome-branch-pr`, `asome-deploy`, `asome-sprint`, `asome-standup`, `asome-sprint-demo` e `asome-infra-setup` (clona el repo de infraestructura de ASOME, así que también necesitás acceso a la organización).
+- **Lo usan para guardar cada video:** `asome-video` y `asome-video-producto` clonan el repo privado `asomelab/videos` y suben ahí cada reel. Sin acceso trabajan en un repositorio local, solo en tu compu.
 - **`asome-sprint-demo`** pide además el permiso `read:project`: `gh auth refresh -s read:project`.
 - **Según el caso:** `asome-review` lo usa para revisar un PR por número, y `asome-onboard` lo usa para leer los issues (si no lo encuentra, intenta instalarlo con Homebrew).
 
@@ -132,11 +135,12 @@ Si falta, la skill te avisa y te manda a `/asome-setup`.
 
 **Escriben archivos en tu compu o en tu proyecto**
 - `asome-setup`, `asome-discovery` (documentos en `docs/product/`), `asome-commit` (commits locales), `asome-create-skill`, `asome-infra-setup`.
-- `asome-sprint` (`bootstrap` y `close` escriben documentos), `asome-sprint-demo` (un archivo de la demo), `asome-video` (instala programas, crea una carpeta por video y deja los archivos finales en Descargas).
+- `asome-sprint` (`bootstrap` y `close` escriben documentos), `asome-sprint-demo` (un archivo de la demo), `asome-video` y `asome-video-producto` (instalan programas, crean una carpeta por reel en el repo de videos y dejan los archivos finales en Descargas).
 
 **Cambian algo afuera (GitHub, calendario, nube)**
 - `asome-create-issue`, `asome-branch-pr`, `asome-deploy`, `asome-setup` (etiquetas del repo), `asome-sprint` (tablero e issues).
 - `asome-meeting` y `asome-kickoff agenda` (crean eventos y mandan invitaciones).
+- `asome-video` y `asome-video-producto` (suben commits a `asomelab/videos` y copian las entregas al Drive de ASOME).
 - `asome-infra-plan apply` y `destroy` (la nube, solo con tu confirmación).
 
 ### Palabras que vas a ver
@@ -197,7 +201,8 @@ Si falta, la skill te avisa y te manda a `/asome-setup`.
 | `asome-kickoff` | Prepara el kick-off: texto para la presentación, acta y eventos | Al arrancar un proyecto con un cliente | "armá el kickoff del proyecto Acme" |
 | `asome-sprint-demo` | Prepara la demo de fin de sprint y el mail posterior | Uno o dos días antes de la demo, y el día de la demo | "qué mostramos en la demo del jueves" |
 | **Contenido** | | | |
-| `asome-video` | Edita reels verticales de marca desde cero | Cuando tenés un video grabado en vertical | "editá este reel" |
+| `asome-video` | Edita reels verticales de marca desde cero y arma el paquete para publicar | Cuando tenés un video grabado en vertical | "editá este reel" |
+| `asome-video-producto` | Reel de un software que ASOME hizo para un cliente, con voz IA | Cuando querés mostrar una app o plataforma | "hagamos un reel de producto de la app" |
 
 ---
 
@@ -683,7 +688,7 @@ Si falta, la skill te avisa y te manda a `/asome-setup`.
 
 ### `/asome-video`
 
-**Para qué sirve.** Edita videos verticales (reels) de marca de ASOME desde cero con Remotion, pensado para personas no técnicas. Remotion es el editor con el que se arma el video; no hace falta que lo conozcas. Primero te explica todo en español; después revisa tu compu e instala lo que falte (Node.js, la skill de Remotion, el proyecto base con los componentes de marca y la tipografía Maax desde el Drive de ASOME). Transcribe tu video y propone un plan de edición: qué tomas quedan, subtítulos corregidos, entre 2 y 4 momentos de motion graphics (textos y gráficos animados) atados a lo que decís, cierre y portada. Espera tu OK. Recién ahí arma el video con el sistema visual de ASOME (Maax e Inter, Penn Blue, White Smoke, Persian y Cornflower, subtítulos de marca, tarjetas con íconos, placa con gráfico, cierre con logo, música y efectos de sonido suaves) y te lo muestra en Remotion Studio para que pidas cambios con tus palabras.
+**Para qué sirve.** Edita videos verticales (reels) de marca de ASOME desde cero con Remotion, pensado para personas no técnicas. Remotion es el editor con el que se arma el video; no hace falta que lo conozcas. Primero te explica todo en español; después revisa tu compu e instala lo que falte (Node.js, Python con Pillow, git y `gh`, la skill de Remotion) y prepara el repositorio privado de videos `asomelab/videos`, donde vive cada reel en su propia carpeta, con el sistema de marca compartido y la tipografía Maax. Transcribe tu video, mide cada corte (arranques en falso, silencios, respiraciones y hacia dónde mirás) y propone un plan de edición: qué tomas quedan, subtítulos corregidos, uno o dos momentos con pantalla dividida (arriba el gráfico, abajo vos), cierre y seis opciones de portada. Espera tu OK. Recién ahí arma el video con el sistema visual de ASOME (Maax e Inter, Penn Blue, White Smoke, Persian y Cornflower, subtítulos de marca, cierre con logo, música y efectos suaves) y te lo muestra en Remotion Studio para que pidas cambios con tus palabras.
 
 **Cuándo usarla.** Cuando tenés un video grabado en vertical y querés convertirlo en un reel de marca listo para Instagram.
 
@@ -692,22 +697,49 @@ Si falta, la skill te avisa y te manda a `/asome-setup`.
 - "editame este video", "editar reel", "armar un reel", "hacer un reel con este video", "subtítulos para el video", "video para Instagram", "exportar el reel", "portada del reel".
 
 **Qué necesitás antes.**
-- Una Mac (mejor con procesador Apple; en Windows también se puede, con algunos pasos extra), internet y unos 3 GB libres.
+- Una Mac (mejor con procesador Apple; en Windows también se puede, con algunos pasos extra), internet y unos 5 GB libres.
 - El video grabado en vertical.
-- Acceso al Drive de ASOME (carpeta `brand > Tipografia > Maax`, de donde sale la tipografía). Si la skill no encuentra Maax, te pide que bajes esa carpeta a Descargas.
-- Tiempo: la primera vez, la instalación tarda entre 15 y 30 minutos y la hace Claude. Las siguientes se va directo a editar.
-- Al empezar te pide, en un solo mensaje: el video (arrastralo al chat o decile dónde está), el tema en pocas palabras (da nombre a los archivos), el llamado a la acción si tenés uno (por ejemplo, WhatsApp) y una frase para la portada si ya la pensaste. Lo único que la frena es el video: lo demás lo propone ella.
+- Una cuenta de GitHub con acceso a `asomelab/videos` y la sesión iniciada (`gh auth login`, lo hacés vos). Sin acceso, la skill trabaja en un repositorio local y toma Maax del Drive (`brand > Tipografia > Maax`).
+- Google Drive para escritorio con el Drive de ASOME: ahí van el video original (`workspace/resources/crudos/<TEMA>/`) y las entregas.
+- Tiempo: la primera vez, la preparación tarda entre 15 y 30 minutos y la hace Claude. Las siguientes se va directo a editar.
+- Al empezar te pide, en un solo mensaje: el video (arrastralo al chat o decile dónde está), el tema en pocas palabras (da nombre a la carpeta y a los archivos), el llamado a la acción si tenés uno (por ejemplo, WhatsApp) y una frase para la portada si ya la pensaste. Lo único que la frena es el video: lo demás lo propone ella.
 
-**Qué te devuelve / qué cambia.** Instala en tu compu lo que falte (te lo explica antes de cada cosa) y crea una carpeta de proyecto por video en `Documentos/asome-videos`. Al exportar, deja en tu carpeta Descargas, dentro de una carpeta con la fecha y el tema, el archivo para Instagram (1080 x 1920), un máster en 4K y las portadas 9:16 y 4:5, con el nombre que pide la regla de marca (fecha, formato, tema y versión: v01, v02...). Te dice cuál subir y cómo poner la portada.
+**Qué te devuelve / qué cambia.** Crea la carpeta del reel en `Documentos/asome-videos/videos` (el repositorio de videos) y guarda el código con un commit en tres momentos: plan aprobado, primer armado completo y versión final, con una sección en el README del repo que explica cómo rehacerlo y qué variar. Al exportar, deja en Descargas, dentro de una carpeta con la fecha y el tema, el archivo para Instagram (1080 x 1920), un máster en 4K, las portadas 9:16 y 4:5, los subtítulos (SRT) y el **paquete para publicar** `<fecha>_copy_<tema>.md`: caption con gancho de hasta 125 caracteres, 8 a 15 hashtags en orden de importancia, primer comentario, texto alternativo, chequeo de la portada, día y hora sugeridos, la configuración de Instagram paso a paso (portada, compartir en el feed, subtítulos, sin música de Instagram) y una lista final. La misma carpeta se copia al Drive en `ASOME/marketing/reels/<fecha> <tema>/`.
 
 **Cuidado con.**
 - Nada se arma sin tu OK al plan de edición: leelo, sobre todo los subtítulos corregidos (la transcripción automática se equivoca con nombres de marca, por ejemplo escribe "Asom" por ASOME), y pedí cambios antes de aprobar.
-- Si algún paso pide la contraseña de tu Mac, la escribís vos: la skill te dice exactamente qué hacer y nunca la pide ni la escribe.
+- Si algún paso pide la contraseña de tu Mac, la escribís vos: la skill te dice exactamente qué hacer y nunca la pide ni la escribe. Lo mismo con el inicio de sesión en GitHub.
 - La primera vez baja el modelo de transcripción y tarda unos minutos. Si el video no es vertical, te pregunta si lo recorta al centro o lo deja enmarcado sobre fondo Penn Blue.
-- El texto en pantalla parafrasea lo que dijiste: no inventa números, clientes ni promesas.
-- Maax tiene licencia de ASOME: no compartas ni subas a ningún repo los archivos de la tipografía.
+- El texto en pantalla y el caption parafrasean lo que dijiste: no inventan números, clientes ni promesas.
+- Maax tiene licencia de ASOME: vive solo en el repo privado `asomelab/videos`. No la compartas ni la subas a otro repo.
+- Los videos originales y los archivos pesados nunca van a GitHub: quedan en el Drive.
 - Para exportar, pedile a Claude que lo haga: la skill usa su propio comando. En la app de escritorio de Claude, el botón Render de Remotion Studio suele fallar.
-- Para que quede bien al grabar: en vertical, con aire arriba de la cabeza (ahí van las tarjetas), luz de frente, y si te equivocás, frená dos segundos y repetí la frase entera. Quedate un par de segundos quieto mirando a cámara: de ahí sale la portada.
+- Para que quede bien al grabar: en vertical, con aire arriba de la cabeza, luz de frente, y si te equivocás, frená dos segundos y repetí la frase entera. Quedate un par de segundos quieto mirando a cámara: de ahí sale la portada.
+
+### `/asome-video-producto`
+
+**Para qué sirve.** Arma un reel de unos 50 segundos que presenta un software que ASOME construyó para un cliente: un gancho, la presentación del producto, lo que gana el negocio, lo que vive el usuario final y el cierre de ASOME. La voz en off se hace con IA (ElevenLabs) y las pantallas se rehacen desde el código del producto, con datos de ejemplo, dentro de un celular o una laptop. Escribe el guion con vos, genera la voz, arma las escenas con varios agentes en paralelo (cada una con una revisión), la música, la portada y el mismo paquete para publicar que `asome-video`. Depende de `asome-video` (usa su preparación, su repositorio de videos y su sistema de marca).
+
+**Cuándo usarla.** Cuando querés mostrar una app o plataforma que hizo ASOME, como caso de éxito o presentación.
+
+**Cómo se invoca.**
+- `/asome-video-producto`
+- "reel de producto", "video de presentación de app", "mostrar la app que hicimos", "caso de éxito en video", "presentar la plataforma en un reel".
+
+**Qué necesitás antes.**
+- Todo lo de `asome-video` (Mac, GitHub con acceso a `asomelab/videos`, Drive para escritorio).
+- **El código del producto en tu compu**: la carpeta del repositorio de la app del cliente.
+- Una cuenta de ElevenLabs con una clave de API (permisos «Text to Speech» y «Voices: Read») que guardás vos en `~/.zshenv`, con la línea que te pasa Claude (o la del [tutorial](TUTORIAL-VIDEO.md#elevenlabs-solo-para-voz-con-ia)). El plan gratis no incluye licencia comercial: para publicar, el plan Starter.
+- Saber si se puede nombrar el producto y al cliente.
+- Al empezar te pide, en un solo mensaje: el producto y dónde está su código, los dos lados que se venden (quién lo maneja y quién lo vive), el permiso de nombres y el formato (voz IA o la tuya, y el llamado a la acción).
+
+**Qué te devuelve / qué cambia.** Una carpeta del reel en `asomelab/videos`, con commits al aprobar el guion, en el primer armado y en la versión final. En Descargas (y en el Drive, si decís que sí): el reel 1080 x 1920, la portada, el paquete para publicar `<fecha>_copy_<tema>.md`, los subtítulos, el guion y la voz. Tarda alrededor de una hora y tres cuartos (más 15 a 30 minutos la primera vez). Tus paradas: aprobar el guion, elegir la voz entre tres muestras y mirar el resultado final.
+
+**Cuidado con.**
+- Claude nunca entra a los sistemas del cliente ni usa sus usuarios: solo lee el código. No le pases accesos.
+- La clave de ElevenLabs no va en el chat. Si se pegó en algún lado, borrala y creá otra ese mismo día.
+- Cerrá el guion antes de generar la voz: cambiarlo después obliga a rehacer la voz y las escenas.
+- Sin permiso, el cliente no se nombra ni se etiqueta, y no aparecen el logo, el ícono ni la dirección del producto.
 
 ---
 
@@ -788,13 +820,23 @@ Los bugs con causa conocida no llevan SDD. Si la causa no está clara, primero i
 
 ### Hacer un reel
 
+El paso a paso completo, con frases de ejemplo, está en [`TUTORIAL-VIDEO.md`](TUTORIAL-VIDEO.md).
+
 1. Pedí `/asome-video` (o decí "editame este video"). Te explica el proceso en español y te pide el video, el tema, el llamado a la acción y, si la tenés, una frase para la portada.
-2. Dejá que revise tu compu e instale lo que falte. Si hace falta la tipografía Maax, bajá la carpeta del Drive (`brand > Tipografia > Maax`) a Descargas. Si pide la contraseña de tu Mac, la escribís vos.
-3. Crea la carpeta del proyecto y transcribe lo que decís (la primera vez tarda unos minutos).
-4. Revisá el plan de edición: tomas, subtítulos corregidos, momentos con gráficos, cierre y portada. Respondé "dale" o pedí cambios: no se arma nada sin tu OK.
+2. Dejá que revise tu compu e instale lo que falte. Si pide la contraseña de tu Mac o iniciar sesión en GitHub (`gh auth login`), lo hacés vos.
+3. Prepara la carpeta del reel en el repositorio de videos, sube tu video original al Drive y transcribe lo que decís (la primera vez tarda unos minutos).
+4. Revisá el plan de edición: tomas, subtítulos corregidos, momentos con gráficos, cierre y portada. Respondé "dale" o pedí cambios: no se arma nada sin tu OK. Con el OK se guarda el primer commit.
 5. Mirá el video armado en Remotion Studio y pedí los ajustes con tus palabras, las veces que haga falta.
-6. Pedí la exportación: los archivos quedan en Descargas (reel, máster 4K y portadas).
-7. Subí el reel a Instagram con su portada. La versión "feed" de la portada te muestra cómo se va a recortar en la grilla de tu perfil.
+6. Pedí la exportación: los archivos quedan en Descargas y en el Drive (reel, máster 4K, portadas, subtítulos y el paquete para publicar), y el código de la versión final queda en `asomelab/videos`.
+7. Publicá siguiendo el paquete: portada desde la galería, caption y hashtags, sin música de Instagram, primer comentario fijado, el día y la hora sugeridos.
+
+### Hacer un reel de producto
+
+1. Tené a mano el código del producto en tu compu y la clave de ElevenLabs guardada por vos.
+2. Pedí `/asome-video-producto` y contestá sus cuatro preguntas en un solo mensaje.
+3. Aprobá el guion y elegí la voz entre tres muestras.
+4. Mirá las imágenes de cada escena que te va mandando y pedí cambios si hace falta.
+5. Mirá el video final, decí si lo sube al Drive y publicalo con el paquete, como un reel normal.
 
 ---
 
@@ -826,7 +868,7 @@ Las que preparan comunicación con clientes (`asome-kickoff` y `asome-sprint-dem
 
 ### No soy del equipo técnico, ¿puedo usarlas?
 
-Sí. Las más pensadas para trabajo de producto, reuniones y contenido son `asome-onboard`, `asome-standup`, `asome-discovery`, `asome-meeting`, `asome-kickoff`, `asome-sprint-demo` y `asome-video`. Las de desarrollo e infraestructura (`asome-commit`, `asome-branch-pr`, `asome-review`, `asome-deploy` y las `asome-infra-*`) cambian código, ramas y servicios en la nube: conviene usarlas junto con alguien del equipo técnico.
+Sí. Las más pensadas para trabajo de producto, reuniones y contenido son `asome-onboard`, `asome-standup`, `asome-discovery`, `asome-meeting`, `asome-kickoff`, `asome-sprint-demo`, `asome-video` y `asome-video-producto`. Las de desarrollo e infraestructura (`asome-commit`, `asome-branch-pr`, `asome-review`, `asome-deploy` y las `asome-infra-*`) cambian código, ramas y servicios en la nube: conviene usarlas junto con alguien del equipo técnico.
 
 ### ¿A quién le pregunto, o cómo propongo una mejora?
 

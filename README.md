@@ -3,6 +3,25 @@
 Agent skills for the ASOME dev workflow.  
 Compatible with [Claude Code](https://claude.ai/code) and other agents via [skills.sh](https://www.skills.sh).
 
+## Tu primer video con IA
+
+¿Querés hacer un reel de ASOME y nunca usaste Claude Code? **[`TUTORIAL-VIDEO.md`](TUTORIAL-VIDEO.md)**
+te lleva paso a paso, sin saber programar, desde cero hasta el reel publicado en Instagram:
+
+1. Instalar Claude Code (app de escritorio o Terminal) y las skills: `npx skills add asomelab/skills`.
+2. Cuentas y accesos: GitHub con acceso a `asomelab/videos` (`gh auth login`), Google Drive para
+   escritorio con el Drive de ASOME y, para voz con IA, una clave de ElevenLabs que guardás vos
+   en `~/.zshenv` (nunca en el chat).
+3. Mandarle el video a Claude (arrastrarlo al chat), aprobar el plan de edición, mirarlo en
+   Remotion Studio y pedir cambios con tus palabras.
+4. Exportar: los archivos quedan en Descargas, en el Drive (`ASOME/marketing/reels/<fecha> <tema>/`)
+   y el código del reel en `asomelab/videos`.
+5. Publicar en Instagram con el paquete de copy: caption, hashtags, primer comentario, horario
+   sugerido y la configuración paso a paso.
+
+También explica el reel de producto (`asome-video-producto`): qué darle (el repo de la app del
+cliente) y cuánto tarda (alrededor de una hora y tres cuartos).
+
 ## Guía de uso
 
 ¿Primera vez con estas skills? [`GUIA.md`](GUIA.md) explica en español cómo instalarlas y cómo
@@ -38,7 +57,8 @@ npx skills add asomelab/skills
 | `asome-meeting` | `agenda una reunion`, `schedule a meeting`, `sprint review` | Schedule ASOME calendar events with ASOME title/reminder/Meet conventions and history-based attendee resolution |
 | `asome-kickoff` | `kickoff`, `reunión de inicio`, `armar el kickoff`, `acta de kickoff` | Project kick-off: batched relevamiento, then a ready-to-paste Claude Design prompt for the fixed 13-block / 15-slide deck, plus the same-day acta and calendar events |
 | `asome-sprint-demo` | `sprint demo`, `preparar la demo`, `deck de la review`, `acta de la demo` | Sprint Review from the board: reads the sprint's issues with `gh` plus the doc set, asks only the gaps, and emits a ready-to-paste Claude Design prompt for the Sprint Review deck, the demo script and a pre-demo checklist; after the demo, the same-day acta that opens the validation window |
-| `asome-video` | `editar video`, `editar reel`, `armar un reel`, `/asome-video` | Turns raw footage into an ASOME branded Instagram reel with Remotion, for non-technical people: explains everything in Spanish, installs what is missing, transcribes, proposes an edit plan and waits for the OK, builds captions, motion graphics and sound on the ASOME design system, previews in Remotion Studio and exports the 1080×1920 file, a 4K master and the covers |
+| `asome-video` | `editar video`, `editar reel`, `armar un reel`, `/asome-video` | Turns raw footage into an ASOME branded Instagram reel with Remotion, for non-technical people: explains everything in Spanish, installs what is missing, transcribes, proposes an edit plan and waits for the OK, builds captions, motion graphics and sound on the ASOME design system, previews in Remotion Studio and exports the 1080×1920 file, a 4K master, the covers, the SRT and a publish-ready Instagram package (caption, hashtags, first comment, alt text, posting time, settings, checklist). Every reel's source is a folder of the private `asomelab/videos` repo, committed at each milestone; raws go to the Drive |
+| `asome-video-producto` | `reel de producto`, `mostrar la app que hicimos`, `caso de éxito en video`, `/asome-video-producto` | Product or case-study reel (~50 s, AI voiceover with ElevenLabs) for software ASOME built for a client: script in five lines, the product's screens rebuilt from its code with invented data, parallel scene agents with one review each, beat, cover, the same publish-ready Instagram package, and the source committed to `asomelab/videos`. Never logs into client systems; the client is unnamed without permission. Under two hours end to end |
 
 ## Dev flow
 
@@ -67,7 +87,8 @@ npx skills add asomelab/skills
 /asome-standup       → digest of board state
 
 # Content:
-/asome-video         → raw footage to an ASOME reel: plan, captions, motion, sound, IG export
+/asome-video            → raw footage to an ASOME reel: plan, captions, motion, sound, IG export + copy package
+/asome-video-producto   → product reel of a client app: script, AI voice, screens from code, IG package
 
 # Sprint close:
 /asome-sprint-demo       → deck prompt + demo script + checklist (1-2 days before the demo)
