@@ -1,8 +1,8 @@
 import type { Caption } from "@remotion/captions";
 import raw from "./captions-raw.json";
 
-// Whisper on public/cut.mp4, so timings are already reel time. Re-run after every
-// `npm run cut`: npm run transcribe -- public/cut.mp4 es src/captions-raw.json
+// Whisper on public/<tema>/cut.mp4, so timings are already reel time. Re-run after every
+// `npm run cut`: npm run transcribe -- public/<tema>/cut.mp4 es src/<tema>/captions-raw.json
 // Fixes go by phrase, not by timestamp, so they survive a re-transcription: [heard, said].
 // Example: ["Asom,", "ASOME."] or ["enviaron su", "envianos un"].
 const FIXES: ReadonlyArray<readonly [string, string]> = [];

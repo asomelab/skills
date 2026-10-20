@@ -1,10 +1,10 @@
-// The edit, in seconds of public/clip.mp4 (one file: join several recordings first, Fase 3).
+// The edit, in seconds of public/<tema>/clip.mp4 (one file: join several recordings first, Fase 3).
 // One segment per kept line, in REEL order: source order is not required (a hook re-recorded
 // at the end of the take can go first). In and out points sit in silences measured on the
 // 10 ms envelope (npm run analyze -- bounds ...), never on Whisper times, and stop before
 // every glance away from the lens (npm run analyze -- faces ...). Pauses over ~0.3 s inside
 // a take become two segments joined by MICRO.
-// After every change: npm run cut (renders public/cut.mp4 and public/blend.mp4).
+// After every change: npm run cut (renders public/<tema>/cut.mp4 and blend.mp4).
 
 type Segment = {
   readonly in: number;

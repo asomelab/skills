@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Footage analysis for choosing talking-head cuts. python3 + Pillow, no numpy.
-Reads $SRC (default public/clip.mp4); times are seconds of that file.
+Reads $SRC (default public/<tema>/clip.mp4, the reel in .reel or $REEL); times are seconds of that file.
 
   npm run analyze -- envelope 3.0 5.5        RMS per 10 ms as bars: where speech and silence are
   npm run analyze -- zcr 1.6 2.4             RMS + zero-crossing rate per 10 ms: compare take onsets
@@ -25,7 +25,8 @@ import tempfile
 import wave
 from array import array
 
-SRC = os.environ.get("SRC", "public/clip.mp4")
+REEL = os.environ.get("REEL") or (open(".reel").read().strip() if os.path.exists(".reel") else "")
+SRC = os.environ.get("SRC") or f"public/{REEL}/clip.mp4"
 SILENCE = float(os.environ.get("SILENCE", "-45"))
 BREATH = float(os.environ.get("BREATH", "-40"))
 # Cells: a quiet stretch shorter than 40 ms is a dip inside a sound, not a pause.
@@ -220,7 +221,7 @@ def sheet(out, *files):
 
 
 def same(a, b):
-    # Frame-exactness: a frame of public/cut.mp4 against the source frame it should be.
+    # Frame-exactness: a frame of public/<tema>/cut.mp4 against the source frame it should be.
     from PIL import Image, ImageChops, ImageStat
     x = Image.open(a).convert("RGB")
     y = Image.open(b).convert("RGB").resize(x.size)

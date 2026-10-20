@@ -2,12 +2,12 @@
 
 The building blocks of an ASOME reel and how to wire them. R1–R3 and R6–R8 come from the
 "Consejo" talking-head reel (2026-10-17, the accepted second cut) and are already wired in the
-template's `src/Reel.tsx`, `src/cuts.ts` and `scripts/build-cut.mts`. R4–R5 and `GrowthPlate`
+reel skeleton's `Reel.tsx` and `cuts.ts` (`assets/reel/`, copied to `src/<tema>/`) and `scripts/build-cut.mts`. R4–R5 and `GrowthPlate`
 come from the first reel (`example-reel.tsx`); that file's hard cuts, punch-in (old R2) and
 speaker card (old R3) are retired: see `lecciones-consejo.md`.
 Brand rules behind every number: `brand-video.md`.
 
-## Anatomy of `src/Reel.tsx`
+## Anatomy of `src/<tema>/Reel.tsx`
 
 ```
 <AbsoluteFill Penn Blue>
@@ -19,7 +19,7 @@ Brand rules behind every number: `brand-video.md`.
   SFX per split move · whoosh into the end card · music bed
 ```
 
-- `Root.tsx` takes `REEL_FRAMES` from `Reel.tsx`: kept frames − 15 (the slide overlaps the
+- `Compositions.tsx` takes `REEL_FRAMES` from `Reel.tsx`: kept frames − 15 (the slide overlaps the
   last half second) + 102 (the 3.4 s end card).
 - Everything over the footage is timed in **source seconds** through `at(<s>)`, which returns
   the reel frame. A time inside a removed range snaps to the next cut.
@@ -27,8 +27,8 @@ Brand rules behind every number: `brand-video.md`.
 
 ## R1 · Pre-cut take list (the base of everything)
 
-`src/cuts.ts`, one entry per kept piece in reel order (it may differ from source order, e.g.
-a hook re-recorded at the end goes first), in source seconds of `public/clip.mp4`:
+`src/<tema>/cuts.ts`, one entry per kept piece in reel order (it may differ from source order, e.g.
+a hook re-recorded at the end goes first), in source seconds of `public/<tema>/clip.mp4`:
 
 ```ts
 export const SEGMENTS: readonly Segment[] = [
@@ -47,8 +47,8 @@ export const BREATHS = [[11.05, 11.38]]; // inhale inside a kept range, -12 dB
   sound, in ≈ 0.05–0.10 s before the first: joined pauses land at 0.2–0.25 s.
 - `audioOut`: the speech runs into the next word with no gap (an aspirated /s/ touching a
   vowel). The audio ends there with a 12 ms fade and no handle.
-- `npm run cut` builds `public/cut.mp4` and `public/blend.mp4` and prints each cut's reel time.
-  Then re-transcribe `cut.mp4` into `src/captions-raw.json` and read it (coherence check).
+- `npm run cut` builds `public/<tema>/cut.mp4` and `blend.mp4` and prints each cut's reel time.
+  Then re-transcribe `cut.mp4` into `src/<tema>/captions-raw.json` and read it (coherence check).
 
 ## R2 · Dissolve between takes (replaces hard cuts and punch-ins)
 
@@ -81,7 +81,7 @@ const SPLITS: readonly Split[] = [
 - The move opens 6 frames before the cut at `from` and settles 12 after it (`ease.inOut`), and
   closes the same way on the cut at `to`: the layout change carries the cut.
 - `FACE_Y` = face center on the full frame (the Consejo footage: 855, so the video drops 585).
-- Panel layout: top half only, y 280–900, x 96, width 888. Build it from `src/Panels.tsx`;
+- Panel layout: top half only, y 280–900, x 96, width 888. Build it from `src/<tema>/Panels.tsx`;
   every `start` is the source second of the word that brings the item in. Each item rises on
   that word with its own SFX and holds; nothing leaves before the split closes.
 
@@ -175,8 +175,8 @@ invisible, and a later `from` makes the card pop in a second late. `thump` 0.4 a
 
 1. Pick 6 calm frames with the eyes on the lens and the mouth closed: `npm run frames -- …`,
    then `npm run analyze -- sheet out/portadas.jpg <the 6 JPGs>`. The user picks one.
-2. Extract it at full size: `npx remotion ffmpeg -ss 28.0 -i public/clip.mp4 -frames:v 1 -q:v 1 -y public/cover-frame.jpg`.
-3. In `Root.tsx`, set on both stills: `title` (first line), `highlight` (closing phrase),
+2. Extract it at full size: `npx remotion ffmpeg -ss 28.0 -i public/<tema>/clip.mp4 -frames:v 1 -q:v 1 -y public/<tema>/cover-frame.jpg`.
+3. In `src/<tema>/Compositions.tsx`, set on both stills (`frame` already points at that file): `title` (first line), `highlight` (closing phrase),
    `faceYInFrame` (face center y on a 1080 × 1920 canvas). Keep `faceY` 760 / 520 and
    `contentBottom` 1480 / 1254 unless the face would sit under the text.
 4. Render the stills and look at both: the highlight must start its own line.

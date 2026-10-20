@@ -57,10 +57,43 @@ else
   bad "Internet (para descargar Remotion, la tipografía Inter y el modelo de transcripción)"
 fi
 
-if maax=$(bash "$here/find-maax.sh"); then
+# Git and the reels repo: every reel's source is committed to the private asomelab/videos.
+ws="${ASOME_VIDEOS_DIR:-$HOME/Documents/asome-videos/videos}"
+access=0
+if command -v git >/dev/null 2>&1; then
+  ok "git $(git --version | awk '{print $3}')"
+else
+  bad "git (guarda el código de cada reel; se instala con: xcode-select --install)"
+fi
+if command -v gh >/dev/null 2>&1; then
+  if gh auth status >/dev/null 2>&1; then
+    ok "GitHub CLI con sesión iniciada"
+    if gh repo view asomelab/videos --json name >/dev/null 2>&1; then
+      ok "Acceso al repo privado asomelab/videos"
+      access=1
+    else
+      warn "Sin acceso a asomelab/videos: pedíselo al equipo de ASOME. Mientras, se trabaja en un repo local"
+    fi
+  else
+    bad "Sesión de GitHub (la iniciás vos en la Terminal: gh auth login)"
+  fi
+else
+  bad "GitHub CLI (gh: baja y sube el repo de los videos; brew install gh)"
+fi
+if [ -d "$ws/.git" ]; then
+  ok "Repo de videos en $ws"
+else
+  warn "Repo de videos todavía no está en $ws: lo prepara new-reel.sh"
+fi
+
+if [ -f "$ws/public/fonts/Maax-Bold.ttf" ]; then
+  ok "Tipografía Maax (del repo de videos)"
+elif [ "$access" -eq 1 ]; then
+  ok "Tipografía Maax (viene con el repo asomelab/videos)"
+elif maax=$(bash "$here/find-maax.sh"); then
   ok "Tipografía Maax: $maax"
 else
-  bad "Tipografía Maax (está en el Drive de ASOME: brand > Tipografia > Maax)"
+  bad "Tipografía Maax (sin acceso al repo: está en el Drive de ASOME, brand > Tipografia > Maax)"
 fi
 
 if [ -d "$HOME/.claude/skills/remotion-best-practices" ] || [ -d "$HOME/.agents/skills/remotion-best-practices" ]; then

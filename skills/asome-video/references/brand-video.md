@@ -145,8 +145,8 @@ on dark, inside a White Smoke box or circle. One family per piece. The brand's t
 - Fix the transcript before inlining it: brand names (Whisper writes "Asom" for ASOME),
   mis-heard verbs, voseo spelling ("envianos"), stray commas after names.
 - Hide the captions while a split screen carries the message on screen.
-- In the pre-cut workflow the captions come from transcribing `public/cut.mp4` (already reel
-  time); text fixes go by phrase (`FIXES` in `src/speech.ts`), so they survive re-transcription.
+- In the pre-cut workflow the captions come from transcribing `public/<tema>/cut.mp4` (already reel
+  time); text fixes go by phrase (`FIXES` in `src/<tema>/speech.ts`), so they survive re-transcription.
 
 ## Sound
 

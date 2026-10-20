@@ -1,10 +1,17 @@
 node_modules
 out
 .DS_Store
-# Maax is licensed to ASOME: it is copied from the ASOME Drive, never committed.
-public/fonts/*.ttf
-# Raw footage, the built cut and blend files, and generated audio stay local.
-public/*.mp4
-public/*.mov
-public/audio
+.env
+.env.*
+# The reel the npm scripts work on (new-reel.sh writes it), per machine.
+.reel
 transcript.json
+# Raw footage, the cut and blend pre-cuts, generated audio and QA frames: large or rebuildable.
+# Raws are backed up in the ASOME Drive: workspace/resources/crudos/<REEL TEMA>/.
+public/**/*.mp4
+public/**/*.mov
+public/**/*.wav
+public/qa
+# Maax is licensed to ASOME. This template only seeds a LOCAL repo (no access to the private
+# asomelab/videos, where Maax is versioned): there it is copied from the Drive, never committed.
+public/fonts/*.ttf

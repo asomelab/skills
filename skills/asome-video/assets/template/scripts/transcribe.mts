@@ -1,6 +1,6 @@
 // Transcribes a video with Whisper on the GPU and writes word-level captions.
-//   npm run transcribe -- public/clip.mp4 es                          the raw footage
-//   npm run transcribe -- public/cut.mp4 es src/captions-raw.json     the edit (coherence QA + captions)
+//   npm run transcribe -- public/<tema>/clip.mp4 es                              the raw footage
+//   npm run transcribe -- public/<tema>/cut.mp4 es src/<tema>/captions-raw.json  the edit (QA + captions)
 // Writes the JSON (Remotion Caption[], timestamps relative to that file; default
 // transcript.json) and prints the words grouped by pauses, which is how takes and flubs
 // become visible. Run it through tsx (npm run does): plain Node 22 has no `using`.
@@ -23,8 +23,9 @@ import {
   WavOutputFormat,
 } from "mediabunny";
 import { writeFile } from "node:fs/promises";
+import { currentReel } from "./reel.mjs";
 
-const [file = "public/clip.mp4", language = "es", out = "transcript.json"] =
+const [file = `public/${currentReel()}/clip.mp4`, language = "es", out = "transcript.json"] =
   process.argv.slice(2);
 // "small" is multilingual; English-only footage can use "small.en".
 const model = language === "en" ? "small.en" : "small";

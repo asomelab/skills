@@ -10,14 +10,15 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { color, ease, layout, PhotoGradient, Signature } from "./brand";
-import { Captions } from "./Captions";
+import { color, ease, layout, PhotoGradient, Signature } from "../brand";
+import { Captions } from "../Captions";
 import { captions } from "./speech";
 import { at, blendOpacity, CUT_FRAMES } from "./cuts";
-import { EndCard } from "./EndCard";
+import { EndCard } from "../EndCard";
+import { REEL } from "./id";
 
-// The reel: public/cut.mp4 (every kept take back to back, built by `npm run cut` from
-// src/cuts.ts) plays full frame with the brand captions. Motion appears only in 1-2
+// The reel: public/<tema>/cut.mp4 (every kept take back to back, built by `npm run cut` from
+// cuts.ts) plays full frame with the brand captions. Motion appears only in 1-2
 // split-screen moments: the motion on Penn Blue above, the speaker below. Never a box
 // around the face, never a punch-in. Then the end card slides up.
 // Overlay times are SOURCE seconds through at(), so they read against transcript.json.
@@ -37,7 +38,7 @@ const SPLIT_DROP = HALF + HALF / 2 - FACE_Y;
 // Split-screen moments. `from` is the `in` of the segment where it opens and `to` the `in`
 // of the segment where it closes (source seconds), so each layout move rides a cut: it
 // opens 6 frames before the cut and settles 12 after. Panel: the motion for the top half
-// (y 280-900), built from src/Panels.tsx (PanelTitle, Row, Total, ServiceGrid), each item
+// (y 280-900), built from Panels.tsx (PanelTitle, Row, Total, ServiceGrid), each item
 // on the source second of its word; worked example in R3 of motion-recipes.md.
 type Split = {
   readonly from: number;
@@ -83,14 +84,14 @@ const Footage: React.FC<{ readonly split: number }> = ({ split }) => {
         {/* One continuous file each, so the preview stays in sync across every cut. */}
         <Video
           name="Edit"
-          src={staticFile("cut.mp4")}
+          src={staticFile(`${REEL}/cut.mp4`)}
           objectFit="cover"
           effects={effects}
           style={fill}
         />
         <Video
           name="Dissolves"
-          src={staticFile("blend.mp4")}
+          src={staticFile(`${REEL}/blend.mp4`)}
           muted
           objectFit="cover"
           effects={effects}
@@ -216,7 +217,7 @@ export const Reel: React.FC = () => {
       />
       <Audio
         name="Music bed"
-        src={staticFile("audio/bed.wav")}
+        src={staticFile(`${REEL}/bed.wav`)}
         premountFor={fps}
         volume={(f) =>
           interpolate(

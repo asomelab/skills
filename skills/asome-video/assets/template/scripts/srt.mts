@@ -1,8 +1,13 @@
-// Writes the reel's captions (src/speech.ts, already in reel time) as an SRT file,
+// Writes the reel's captions (src/<tema>/speech.ts, already in reel time) as an SRT file,
 // one block per phrase. render.sh runs it; by hand:
 //   npx tsx scripts/srt.mts out/20261015_subtitulos_crecer-sin-estructura_v01.srt
 import { writeFileSync } from "node:fs";
-import { captions } from "../src/speech";
+import { currentReel } from "./reel.mjs";
+
+type Word = { text: string; startMs: number; endMs: number; pageBreakAfter?: boolean };
+const { captions } = (await import(`../src/${currentReel()}/speech.ts`)) as {
+  captions: Word[];
+};
 
 const out = process.argv[2] ?? "out/subtitulos.srt";
 const pad = (n: number, w = 2) => String(n).padStart(w, "0");

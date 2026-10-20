@@ -2,9 +2,9 @@ import { Audio } from "@remotion/media";
 import type { Icon } from "@tabler/icons-react";
 import type React from "react";
 import { interpolate, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
-import { color, ease, font, layout, rise } from "./brand";
+import { color, ease, font, layout, rise } from "../brand";
 import { at } from "./cuts";
-import { IconCard } from "./IconCard";
+import { IconCard } from "../IconCard";
 
 // Building blocks for the top half of a split (R3 in references/motion-recipes.md), from the
 // accepted Consejo cut: y 280-900, x 96, width 888, on Penn Blue. Every `start` is the SOURCE

@@ -9,7 +9,8 @@ import { color, font, layout } from "./brand";
 type ReelCoverProps = {
   readonly title: string;
   readonly highlight: string;
-  readonly faceYInFrame: number; // face center in public/cover-frame.jpg, measured on a 1080x1920 canvas
+  readonly frame?: string; // 1080x1920 still in public/, e.g. "<tema>/cover-frame.jpg"
+  readonly faceYInFrame: number; // face center in that still, measured on a 1080x1920 canvas
   readonly faceY: number; // where the face lands on the cover canvas
   readonly contentBottom: number; // y of the logotype's bottom edge
 };
@@ -17,6 +18,7 @@ type ReelCoverProps = {
 export const ReelCover: React.FC<ReelCoverProps> = ({
   title,
   highlight,
+  frame = "cover-frame.jpg",
   faceYInFrame,
   faceY,
   contentBottom,
@@ -28,7 +30,7 @@ export const ReelCover: React.FC<ReelCoverProps> = ({
       style={{ backgroundColor: color.pennBlue, overflow: "hidden" }}
     >
       <Img
-        src={staticFile("cover-frame.jpg")}
+        src={staticFile(frame)}
         style={{
           position: "absolute",
           left: 0,

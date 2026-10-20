@@ -4,17 +4,23 @@
 #   reel-4k       2160x3840 master (graphics rendered at 2x)
 #   portada-reel  9:16 JPG cover, uploaded with the reel
 #   portada-feed  4:5 JPG, how the cover reads in the profile grid
-#   subtitulos    SRT of the captions (src/speech.ts)
-# and copies them to ~/Downloads/<AAAAMMDD>_<tema>/.
-#   npm run render -- crecer-sin-estructura
+#   subtitulos    SRT of the captions (src/<tema>/speech.ts)
+# and copies them to ~/Downloads/<AAAAMMDD>_<tema>/. Compositions: <tema>, <tema>-portada,
+# <tema>-portada-feed (src/<tema>/Compositions.tsx).
+#   npm run render -- crecer-sin-estructura      (default: the reel in .reel)
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-slug="${1:-}"
+slug="${1:-${REEL:-$(cat .reel 2>/dev/null || true)}}"
 if [[ ! "$slug" =~ ^[a-z0-9]+(-[a-z0-9]+)*$ ]]; then
   echo "Usage: npm run render -- <tema-en-minusculas-con-guiones>  (sin tildes ni espacios)" >&2
   exit 1
 fi
+if [ ! -f "src/$slug/Compositions.tsx" ]; then
+  echo "No existe src/$slug: el tema tiene que ser la carpeta del reel." >&2
+  exit 1
+fi
+export REEL="$slug"
 date=$(date +%Y%m%d)
 mkdir -p out
 
@@ -43,13 +49,13 @@ still=(--image-format=jpeg --jpeg-quality=90 ${browser[@]+"${browser[@]}"})
 # Opening 4 pages at once sometimes fails ("Visited .../index.html but got no response"):
 # retry once with 2.
 render() {
-  npx remotion render Reel "$@" "${video[@]}" "--concurrency=$conc" ||
-    npx remotion render Reel "$@" "${video[@]}" "--concurrency=$((conc > 1 ? 2 : 1))"
+  npx remotion render "$slug" "$@" "${video[@]}" "--concurrency=$conc" ||
+    npx remotion render "$slug" "$@" "${video[@]}" "--concurrency=$((conc > 1 ? 2 : 1))"
 }
 render "out/${date}_reel_${slug}_${ver}.mp4" --crf=17
 render "out/${date}_reel-4k_${slug}_${ver}.mp4" --scale=2 --crf=16
-npx remotion still ReelCover "out/${date}_portada-reel_${slug}_${ver}.jpg" "${still[@]}"
-npx remotion still ReelCoverFeed "out/${date}_portada-feed_${slug}_${ver}.jpg" "${still[@]}"
+npx remotion still "$slug-portada" "out/${date}_portada-reel_${slug}_${ver}.jpg" "${still[@]}"
+npx remotion still "$slug-portada-feed" "out/${date}_portada-feed_${slug}_${ver}.jpg" "${still[@]}"
 npx tsx scripts/srt.mts "out/${date}_subtitulos_${slug}_${ver}.srt"
 
 dest="$HOME/Downloads/${date}_${slug}"

@@ -1,9 +1,11 @@
-// Synthesizes the reel's sound kit into public/audio/ (48 kHz, 16-bit WAV).
-// Deterministic (seeded noise), no dependencies: `npm run audio -- <bed seconds>`.
-// Pass the reel length plus 2 s so the music bed covers it (default 24 s).
-// ponytail: synthesized placeholders. Drop a licensed track over public/audio/bed.wav
-// (same name) when one is chosen; levels are set in src/Reel.tsx.
+// Synthesizes the shared sound kit into public/audio/ and the current reel's music bed into
+// public/<tema>/bed.wav (48 kHz, 16-bit WAV). Deterministic (seeded noise), no dependencies:
+// `npm run audio -- <bed seconds>`. Pass the reel length plus 2 s so the bed covers it
+// (default 24 s). Without a current reel (.reel / $REEL) the bed goes to public/audio/.
+// ponytail: synthesized placeholders. Drop a licensed track over public/<tema>/bed.wav
+// (same name) when one is chosen; levels are set in src/<tema>/Reel.tsx.
 import { mkdirSync, writeFileSync } from "node:fs";
+import { currentReel } from "./reel.mjs";
 
 const SR = 48000;
 const OUT = new URL("../public/audio/", import.meta.url);
@@ -230,12 +232,20 @@ if (!Number.isFinite(bedSeconds) || bedSeconds < 4) {
     `Bed length must be a number of seconds >= 4, got "${process.argv[2]}"`,
   );
 }
-writeWav("bed.wav", ...bed(bedSeconds));
+let bedFile = "bed.wav";
+try {
+  const reel = currentReel();
+  mkdirSync(new URL(`../${reel}/`, OUT), { recursive: true });
+  bedFile = `../${reel}/bed.wav`;
+} catch {
+  // No reel yet: the bed stays in public/audio/.
+}
+writeWav(bedFile, ...bed(bedSeconds));
 
 // Self-check: every file exists with a sane length.
 const { statSync } = await import("node:fs");
-for (const f of ["whoosh", "whoosh-soft", "tick", "thump", "rise", "bed"]) {
-  const size = statSync(new URL(`${f}.wav`, OUT)).size;
-  if (size < 4000) throw new Error(`${f}.wav looks empty (${size} bytes)`);
-  console.log(`${f}.wav  ${(size / 1024).toFixed(0)} KB`);
+for (const f of ["whoosh.wav", "whoosh-soft.wav", "tick.wav", "thump.wav", "rise.wav", bedFile]) {
+  const size = statSync(new URL(f, OUT)).size;
+  if (size < 4000) throw new Error(`${f} looks empty (${size} bytes)`);
+  console.log(`${f}  ${(size / 1024).toFixed(0)} KB`);
 }

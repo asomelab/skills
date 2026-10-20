@@ -1,25 +1,41 @@
-// Renders the edit in src/cuts.ts to two files that the Reel plays as single continuous
+// Renders the edit in src/<tema>/cuts.ts to two files that the Reel plays as single continuous
 // videos, so Studio preview stays in sync across every cut:
-//   public/cut.mp4    the kept ranges back to back, with the mixed audio
-//   public/blend.mp4  the frames the dissolves need (see blendPieces), no audio
+//   public/<tema>/cut.mp4    the kept ranges back to back, with the mixed audio
+//   public/<tema>/blend.mp4  the frames the dissolves need (see blendPieces), no audio
 // Audio is mixed here sample-exact, with an equal-power crossfade at every cut, because
 // Remotion's bundled ffmpeg has no xfade/acrossfade/afade/fade/overlay filters.
-//   npm run cut
+//   npm run cut          (the reel in .reel, or REEL=<tema> npm run cut)
 import { execFileSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import {
-  AUDIO_HANDLE,
-  blendPieces,
-  BREATHS,
-  CUT_FRAMES,
-  CUTS,
-  FPS,
-  SEGMENTS,
-} from "../src/cuts";
+import { currentReel } from "./reel.mjs";
 
-const SRC = "public/clip.mp4";
+// What this script reads from src/<tema>/cuts.ts (imported by path: one script, many reels).
+type Pair = readonly [number, number];
+type CutsModule = {
+  readonly AUDIO_HANDLE: number;
+  readonly BREATHS: ReadonlyArray<Pair>;
+  readonly CUT_FRAMES: number;
+  readonly CUTS: ReadonlyArray<{
+    readonly srcFrom: number;
+    readonly srcTo: number;
+    readonly len: number;
+    readonly outFrom: number;
+    readonly blend: Pair;
+  }>;
+  readonly FPS: number;
+  readonly SEGMENTS: ReadonlyArray<{ readonly line: string; readonly audioOut?: number }>;
+  readonly blendPieces: () => ReadonlyArray<Pair>;
+};
+const REEL = currentReel();
+const { AUDIO_HANDLE, blendPieces, BREATHS, CUT_FRAMES, CUTS, FPS, SEGMENTS } = (await import(
+  `../src/${REEL}/cuts.ts`
+)) as CutsModule;
+
+const SRC = `public/${REEL}/clip.mp4`;
+const CUT = `public/${REEL}/cut.mp4`;
+const BLEND = `public/${REEL}/blend.mp4`;
 const SR = 48000;
 const CH = 2;
 const tmp = mkdtempSync(join(tmpdir(), "asome-cut-"));
@@ -137,15 +153,15 @@ writeFileSync(join(tmp, "mix.wav"), Buffer.concat([header, pcm]));
 
 // 2. Video: the cut (with the mix muxed in) and the dissolve helper.
 const cutPieces = CUTS.map((c) => [c.srcFrom, c.len] as const);
-concat(cutPieces, "public/cut.mp4", {
+concat(cutPieces, CUT, {
   inputs: ["-i", join(tmp, "mix.wav")],
   args: ["-map", `${cutPieces.length}:a`, "-crf", "14", "-c:a", "aac", "-b:a", "256k"],
 });
-concat(blendPieces(), "public/blend.mp4", { args: ["-crf", "18"] });
+concat(blendPieces(), BLEND, { args: ["-crf", "18"] });
 rmSync(tmp, { recursive: true });
 
 // 3. Self-check: both files hold exactly the edit's frame count.
-for (const f of ["public/cut.mp4", "public/blend.mp4"]) {
+for (const f of [CUT, BLEND]) {
   const frames = Number(
     execFileSync("npx", [
       "remotion", "ffprobe", "-v", "error", "-select_streams", "v:0", "-count_packets",

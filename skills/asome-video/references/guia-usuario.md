@@ -17,8 +17,10 @@ Un reel vertical con la marca de ASOME, listo para Instagram:
 - La portada del reel hecha con una imagen real de tu video.
 
 Recibís el archivo para subir a Instagram, una copia en 4K para guardar, las portadas, los
-subtítulos en un archivo aparte y el texto para la publicación. Todo queda también en el Drive
-de ASOME.
+subtítulos en un archivo aparte y el paquete para publicar (texto, hashtags, primer comentario,
+cuándo publicar y qué tocar en Instagram, paso a paso). Todo queda también en el Drive de ASOME,
+y el "código" del video se guarda en GitHub, para poder rehacerlo o sacar otra versión cuando
+quieras.
 
 ## Qué necesitás
 
@@ -26,8 +28,11 @@ de ASOME.
   algunos pasos extra.
 - Claude Code: en la app de Claude (pestaña Code) o en la Terminal.
 - Tu video grabado en vertical.
-- Acceso al Drive de ASOME, porque ahí está Maax, la tipografía de la marca
-  (carpeta brand > Tipografia > Maax).
+- Una cuenta de GitHub con acceso al repositorio privado `asomelab/videos` (pedíselo al equipo
+  de ASOME). Ahí se guarda cada video y viene Maax, la tipografía de la marca. Sin acceso
+  también se puede: Claude trabaja en tu compu y toma Maax del Drive de ASOME
+  (brand > Tipografia > Maax).
+- Google Drive para escritorio con el Drive de ASOME, para guardar los crudos y las entregas.
 - Internet y unos 3 GB libres en la compu.
 - Python con Pillow (lo instala Claude si falta) y, si podés, Google Chrome: con Chrome el
   video se exporta más rápido.
@@ -55,7 +60,10 @@ de ASOME.
    funcionar el editor) y la tipografía. Te aviso cada cosa antes de hacerla. Si algún paso
    pide la contraseña de tu Mac, te digo exactamente qué hacer: la escribís vos, Claude
    nunca la ve.
-3. **Creo la carpeta del proyecto** en Documentos > asome-videos.
+3. **Preparo la carpeta del video** dentro del repositorio de videos de ASOME
+   (Documentos > asome-videos > videos). La primera vez lo descargo de GitHub; para eso
+   iniciás sesión vos en GitHub con `gh auth login`, en la Terminal, y te digo cada paso.
+   Tu video original se guarda en el Drive de ASOME (workspace > resources > crudos).
 4. **Me pasás el video**: arrastralo al chat o decime dónde está. Lo transcribo para saber
    qué decís y en qué segundo, y reviso cada corte: los arranques en falso, los silencios y
    dónde mirás. La primera vez tarda unos minutos porque se descarga el modelo de
@@ -63,10 +71,12 @@ de ASOME.
 5. **Te propongo un plan de edición**: qué partes quedan y cuáles se cortan (y por qué), el
    texto de los subtítulos corregido, los momentos con gráficos, el cierre y seis opciones de
    portada para que elijas una. Vos decís "dale" o pedís cambios. **Nada se arma sin tu OK.**
+   Con tu OK guardo el plan en GitHub (un "commit"), y vuelvo a guardar en el primer armado y
+   en la versión final.
 6. **Armo el video y te lo muestro** en Remotion Studio.
 7. **Pedís cambios con tus palabras** y los aplico. Repetimos hasta que te guste.
-8. **Exporto** los archivos finales, escribo el texto para la publicación y te dejo todo en
-   la carpeta Descargas y en el Drive de ASOME (marketing > reels).
+8. **Exporto** los archivos finales, armo el paquete para publicar y te dejo todo en la
+   carpeta Descargas y en el Drive de ASOME (marketing > reels).
 
 ## Remotion Studio en un minuto
 
@@ -104,23 +114,37 @@ regla de marca: fecha, formato, tema y versión.
 | `…_portada-reel_…_v01.jpg` | La portada, que se sube junto con el reel |
 | `…_portada-feed_…_v01.jpg` | Te muestra cómo queda la portada en la grilla del perfil |
 | `…_subtitulos_…_v01.srt` | Los subtítulos en un archivo aparte, por si la red los pide |
-| `…_copy_…_v01.md` | El texto para la publicación: descripción, hashtags, primer comentario y texto alternativo |
+| `…_copy_….md` | El paquete para publicar: caption, hashtags, primer comentario, texto alternativo, portada, cuándo publicar, qué tocar en Instagram y la lista final |
 
 La misma carpeta se sube al Drive de ASOME, en marketing > reels, con la fecha y el tema. Si
 tu compu no tiene Google Drive para escritorio, Claude te avisa y la subís vos.
 
 ## Cómo subirlo a Instagram
 
-- **Desde el celular:** pasate el video y la portada (AirDrop o Drive). En Instagram:
-  nuevo Reel, elegís el video, "Editar portada" y "Agregar de la galería" con la portada.
-- **Desde la compu:** en instagram.com o Meta Business Suite, creás el reel, subís el video
-  y en la portada subís la imagen.
-- Mirá la versión "feed" de la portada: así se va a ver recortada en tu perfil.
+Abrí el archivo `…_copy_….md`: tiene todo en orden, listo para copiar y pegar.
+
+1. Pasate al celular el video `…_reel_…` y la portada `…_portada-reel_…` (AirDrop o Drive).
+2. En Instagram: **+** → **Reel** → elegís el video.
+3. No agregues música de Instagram: el video ya trae su sonido.
+4. **Editar portada** → **Agregar de la galería** → la portada. Mirá la versión "feed": así se
+   ve en la grilla de tu perfil.
+5. Pegá el **Caption** y, al final, los **Hashtags**.
+6. Dejá activado **Compartir en el feed**. Los subtítulos ya están en el video: dejá apagados
+   los subtítulos automáticos de Instagram para que no aparezcan dos veces.
+7. En **Configuración avanzada**, pegá el **Texto alternativo** si la app te lo ofrece.
+8. **Compartir**. Apenas sale, publicá el **Primer comentario** y fijalo.
+9. Respondé los comentarios de la primera hora.
+
+El archivo también te sugiere el día y la hora para publicar, y trae una lista final para
+tildar. Desde la compu es igual, en instagram.com o Meta Business Suite.
 
 ## Si algo sale mal
 
-- **"No encuentro la tipografía Maax":** entrá al Drive de ASOME, descargá la carpeta
-  brand > Tipografia > Maax a tu carpeta Descargas y avisale a Claude.
+- **"No encuentro la tipografía Maax":** viene con el repositorio de videos. Si todavía no
+  tenés acceso, entrá al Drive de ASOME, descargá la carpeta brand > Tipografia > Maax a tu
+  carpeta Descargas y avisale a Claude.
+- **"Sin acceso a asomelab/videos":** pedíselo al equipo de ASOME con tu usuario de GitHub.
+  Mientras, el video se guarda solo en tu compu.
 - **"Aparece una ventana que pide contraseña":** es la de tu Mac. La escribís vos.
 - **Nunca pegues contraseñas ni claves en el chat.** Si pasó, cambiala ese mismo día.
 - **"La transcripción no funciona":** pasa en algunas compus sin una placa de video
@@ -141,3 +165,6 @@ tu compu no tiene Google Drive para escritorio, Claude te avisa y la subís vos.
 - **Fundido:** la transición suave de una toma a la siguiente.
 - **Motion graphics:** textos, tarjetas y gráficos animados.
 - **Máster 4K:** la copia en máxima calidad, para archivo.
+- **GitHub / repositorio:** donde se guarda el "código" de cada video, con su historial.
+- **Commit:** cada vez que se guarda una versión en el repositorio.
+- **Crudo:** el video original, tal como salió de la cámara.
