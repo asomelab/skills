@@ -1,12 +1,15 @@
 {
-  "version": "1.0.0",
+  "version": "1.2.0",
   "organization": "ASOME Lab",
   "date": "October 2026",
-  "abstract": "Turns a raw talking-head recording into an ASOME branded Instagram reel with Remotion, for people who are not technical: it explains the process in Spanish, checks the machine and installs what is missing (Node.js, the Remotion skill, a project template with the ASOME brand components, the licensed Maax font from the ASOME Drive), transcribes the footage and proposes an edit plan that waits for the user's OK. It then builds the reel on the ASOME design system (brand captions, motion graphics tied to the speech, end card, sound design), previews it in Remotion Studio, applies changes asked in plain words, and exports the 1080x1920 Instagram file, a 4K master and the 9:16 and 4:5 covers, named per the brand rule and copied to Downloads.",
+  "abstract": "Turns a raw talking-head recording into an ASOME branded Instagram reel with Remotion, for people who are not technical: it explains the process in Spanish, checks the machine and installs what is missing (Node.js, Python with Pillow, git and the GitHub CLI, the Remotion skill), and works in the private asomelab/videos repo, one Remotion project with one folder per reel and the shared brand system (cloned once; the licensed Maax font is versioned there, with the ASOME Drive as fallback for people without access, in a local git repo). It transcribes and measures the footage (false starts by onset comparison, cut points on a 10 ms silence envelope, gaze on face contact sheets) and proposes an edit plan with 1-2 split-screen motion moments and a cover picked from six options, which waits for the user's OK. It then pre-cuts the takes into one continuous file with sample-exact audio crossfades and frame dissolves, re-transcribes the cut to check it reads coherently, builds the reel on the ASOME design system (brand captions, split screens, end card, sound design), previews it in Remotion Studio, applies changes asked in plain words, and exports the 1080x1920 Instagram file, a 4K master, the 9:16 and 4:5 covers, the SRT and a publish-ready Instagram package (caption from three angles and an editor, hashtags, first comment, alt text, cover check, posting time, step-by-step Instagram settings and a checklist), copied to Downloads and to ASOME/marketing/reels in the Drive. The reel's source is committed and pushed with conventional commits at the plan, the first full build and the final version, with a README section on how to rebuild and vary it; raws go to the Drive, never to git.",
   "references": [
     "references/guia-usuario.md",
     "references/brand-video.md",
     "references/motion-recipes.md",
+    "references/lecciones-consejo.md",
+    "references/repo-videos.md",
+    "references/copy-instagram.md",
     "references/example-reel.tsx"
   ]
 }

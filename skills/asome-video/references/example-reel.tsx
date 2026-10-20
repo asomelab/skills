@@ -23,10 +23,11 @@ import { EndCard } from "./EndCard";
 import { GrowthPlate } from "./GrowthPlate";
 import { IconCard } from "./IconCard";
 
-// WORKED EXAMPLE, not compiled. The first ASOME reel (2026-10-14), kept as the reference
-// for every pattern in motion-recipes.md. Drop it in as src/Reel.tsx only to study it;
-// for a new video, write the scenes again with the new transcript and timings.
-// Root.tsx needs durationInFrames={639} for this cut.
+// WORKED EXAMPLE, not compiled. The first ASOME reel (2026-10-14, skill v1.0). Since v1.1
+// it is the reference only for IconCard (R4-R5) and GrowthPlate. Its hard cuts between
+// takes, the 1.1x punch-in on the second take and the speaker shrinking into a rounded card
+// are retired (lecciones-consejo.md): the template's Reel.tsx plays a pre-cut file with
+// dissolves and uses a split screen instead. It no longer fits the template as src/Reel.tsx.
 //
 // Source: public/clip.mp4, one raw 38 s take. Kept: the clean pitch (6.6-19.2 s)
 // and the clean CTA (28.2-34.1 s); the flubbed attempts in between are cut.

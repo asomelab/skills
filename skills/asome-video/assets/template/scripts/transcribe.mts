@@ -1,7 +1,9 @@
 // Transcribes a video with Whisper on the GPU and writes word-level captions.
-//   npm run transcribe -- public/clip.mp4 es
-// Writes transcript.json (Remotion Caption[], timestamps relative to that file) and
-// prints the words grouped by pauses, which is how takes and flubs become visible.
+//   npm run transcribe -- public/<tema>/clip.mp4 es                              the raw footage
+//   npm run transcribe -- public/<tema>/cut.mp4 es src/<tema>/captions-raw.json  the edit (QA + captions)
+// Writes the JSON (Remotion Caption[], timestamps relative to that file; default
+// transcript.json) and prints the words grouped by pauses, which is how takes and flubs
+// become visible. Run it through tsx (npm run does): plain Node 22 has no `using`.
 import { registerMediabunnyServer } from "@mediabunny/server";
 import {
   WHISPER_WEBGPU_SAMPLE_RATE,
@@ -21,8 +23,10 @@ import {
   WavOutputFormat,
 } from "mediabunny";
 import { writeFile } from "node:fs/promises";
+import { currentReel } from "./reel.mjs";
 
-const [file = "public/clip.mp4", language = "es"] = process.argv.slice(2);
+const [file = `public/${currentReel()}/clip.mp4`, language = "es", out = "transcript.json"] =
+  process.argv.slice(2);
 // "small" is multilingual; English-only footage can use "small.en".
 const model = language === "en" ? "small.en" : "small";
 
@@ -107,7 +111,7 @@ await using _modelHandle = await loadWhisperModel({ model });
 const transcription = await transcribe({ channelWaveform, model, language });
 const { captions } = toCaptions({ whisperWebGpuOutput: transcription });
 
-await writeFile("transcript.json", JSON.stringify(captions, null, 2));
+await writeFile(out, JSON.stringify(captions, null, 2));
 
 // A pause longer than 0.6 s starts a new line: retakes and flubs show up as repeated lines.
 let line = "";
@@ -127,4 +131,4 @@ for (const c of captions) {
 if (line) {
   console.log(`${(lineStart / 1000).toFixed(2).padStart(6)}s ${line.trim()}`);
 }
-console.log(`\n${captions.length} words -> transcript.json`);
+console.log(`\n${captions.length} words -> ${out}`);

@@ -15,6 +15,8 @@ import { color, ease, font, Handle, IsoMark, layout, radius } from "./brand";
 // "Cierre visual" (Sistema visual, p.18) + "Bloque de cierre" (p.19):
 // Penn Blue, complete logo in White Smoke, title with one Cornflower highlight,
 // @ pill, closing block at the foot. Everything enters rising, then holds still.
+// Its animation starts at its own frame 0: when it slides in on a sheet, mount it at 0
+// inside an opaque Penn Blue sheet (Reel.tsx), never with a later `from`.
 
 type EndCardProps = {
   readonly title: string;

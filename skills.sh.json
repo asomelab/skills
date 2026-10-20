@@ -72,9 +72,10 @@
     },
     {
       "title": "Content",
-      "description": "Skills for ASOME marketing content: turning raw footage into branded Instagram reels on the ASOME design system, with captions, motion graphics tied to the speech, sound design and covers, ready to upload. Built for people who are not technical.",
+      "description": "Skills for ASOME marketing content: turning raw footage into branded Instagram reels on the ASOME design system, with captions, motion graphics tied to the speech, sound design and covers, ready to upload; and product or case-study reels that present software ASOME built for a client, with an AI voiceover, the product's screens rebuilt from its code and subtitles. Both deliver a publish-ready Instagram package and commit every reel's source to the private asomelab/videos repo. Built for people who are not technical.",
       "skills": [
-        "asome-video"
+        "asome-video",
+        "asome-video-producto"
       ]
     }
   ]

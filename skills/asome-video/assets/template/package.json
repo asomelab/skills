@@ -1,6 +1,6 @@
 {
   "name": "asome-video",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "ASOME branded reel, edited with Remotion (template from the asome-video skill)",
   "private": true,
   "license": "UNLICENSED",
@@ -9,7 +9,10 @@
     "audio": "node scripts/make-audio.mjs",
     "transcribe": "tsx scripts/transcribe.mts",
     "frames": "bash scripts/frames.sh",
+    "analyze": "python3 scripts/analyze.py",
+    "cut": "tsx scripts/build-cut.mts",
     "render": "bash scripts/render.sh",
+    "drive": "bash scripts/drive.sh",
     "lint": "eslint src && tsc"
   },
   "dependencies": {
