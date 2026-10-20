@@ -1,8 +1,8 @@
 {
-  "version": "1.1.0",
+  "version": "1.1.1",
   "organization": "ASOME Lab",
-  "date": "June 2026",
-  "abstract": "Generates a markdown daily standup digest from any ASOME GitHub project board in under 10 seconds. Shows In Progress, Blocked, In Review, recently Done (48h), and To Do issues with story points and sprint velocity. Project number and org resolved from .asome/config.json. Read-only.",
+  "date": "October 2026",
+  "abstract": "Generates a markdown daily standup digest from any ASOME GitHub project board. Shows In Progress, Blocked and In Review issues, the ones closed in the last 48 hours, and the running sprint's To Do, with story points and that sprint's velocity. Project number and org resolved from .asome/config.json. Read-only.",
   "references": [
     "https://docs.github.com/en/graphql"
   ]

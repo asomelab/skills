@@ -18,6 +18,7 @@ skills/<name>/
 1. Create `skills/<name>/SKILL.md` with frontmatter (`name`, `description`, `license`, `metadata`)
 2. Add `skills/<name>/metadata.json` with `version`, `organization`, `date`, `abstract`, `references`
 3. Add the skill name to the relevant group in `skills.sh.json`
+4. Add its row to the Skills table in `README.md` — the registry (see `AGENTS.md`)
 
 ## Conventions
 

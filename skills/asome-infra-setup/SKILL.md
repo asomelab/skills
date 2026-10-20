@@ -188,9 +188,13 @@ echo "Next: run /asome-infra-plan to preview, then /asome-infra-audit to validat
 `references/access-model.md`.** Este step nunca crea usuarios ni permisos IAM en silencio.
 
 ```bash
-# El equipo lo escribe /asome-setup en .asome/config.json
+# El equipo lo escribe /asome-setup (Step 6) en .asome/config.json
 jq -r '.team[]? | "\(.name)\t\(.role // "sin rol declarado")"' .asome/config.json
 ```
+
+Si la lista sale vacía o `jq` falla, el config no tiene `team` o lo tiene con otra forma (escrito a
+mano antes de asome-setup 2.2): correr `/asome-setup board`, que lo carga o lo convierte. Nunca
+asignar perfiles sin saber quién es el equipo.
 
 Para cada persona, asignar uno de los tres perfiles de `references/access-model.md` (`asome-dev` /
 `asome-infra` / `asome-readonly`) según su rol declarado, e imprimir:

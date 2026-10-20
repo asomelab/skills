@@ -24,6 +24,11 @@ unknown external email) ask ONE question, then create.
 > **Prerequisite**: Google Calendar MCP connected. Organizer calendar is
 > `hola@asomelab.com` (resolve via `list_calendars` — it is the ASOME workspace calendar,
 > timezone `America/Argentina/Tucuman`).
+>
+> **Run it from a session opened outside any repo set up by `/asome-setup`** — your home
+> folder, for instance. Inside one, `.claude/settings.json` denies the Calendar and Gmail
+> servers on purpose (asome-setup Step 11): every call fails, reads included, and no `allow`
+> overrides a `deny`. Claude Code loads project settings only from the folder a session starts in.
 
 ---
 
@@ -134,3 +139,5 @@ shape unless the user explicitly overrides one.
   `America/Argentina/Tucuman` so DST/offset mistakes can't happen.
 - Adding attendees sends real invites (`notificationLevel: ALL`). Confirm the email is
   right before creating — resolve from history, don't guess.
+- A permission denial on the Calendar or Gmail tools inside a project is the repo's `deny`, not a
+  broken connector. Reopen the session outside the repo; never add an `allow` or edit the `deny`.

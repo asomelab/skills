@@ -12,7 +12,7 @@ description: >
 license: Apache-2.0
 metadata:
   author: asome
-  version: "2.1"
+  version: "2.2"
 ---
 
 # ASOME — Sprint Management
@@ -115,8 +115,28 @@ depth0() {
 ```
 
 **Team and capacity config.** The canon's capacity model needs to know who is on the project and
-how each person splits across lanes. `/asome-setup` writes `team` into `.asome/config.json`; the
-per-sprint lane dedication is asked for at `bootstrap` and at `plan` time when it is not yet known.
+how each person splits across lanes. `/asome-setup` writes `team` into `.asome/config.json` —
+name, GitHub login and role per person (schema: asome-setup Step 6). The per-sprint lane
+dedication is asked for at `bootstrap` and at `plan` time when it is not yet known, and stored on
+each person as `dedication_by_sprint`, keyed by the sprint title. A config with no `team`, or with
+a hand-written one that is not an array (both predate asome-setup 2.2; the functions below fail on
+the second): run `/asome-setup board` first, or ask who is on the project in the same batched
+question — never assume a team size.
+
+```bash
+# Person-units a lane has in a sprint — the input of ceiling_sp() in plan → Gate 1
+lane_units() {  # $1 = sprint title, $2 = lane (dev|ux)
+  jq --arg s "$1" --arg l "$2" \
+    '[.team[]? | .dedication_by_sprint[$s][$l]? // 0] | add // 0' .asome/config.json
+}
+
+# Store what the user declared — one person, one sprint, every lane they work in
+set_dedication() {  # $1 = github login, $2 = sprint title, $3 = JSON, e.g. '{"dev":0.75}'
+  jq --arg g "$1" --arg s "$2" --argjson d "$3" \
+    '(.team[] | select(.github == $g) | .dedication_by_sprint[$s]) = $d' \
+    .asome/config.json > /tmp/asome-cfg.$$.json && mv /tmp/asome-cfg.$$.json .asome/config.json
+}
+```
 
 ```bash
 # Capacity constants — see references/sprint-canon.md §3
@@ -149,8 +169,9 @@ jq -r '.fields.Sprint.iterations[] | "\(.title): \(.id) (\(.start) – \(.end))"
 
 **Trigger:** "armar los sprints", "bootstrap sprints", "plan de sprints", "arrancar el proyecto"
 
-Lays out a new project's whole sprint structure from the canon. Run once, right after
-`/asome-setup` and the kick-off. **Read `references/sprint-canon.md` first** — this sub-command
+Lays out a new project's whole sprint structure from the canon. Run once, after `/asome-setup`
+and **before the kick-off deck**: `/asome-kickoff` reads the `11-plan-de-sprints.md` written here
+for its roadmap and demo dates. **Read `references/sprint-canon.md` first** — this sub-command
 executes that document.
 
 ### Step 1 — gather the shape (batched, one round of questions)
@@ -276,7 +297,9 @@ Nothing used to stop a sprint from being loaded past what the team can deliver. 
 check. It is not advisory: an unregistered overrun is an estimation error ASOME absorbs, per the
 code of ethics.
 
-Ask for (or read from `.asome/config.json`) each person's lane dedication for this sprint, then:
+Read each person's lane dedication for this sprint from `team[].dedication_by_sprint`. Anyone
+without an entry for it: ask, in one batched question, and store the answers with
+`set_dedication`. Then `ceiling_sp "$(lane_units "Sprint $N" dev)"`, and the same for `ux`:
 
 ```bash
 # Ceiling per lane — see references/sprint-canon.md §3 for the model

@@ -39,7 +39,7 @@ Las skills viven en un repositorio de GitHub y se instalan con un solo comando. 
 | Git y GitHub CLI (`gh`) | Trabajar con repositorios, issues, PRs y el tablero | Las skills que hablan con GitHub (ver más abajo) |
 | `jq` y `python3` | Leer `.asome/config.json` y armar resúmenes | `asome-create-issue`, `asome-sprint`, `asome-standup`, `asome-sprint-demo` y otras |
 | Terraform y AWS CLI | Infraestructura en la nube | `asome-infra-setup` y `asome-infra-plan` (las dos); `asome-infra-costs` (solo AWS) |
-| Conector de Google Calendar (y Gmail) | Agendar reuniones y encontrar mails de invitados | `asome-meeting`, `asome-kickoff agenda` |
+| Conector de Google Calendar (y Gmail) | Agendar reuniones y encontrar mails de invitados | `asome-meeting`, `asome-kickoff agenda` (las dos, desde una sesión abierta fuera del repo del proyecto) |
 | Claude Design | Armar presentaciones a partir del texto que te dan las skills | `asome-kickoff`, `asome-sprint-demo` |
 
 Un **conector** (también se lo llama MCP) es una conexión de Claude con otra herramienta, como Google Calendar o Gmail.
@@ -108,7 +108,7 @@ Casi todas las skills leen archivos de la carpeta donde estás parado: `.asome/c
 
 ### Qué skills necesitan `.asome/config.json`
 
-Es el archivo con los datos del tablero del proyecto (número del GitHub Project, campos, sprints, ramas de despliegue). Lo crea `/asome-setup`, que se corre **una vez por proyecto**. El archivo queda guardado en git, así que lo comparte todo el equipo.
+Es el archivo con los datos del tablero del proyecto (número del GitHub Project, campos, sprints, ramas de despliegue) y del equipo (nombre, usuario de GitHub y rol de cada persona). Lo crea `/asome-setup`, que se corre **una vez por proyecto**. El archivo queda guardado en git, así que lo comparte todo el equipo.
 
 - **Lo necesitan:** `asome-create-issue`, `asome-branch-pr`, `asome-deploy`, `asome-standup`, `asome-sprint`, `asome-sprint-demo` y `asome-infra-setup`.
 - **Lo aprovechan si está:** `asome-onboard` (con el archivo muestra el tablero completo), `asome-review` y `asome-infra-costs` (para saber de qué repo se trata) y `asome-kickoff` (solo en el modo `agenda`).
@@ -224,13 +224,13 @@ Si falta, la skill te avisa y te manda a `/asome-setup`.
 
 **Qué necesitás antes.** Estar en la carpeta del repo, con `gh` autenticado y con acceso a los GitHub Projects de la organización. Si hay varios tableros, te pregunta cuál usar. Para la parte del manual hace falta Node.js; si falta OpenSpec, lo instala en tu compu. Como también agrega paquetes al proyecto, conviene que lo corra alguien del equipo de desarrollo.
 
-**Qué te devuelve / qué cambia.** Crea `.asome/config.json` (queda en git y no tiene secretos) y las etiquetas del repo en GitHub. En el modo completo suma `openspec/`, `AGENTS.md`, reglas en `.claude/settings.json`, escaneo de secretos y los registros en `docs/`. Todo eso tiene que entrar en un solo PR contra la rama de desarrollo, con commits separados por tema. El modo `doctor` solo imprime un informe con tres niveles: CRITICAL (se incumple una regla obligatoria), WARNING (un estándar) y TARGET (está bien, pero depende de algo externo, como el plan de GitHub), y pregunta antes de arreglar nada.
+**Qué te devuelve / qué cambia.** Crea `.asome/config.json` (queda en git y no tiene secretos) y las etiquetas del repo en GitHub. La primera vez te pregunta quién trabaja en el proyecto (nombre, usuario de GitHub y rol de cada persona) y lo guarda en el config: lo usan `asome-sprint`, `asome-create-issue`, `asome-sprint-demo` y `asome-infra-setup`. En el modo completo suma `openspec/`, `AGENTS.md`, reglas en `.claude/settings.json`, escaneo de secretos y los registros en `docs/`. Todo eso tiene que entrar en un solo PR contra la rama de desarrollo, con commits separados por tema. El modo `doctor` solo imprime un informe con tres niveles: CRITICAL (se incumple una regla obligatoria), WARNING (un estándar) y TARGET (está bien, pero depende de algo externo, como el plan de GitHub), y pregunta antes de arreglar nada.
 
 **Cuidado con.**
 - Nunca inventa datos: lo que no puede deducir queda como `<<HUECO M-NN>>` en `AGENTS.md`, para preguntárselo al cliente.
 - Un archivo que existe no alcanza para dar algo por cumplido: `doctor` marca como crítico, por ejemplo, una protección automática (un hook) que está instalada pero inactiva.
 - Si no hay módulo de login en el producto, lo deja como candidato de issue y no escribe código de auth por su cuenta.
-- Volver a correrlo es seguro: reescribe el archivo de config con los datos actuales del tablero.
+- Volver a correrlo es seguro: actualiza los datos del tablero y conserva el equipo y la capacidad medida por `asome-sprint`. Si alguien entra o sale del proyecto, decíselo y actualiza el equipo.
 
 ### `/asome-onboard`
 
@@ -253,7 +253,7 @@ Si falta, la skill te avisa y te manda a `/asome-setup`.
 
 ### `/asome-create-skill`
 
-**Para qué sirve.** Crea una skill nueva para este repositorio: genera el `SKILL.md` (las instrucciones, con sus frases gatillo), el `metadata.json` y la anota en `skills.sh.json`, en el grupo que corresponde.
+**Para qué sirve.** Crea una skill nueva para este repositorio: genera el `SKILL.md` (las instrucciones, con sus frases gatillo) y el `metadata.json`, le suma su fila a la tabla del README (el registro de skills) y la anota en `skills.sh.json`, en el grupo que corresponde.
 
 **Cuándo usarla.** Cuando un flujo de trabajo se repite y querés dejarlo escrito para todo el equipo. La usa quien mantiene el repo de skills.
 
@@ -263,12 +263,12 @@ Si falta, la skill te avisa y te manda a `/asome-setup`.
 
 **Qué necesitás antes.** Abrir Claude Code en la raíz del repo de skills. Tené a mano el nombre (`asome-<verbo>` o `asome-<sustantivo>`), una descripción de una línea con las frases gatillo, el grupo y un resumen de dos o tres oraciones. Lo que falte, lo infiere del contexto o te lo pregunta.
 
-**Qué te devuelve / qué cambia.** Archivos nuevos `skills/<nombre>/SKILL.md` y `metadata.json`, y una línea en `skills.sh.json`. Al final imprime lo que creó. Ejecuta directo, sin vista previa.
+**Qué te devuelve / qué cambia.** Archivos nuevos `skills/<nombre>/SKILL.md` y `metadata.json`, una fila en la tabla del README y una línea en `skills.sh.json`. Al final imprime lo que creó. Ejecuta directo, sin vista previa.
 
 **Cuidado con.**
 - Si no queda registrada en `skills.sh.json`, la skill no aparece en el autocompletado.
 - Las skills no llevan nombres de repos ni IDs fijos: esos datos salen de `.asome/config.json` de cada proyecto.
-- Según el `AGENTS.md` del repo, el README es el registro de skills y hay que mantenerlo al día. Esta skill no lo toca, así que sumá la fila a mano.
+- Esta guía no se actualiza sola: si la skill es para todo el equipo, sumale su sección acá.
 
 ---
 
@@ -455,7 +455,7 @@ Si falta, la skill te avisa y te manda a `/asome-setup`.
 
 **Qué necesitás antes.** Las CLI `gh`, `terraform` y `aws` instaladas y autenticadas, `.asome/config.json`, y permiso para clonar `asomelab/infrastructure`.
 
-**Qué te devuelve / qué cambia.** Las carpetas `infra/` y `.github/workflows/` con lo copiado, entradas de Terraform en `.gitignore`, una lista de pendientes para completar (estado remoto, variables, región, secretos de GitHub) y `docs/ACCESOS.md`. Para cada persona del equipo asigna un perfil (`asome-dev`, `asome-infra` o `asome-readonly`) e imprime los comandos para verificar el acceso el primer día.
+**Qué te devuelve / qué cambia.** Las carpetas `infra/` y `.github/workflows/` con lo copiado, entradas de Terraform en `.gitignore`, una lista de pendientes para completar (estado remoto, variables, región, secretos de GitHub) y `docs/ACCESOS.md`. Para cada persona del equipo (lo carga `/asome-setup` en el config) asigna un perfil (`asome-dev`, `asome-infra` o `asome-readonly`) e imprime los comandos para verificar el acceso el primer día.
 
 **Cuidado con.**
 - Revisá lo copiado antes de commitear. No copia archivos de estado ni `*.tfvars`, y no pisa un `infra/` existente sin tu confirmación.
@@ -483,7 +483,7 @@ Si falta, la skill te avisa y te manda a `/asome-setup`.
 
 ### `/asome-infra-costs`
 
-**Para qué sirve.** Revisa cuánto se gasta en AWS y por qué: gasto por servicio, instancias paradas o sobredimensionadas, discos sin usar, copias viejas, IP sin usar, NAT Gateways, bases de datos y buckets sin reglas de ciclo de vida. Termina con una lista priorizada de recomendaciones con ahorro estimado.
+**Para qué sirve.** Revisa cuánto se gasta en AWS y por qué: gasto por servicio mes a mes (los dos meses anteriores y lo que va del actual), instancias paradas o sobredimensionadas, discos sin usar, copias viejas, IP sin usar, NAT Gateways, bases de datos y buckets sin reglas de ciclo de vida. Termina con una lista priorizada de recomendaciones con ahorro estimado.
 
 **Cuándo usarla.** Para revisar el gasto en la nube o para reducirlo.
 
@@ -535,7 +535,7 @@ Si falta, la skill te avisa y te manda a `/asome-setup`.
 
 | Subcomando | Qué hace | Cuándo |
 |---|---|---|
-| `bootstrap` | Arma todos los sprints, hitos y documentos del plan | Una vez por proyecto, después de `/asome-setup` |
+| `bootstrap` | Arma todos los sprints, hitos y documentos del plan | Una vez por proyecto, después de `/asome-setup` y antes del deck del kick-off |
 | `plan` | Asigna issues a un sprint (quedan en To Do) | Al planificar cada sprint |
 | `move` | Cambia un issue de etapa | Cuando cambia su estado |
 | `report` | Muestra la velocidad por carril y los bloqueos | A mitad o al final del sprint |
@@ -548,7 +548,7 @@ Si falta, la skill te avisa y te manda a `/asome-setup`.
 - `/asome-sprint resequence --suggest` (solo propone) o `--apply` (ensaya, pide confirmación y ejecuta).
 - "plan sprint 3", "mover el #12 a Done", "cuántos puntos hicimos", "cerrar sprint", "armar los sprints".
 
-**Qué necesitás antes.** `.asome/config.json` y `gh` autenticado con acceso al proyecto (y `python3`). Para `bootstrap`, los datos del contrato: cantidad de sprints y fecha de inicio, equipo, hitos y días de validación; los pide juntos. Para `close`, las horas realmente trabajadas.
+**Qué necesitás antes.** `.asome/config.json` y `gh` autenticado con acceso al proyecto (y `python3`). Para `bootstrap`, los datos del contrato (cantidad de sprints y fecha de inicio, hitos y días de validación) y cuánto le dedica cada persona del equipo a cada carril en cada sprint; los pide juntos y guarda la dedicación en el config. Para `close`, las horas realmente trabajadas.
 
 **Qué te devuelve / qué cambia.**
 - `bootstrap`: las iteraciones del campo Sprint, un hito por sprint (más el hito de medición comparativa a los 90 días), `docs/product/11-plan-de-sprints.md`, un `sprint-NN-plan.md` por sprint y los valores iniciales de capacidad en el config. Antes verifica el plan contra el método y te avisa cada desvío, sin corregirlo en silencio.
@@ -568,7 +568,7 @@ Si falta, la skill te avisa y te manda a `/asome-setup`.
 
 ### `/asome-standup`
 
-**Para qué sirve.** Arma en segundos el resumen diario del tablero: qué está en curso, bloqueado y en revisión, qué se terminó hace poco y qué falta del sprint, con puntos y velocidad.
+**Para qué sirve.** Arma en segundos el resumen diario del tablero: qué está en curso, bloqueado y en revisión, qué se cerró en las últimas 48 horas y qué falta del sprint en curso, con puntos y la velocidad de ese sprint.
 
 **Cuándo usarla.** Antes de la daily, o cuando quieras saber cómo viene el proyecto.
 
@@ -582,7 +582,7 @@ Si falta, la skill te avisa y te manda a `/asome-setup`.
 
 **Cuidado con.**
 - Muestra lo que dice el tablero: si los issues no se mueven de etapa, el resumen no los refleja.
-- Si se sumó un sprint o un campo al tablero, volvé a correr `/asome-setup board` para que el resumen use los datos nuevos.
+- "Cerrado en las últimas 48 horas" se cuenta por la fecha en que se cerró el issue: uno que está en Done pero sigue abierto no aparece ahí.
 
 ---
 
@@ -633,7 +633,7 @@ Si falta, la skill te avisa y te manda a `/asome-setup`.
 - Ejecuta directo, sin vista previa: revisá fecha, hora e invitados antes de mandar el pedido.
 - Nunca adivina un mail externo: lo busca en el historial y, si no lo encuentra, te lo pide. Las cuentas `@asomelab.com` de ex integrantes del equipo ya no existen y rebotan: usá un mail personal.
 - Los títulos siguen un formato: `ASOME <> Acme | Sprint Review` para clientes, `ASOME | Sprint Planning` para reuniones internas.
-- En un proyecto preparado con `/asome-setup`, el repo puede bloquear los conectores que escriben, como el calendario. Si pasa, agendá desde una sesión abierta fuera de ese repo.
+- Adentro de un repo preparado con `/asome-setup` no funciona: el repo bloquea a propósito el calendario y Gmail, también para leer, y ningún permiso lo destraba. Abrí la sesión fuera del repo (por ejemplo, en tu carpeta personal) y agendá desde ahí.
 
 ### `/asome-kickoff`
 
@@ -648,7 +648,7 @@ Si falta, la skill te avisa y te manda a `/asome-setup`.
 - `/asome-kickoff full`: las tres cosas, en ese orden.
 - "armar el kickoff", "deck de kickoff", "acta de kickoff", "reunión de inicio".
 
-**Qué necesitás antes.** Nada obligatorio. Si existen, lee el contrato firmado y `docs/product/` para completar casi todo, y después te pregunta en un solo mensaje lo que falta: cliente y nombre del proyecto, fecha, asistentes y quién decide, qué queda fuera del alcance, canales, accesos, riesgos y contactos (técnico, comercial y de facturación). Para el roadmap necesita el plan de sprints (`docs/product/11-plan-de-sprints.md`); si falta, corré antes `/asome-sprint bootstrap`. El modo `agenda` pide `.asome/config.json`. La skill no dibuja las diapositivas: eso lo hace Claude Design con el texto que te da.
+**Qué necesitás antes.** Nada obligatorio. Si existen, lee el contrato firmado y `docs/product/` para completar casi todo, y después te pregunta en un solo mensaje lo que falta: cliente y nombre del proyecto, fecha, asistentes y quién decide, qué queda fuera del alcance, canales, accesos, riesgos y contactos (técnico, comercial y de facturación). Para el roadmap necesita el plan de sprints (`docs/product/11-plan-de-sprints.md`); si falta, corré antes `/asome-sprint bootstrap`. El modo `agenda` lee `.asome/config.json` y crea los eventos con `/asome-meeting`, así que se corre desde una sesión abierta fuera del repo, diciéndole dónde está el repo. La skill no dibuja las diapositivas: eso lo hace Claude Design con el texto que te da.
 
 **Qué te devuelve / qué cambia.** Un único bloque de código listo para copiar y pegar en Claude Design, y aparte la lista de datos `⟨PENDIENTE⟩` con quién tiene que responder cada uno. En `acta`, el texto del mail para enviar el mismo día (lo enviás vos). En `agenda`, los eventos creados.
 
@@ -675,7 +675,7 @@ Si falta, la skill te avisa y te manda a `/asome-setup`.
 
 **Cuidado con.**
 - Los números de actividad (puntos, horas, cantidad de tareas) no van nunca en una diapositiva: se quedan en las notas internas.
-- La fecha límite de validación se cuenta en días hábiles: revisá los feriados antes de que llegue al mail.
+- La fecha límite de validación se cuenta en días hábiles. La skill saltea sábados y domingos, pero no conoce los feriados: te pregunta cuáles caen en la ventana (nacionales y del cliente), y cada uno corre la fecha un día hábil.
 - Al cliente nunca se le habla de "Sprint 0": el primero es "Sprint 1 · Fundaciones".
 - Lo que se entrega es el avance validado, no las slides: antes de la demo, staging tiene que tener todo (`/asome-deploy staging`).
 - El repo de skills es público: no pegues datos de clientes en la skill, esos datos viven en cada proyecto.
@@ -754,7 +754,7 @@ Orden sugerido: cada paso usa lo que dejó el anterior.
 1. `/asome-setup`: config del tablero, etiquetas y los requisitos del manual (en un PR).
 2. `/asome-discovery nuevo <producto>`: documentos de producto y HU de la fase 1. Respondé las preguntas abiertas.
 3. `/asome-sprint bootstrap`: sprints, hitos y plan de sprints (el kick-off lo necesita).
-4. `/asome-kickoff full`: texto de la presentación, acta y eventos del calendario.
+4. `/asome-kickoff`: texto de la presentación y, después de la reunión, `acta`. Los eventos del calendario, con `/asome-kickoff agenda` desde una sesión abierta fuera del repo.
 5. Si el proyecto necesita nube: `/asome-infra-setup <arquitectura>`, después `/asome-infra-audit` y `/asome-infra-plan`.
 6. `/asome-create-issue` con las HU aprobadas, en lote.
 7. Cada persona que se suma: `/asome-setup doctor` antes de su primer PR y `/asome-onboard`.
@@ -814,6 +814,7 @@ Los bugs con causa conocida no llevan SDD. Si la causa no está clara, primero i
 
 - **Arranque del proyecto:** `/asome-kickoff full`.
 - **Una reunión puntual:** `/asome-meeting`.
+- Todo lo que crea eventos (`/asome-meeting`, `/asome-kickoff agenda`) se corre desde una sesión abierta fuera del repo del proyecto: adentro, el calendario está bloqueado a propósito.
 - **Cada demo de sprint:** `/asome-sprint-demo`, y `/asome-meeting` para el evento.
 - **A los 90 días:** `/asome-sprint-demo +90d`, la medición comparativa, antes y después.
 - **Después de cada reunión:** un acta o un mail de resumen el mismo día. Sin eso, lo hablado no queda escrito.

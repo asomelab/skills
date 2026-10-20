@@ -37,7 +37,7 @@ npx skills add asomelab/skills
 
 | Skill | Trigger | Description |
 |---|---|---|
-| `asome-setup` | `setup asome`, `configurar proyecto`, `asome doctor` | Board config, manual compliance (OpenSpec, `AGENTS.md`, MCP allowlist, secret scanning, `docs/` registers) **and** the product's foundations canon (auth/roles/tenancy scope, dependency taxonomy, cut-list labels). `doctor` mode audits repo + machine |
+| `asome-setup` | `setup asome`, `configurar proyecto`, `asome doctor` | Board config and the project `team`, manual compliance (OpenSpec, `AGENTS.md`, MCP allowlist, secret scanning, `docs/` registers) **and** the product's foundations canon (auth/roles/tenancy scope, dependency taxonomy, cut-list labels). `doctor` mode audits repo + machine |
 | `asome-onboard` | `onboard`, `introduce me to the project`, `poneme al día` | Project snapshot for new devs — reads issues, sprint board, stack, and recommends where to start |
 | `asome-create-skill` | `create skill`, `nueva skill`, `add skill` | Scaffold a new ASOME skill with SKILL.md, metadata.json, and registry entry |
 | `asome-discovery` | `product research`, `investigar producto`, `nuevo producto`, `escribir HUs` | Product discovery: docs/product/ doc set, HU template, decision/assumption registers — runs before SDD |

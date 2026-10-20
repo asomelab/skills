@@ -86,7 +86,9 @@ Asking for what the board already says is the fastest way to make this skill sto
 So every question comes with a **proposal built from the bundle**, and "ok" confirms all of them.
 Skip any question the bundle already answers.
 
-1. **Demo** — fecha, hora y modalidad. Propuesta: `dates.demo`.
+1. **Demo** — fecha, hora y modalidad, y qué feriados caen en la ventana de validación (nacionales
+   y los del cliente). Propuesta: `dates.demo`; validación hasta `dates.validacion_hasta`, que no
+   descuenta feriados. Always ask this one — the bundle cannot answer it.
 2. **Cliente y asistentes** — el nombre del cliente como va en la portada, los asistentes con
    nombre y rol, y quién valida. Propuesta: el frontmatter y el acta de la demo anterior, o
    `01-usuarios.md`.
@@ -149,7 +151,8 @@ In this order, in the chat:
    - if the sprint closes a hito and `warnings` reports no promotion to main, the hito DoD
      (Nivel 3) asks for production: `/asome-deploy main`, or say in the meeting what is missing;
    - realistic data loaded, the video recorded, the ficha with no `⟨PENDIENTE⟩`;
-   - the event exists (`/asome-meeting` → `ASOME <> {Cliente} | Sprint Review`);
+   - the event exists (`/asome-meeting`, from a session outside the repo →
+     `ASOME <> {Cliente} | Sprint Review`);
    - who presents each block: each person presents what they built.
 5. **Notas internas — no van al deck**: SP hechos vs comprometidos, rollover that still needs its
    written justification (DoD Nivel 2), the next sprint against real velocity, `needs:client`
@@ -207,8 +210,10 @@ If the file already exists, regenerate everything **except** an existing `## Act
 - **Sprint vs Milestone.** The milestone is the commitment to the client; the sprint is the team's.
   If an open item leaves its milestone, that needs written client conformity before the deck
   shows it as moved (sprint-canon §11.3).
-- **The validation deadline counts weekends only.** Check holidays before the date reaches the
-  slide and the email.
+- **The validation window is N business days, and holidays are a person's call.** The collector's
+  `dates.validacion_hasta` skips Saturdays and Sundays and nothing else — it knows no holidays.
+  Before the date reaches the slide or the email, a person confirms the holidays inside the window
+  (Step B, question 1); each one pushes the deadline one business day.
 - **Never "Sprint 0" in front of the client.** S1 is "Sprint 1 · Fundaciones", and it has a demo:
   the walking skeleton deployed in the client's own cloud.
 - **The template may not be in the Claude Design workspace yet.** The prompt carries the visual

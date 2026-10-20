@@ -51,49 +51,74 @@ Sprint N velocity: X SP done / Y SP total
 ```bash
 PROJECT_NUM=$(jq -r '.project_num' .asome/config.json)
 ORG=$(jq -r '.repo | split("/")[0]' .asome/config.json)
+SINCE=$(date -u -v-2d +%Y-%m-%d 2>/dev/null || date -u -d '2 days ago' +%Y-%m-%d)
+TMP=$(mktemp -d)
 
-gh project item-list $PROJECT_NUM --owner "$ORG" --format json | python3 << 'EOF'
+gh project item-list "$PROJECT_NUM" --owner "$ORG" --format json --limit 1000 > "$TMP/items.json"
+# The board export carries no close date, so the 48h window takes closedAt from search —
+# one call that also covers boards spanning several repos.
+gh search issues --owner "$ORG" --closed ">=$SINCE" --limit 200 \
+  --json number,repository,closedAt > "$TMP/closed.json"
+
+# Files as arguments, not a pipe: with `python3 << 'EOF'` the heredoc already is stdin.
+python3 - "$TMP/items.json" "$TMP/closed.json" << 'EOF'
 import sys, json
-from datetime import datetime, timezone, timedelta
+from datetime import date, datetime, timezone, timedelta
 
-data = json.load(sys.stdin)
-now = datetime.now(timezone.utc)
-cutoff = now - timedelta(hours=48)
+items  = json.load(open(sys.argv[1])).get("items") or []
+cutoff = datetime.now(timezone.utc) - timedelta(hours=48)
+closed = {(c["repository"]["nameWithOwner"], c["number"]) for c in json.load(open(sys.argv[2]))
+          if datetime.fromisoformat(c["closedAt"].replace("Z", "+00:00")) >= cutoff}
+
+def running(s):
+    start = date.fromisoformat(s["startDate"])
+    return start <= date.today() < start + timedelta(days=s["duration"])
+
+sprint = next((i["sprint"]["title"] for i in items if i.get("sprint") and running(i["sprint"])), None)
+label  = sprint or "Board (no sprint running)"
 
 in_progress, blocked, in_review, done_recent, todo = [], [], [], [], []
+sprint_done = sprint_total = 0
 
-for item in data.get("items", []):
-    stage  = item.get("Status") or item.get("Stage") or "Backlog"
-    sp     = item.get("Story Points", 0) or 0
-    title  = item.get("title", "?")[:60]
-    num    = item.get("number", "?")
-    area   = item.get("Area", "")
-    tag    = f"  #{num}  {title} [{sp}SP]{' · '+area if area else ''}"
+for item in items:
+    # gh lowercases each field name's first letter: Status → status, Story Points → story Points
+    stage   = item.get("status") or item.get("stage") or "Backlog"
+    sp      = item.get("story Points") or 0
+    content = item.get("content") or {}
+    num     = content.get("number", "?")
+    area    = item.get("area") or ""
+    tag     = f"  #{num}  {item.get('title', '?')[:60]} [{sp}SP]{' · '+area if area else ''}"
+    in_scope = sprint is None or (item.get("sprint") or {}).get("title") == sprint
+
+    if in_scope and stage != "Cancelled":
+        sprint_total += sp
+        sprint_done  += sp if stage == "Done" else 0
 
     if stage == "In Progress":   in_progress.append((tag, sp))
-    elif stage == "Blocked":     blocked.append(tag)
+    elif stage == "Blocked":     blocked.append((tag, 0))
     elif stage == "In Review":   in_review.append((tag, sp))
-    elif stage == "Done":        done_recent.append((tag, sp))
-    elif stage == "To Do":       todo.append((tag, sp))
+    elif stage == "Done":
+        if (content.get("repository"), num) in closed: done_recent.append((tag, sp))
+    elif stage in ("To Do", "Todo") and in_scope:      todo.append((tag, sp))
 
-def section(emoji, label, items, show_sp=True):
-    sp_total = sum(s for _, s in items) if show_sp else 0
-    header = f"\n## {emoji} {label}" + (f" ({len(items)} issues · {sp_total} SP)" if show_sp else f" ({len(items)} issues)")
-    print(header)
-    for (tag, *_) in items:
+def section(header, rows):
+    print(f"\n## {header}")
+    for tag, _ in rows:
         print(tag)
 
-section("🟡", "In Progress", in_progress)
-section("🔴", "Blocked",     [(t, 0) for t in blocked], show_sp=False)
-section("🟣", "In Review",   in_review)
-section("✅", "Done recently", done_recent)
-section("📋", "To Do",       todo)
-
-total_done = sum(s for _, s in done_recent)
-total_sprint = sum(s for _, s in in_progress + in_review + done_recent + todo)
-print(f"\n---\nVelocity: {total_done} SP done / {total_sprint} SP in sprint")
+total = lambda rows: sum(s for _, s in rows)
+section(f"🟡 In Progress ({len(in_progress)} issues · {total(in_progress)} SP)", in_progress)
+section(f"🔴 Blocked ({len(blocked)} issues)", blocked)
+section(f"🟣 In Review ({len(in_review)} issues · {total(in_review)} SP)", in_review)
+section(f"✅ Done recently (closed in last 48h · {total(done_recent)} SP shipped)", done_recent)
+section(f"📋 To Do — {label} (remaining {total(todo)} SP)", todo)
+print(f"\n---\n{label} velocity: {sprint_done} SP done / {sprint_total} SP total")
 EOF
+rm -rf "$TMP"
 ```
+
+Boards differ on the status name: some renamed it `To Do`, others kept GitHub's default `Todo`.
+The script matches both.
 
 ---
 
@@ -110,13 +135,13 @@ The digest is plain markdown — paste into:
 ## Optional: filter by area
 
 ```bash
-gh project item-list $PROJECT_NUM --owner "$ORG" --format json | \
+gh project item-list "$PROJECT_NUM" --owner "$ORG" --format json --limit 1000 | \
   python3 -c "
 import sys, json
 data = json.load(sys.stdin)
 for i in data['items']:
-    if i.get('Area') == 'Backend':
-        print(f\"  #{i.get('number') or '?'} [{i.get('Status') or i.get('Stage') or '?'}] {i.get('title','?')[:60]}\")
+    if i.get('area') == 'Backend':
+        print(f\"  #{(i.get('content') or {}).get('number', '?')} [{i.get('status') or i.get('stage') or '?'}] {i.get('title','?')[:60]}\")
 "
 ```
 

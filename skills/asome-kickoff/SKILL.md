@@ -32,8 +32,9 @@ regardless of how the deck looked.
 
 > **Prerequisites**: none hard. Reads `docs/product/` and the signed contract when they
 > exist (they fill most slots automatically). `.asome/config.json` only needed for mode
-> `agenda`. Claude Design is where the emitted prompt gets pasted — this skill does not
-> render slides itself.
+> `agenda`, which creates the events through `asome-meeting` and so runs from a session
+> opened outside the repo (step 6). Claude Design is where the emitted prompt gets pasted —
+> this skill does not render slides itself.
 
 ---
 
@@ -164,7 +165,13 @@ densidad, tono — in **`references/deck-canon.md`**. Summary:
    bloque de código, para que el usuario los cierre antes de la reunión.
 5. Si el modo es `acta` o `full` — emitir `references/acta-template.md` relleno.
 6. Si el modo es `agenda` o `full` — invocar `asome-meeting` para crear kick-off, las demos
-   de cierre de sprint y las sesiones de relevamiento, en un solo lote.
+   de cierre de sprint y las sesiones de relevamiento, en un solo lote. **Corre fuera del
+   repo:** en un repo configurado por `/asome-setup`, `.claude/settings.json` bloquea Calendar
+   y Gmail a propósito (asome-setup Step 11). Si la sesión arrancó adentro, dejar la lista de
+   eventos (título, fecha y hora, invitados) en un bloque y pedir que `/asome-kickoff agenda`
+   se corra en una sesión abierta fuera del repo, con la ruta del repo para leer
+   `.asome/config.json` y `docs/product/11-plan-de-sprints.md`. Nunca agregar un `allow` ni
+   tocar el `deny`.
 
 ---
 
