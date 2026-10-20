@@ -104,7 +104,7 @@ export const Handle: React.FC<{ readonly style?: React.CSSProperties }> = ({
       ...style,
     }}
   >
-    @asomelab
+    @asome.ar
   </div>
 );
 

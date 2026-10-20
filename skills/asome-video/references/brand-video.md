@@ -58,7 +58,7 @@ A long title steps down one size; never more than 4 lines.
   when blue does not read.
 - Sizes on 1080: logotipo 168 wide (min 140) · símbolo 64 tall (min 56) · completo 150 wide
   (min 110). Protection: ¼ of the symbol height free around it.
-- Signature: logotipo bottom-left on the margin, `@asomelab` bottom-right in Persian Blue on a
+- Signature: logotipo bottom-left on the margin, `@asome.ar` bottom-right in Persian Blue on a
   White Smoke pill. Over footage it sits in the gradient's clean zone, no box.
 
 ## Footage

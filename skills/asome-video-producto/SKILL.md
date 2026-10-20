@@ -302,8 +302,7 @@ signature and transitions as in the final.
   `qa-sheet.mjs` extracts frames one by one and composes the sheet as the `<tema>-qa` Still.
 - **Two `rise` helpers**: newer asome-video templates export one from `brand.tsx`; scenes use
   the one in `ui/Kit.tsx` (it also does exits). Do not mix them in one file.
-- **Handle**: the template's pill reads `@asomelab`; older projects showed `@asome.ar`. Confirm
-  the current handle with the user before the final render.
+- **Handle**: ASOME's Instagram handle is `@asome.ar` (confirmed by the user, Oct 2026); the template pill already reads it.
 - **Client fonts** register under separate family names (`Producto Heading/Body`), never as
   "Inter" or "Maax", or they override ASOME's faces.
 - If the session restarts mid-run, rebuild state from disk (`docs/<tema>/guion.txt`,
