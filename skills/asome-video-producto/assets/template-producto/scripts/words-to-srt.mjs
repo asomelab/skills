@@ -1,5 +1,5 @@
 // Word timings ([{ text, start, end }] in seconds) -> SRT subtitles for Instagram/YouTube.
-//   node scripts/words-to-srt.mjs src/producto/voz-words.json out/voz.srt
+//   node scripts/words-to-srt.mjs src/<tema>/voz-words.json out/<tema>/voz.srt
 //   node scripts/words-to-srt.mjs --test        (self-check)
 // A cue ends on sentence punctuation, on a pause > 0.35 s, on a comma once it has 3+ words, or
 // before it passes 32 characters (then after a comma, never on "de", "en", "y"…); the last word

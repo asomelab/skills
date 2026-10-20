@@ -1,6 +1,6 @@
 # Brief template for the scene agents
 
-Copy this to `<proyecto>/brief.md` and fill every `{…}`. It is the single document every scene
+Copy this to `docs/{tema}/brief.md` and fill every `{…}`. It is the single document every scene
 agent and reviewer reads first, so it must stand alone: an agent with no chat history builds
 its scene from this file, the files it lists and the code. Keep it under ~150 lines; link
 files instead of pasting them.
@@ -33,19 +33,19 @@ ejemplo"); `Honest`, the reveal label and the laptop address bar already do this
 ## Read these first
 - Brand rules (binding): `{SKILL_DIR}/references/brand-producto.md`, and for the base system
   `{VIDEO_SKILL}/references/brand-video.md`.
-- `[pasada 2]` Screen specs + UI built in Fase 2: `src/producto/ui/` ({lista de archivos y qué
-  exporta cada uno}), shared invented data `src/producto/ui/data.ts`. Platform truth table:
+- `[pasada 2]` Screen specs + UI built in Fase 2: `src/{tema}/ui/` ({lista de archivos y qué
+  exporta cada uno}), shared invented data `src/{tema}/ui/data.ts`. Platform truth table:
   {pegar la tabla de Fase 2: función → existe en web / móvil → componente}.
-- Project: `{ruta del proyecto}` (Remotion 4, React 19).
+- Project: `{ruta del repo de videos}` (Remotion 4, React 19).
   - `src/brand.tsx` ASOME tokens (`color`, `font`, `layout`, `radius`, `ease`), `Handle`, `IsoMark`.
   - `src/IconCard.tsx`, `src/GrowthPlate.tsx`, `src/EndCard.tsx`, `src/Captions.tsx`: reuse where they fit.
-  - `src/producto/theme.ts`: client tokens `p`, `pFont`, `pType`, `pRadius`, `pAsset`, `PRODUCT`.
-  - `src/producto/timeline.ts`: `SCENES`, `BEATS`, `word()`, `rel()`, `sceneFrames()`, `SAFE`.
-  - `src/producto/voz-words.json`: every voiceover word with start/end seconds.
-  - `src/producto/ui/Kit.tsx`: `useSceneFrame`, `rise`, `Label`, `Title`, `Honest`, `Sfx`, `clamp`,
+  - `src/{tema}/theme.ts`: client tokens `p`, `pFont`, `pType`, `pRadius`, `pAsset`, `PRODUCT`.
+  - `src/{tema}/timeline.ts`: `SCENES`, `BEATS`, `word()`, `rel()`, `sceneFrames()`, `SAFE`.
+  - `src/{tema}/voz-words.json`: every voiceover word with start/end seconds.
+  - `src/{tema}/ui/Kit.tsx`: `useSceneFrame`, `rise`, `Label`, `Title`, `Honest`, `Sfx`, `clamp`,
     and `track(f, keys, mix)` with `Key<V>` / `lerp` / `lerpPt`: one keyframe helper for camera,
     cursor path, scroll and nav state.
-  - `src/producto/ui/Devices.tsx`: `Laptop` (1440×900) / `Phone` (390×844) with `camera`,
+  - `src/{tema}/ui/Devices.tsx`: `Laptop` (1440×900) / `Phone` (390×844) with `camera`,
     `focusCamera`, `mixCamera`, `overlay`, `Cursor`, `Touch`, type `Rect`.
   - `[pasada 2]` Camera regions from Fase 2 (native px, one per phrase; already within the
     legibility rule): {pegar las listas de `sideARegions` / `sideBRegions`: clave → frase →
@@ -53,12 +53,12 @@ ejemplo"); `Honest`, the reveal label and the laptop address bar already do this
     `track(f, [[frame, focusCamera(regions.x, SCREEN)], …], mixCamera)` with `SCREEN` the device
     that shows the region: `LAPTOP_SCREEN` or `PHONE_SCREEN` (a phone region fitted to the
     laptop over-zooms ~3x). Never re-measure by eye.
-  - `src/producto/Promo.tsx`: the shell (DO NOT EDIT). It owns voice, music, captions
+  - `src/{tema}/Promo.tsx`: the shell (DO NOT EDIT). It owns voice, music, captions
     (y ≈ 1590–1722), the signature (y 1768–1816), the slide-ins (sideA up, sideB from the right,
     close up; 12 frames ending on the scene's `from`) and the end card. So the last 12 frames of
     reveal, sideA and sideB are covered by the next slide (land the last beat before them), and
-    a scene's own slide-in (f −12…−1) shows only in the PREVIOUS scene's P-window (P-reveal for
-    sideA, P-sideA for sideB, P-sideB for close).
+    a scene's own slide-in (f −12…−1) shows only in the PREVIOUS scene's window ({tema}-reveal for
+    sideA, {tema}-sideA for sideB, {tema}-sideB for close).
 - Icons: `@tabler/icons-react` only (no new dependencies). If the client uses another set, use
   the closest Tabler glyph inside the product UI.
 
@@ -101,15 +101,15 @@ ejemplo"); `Honest`, the reveal label and the laptop address bar already do this
    ({t}) title; "Escribinos" ({t}) IconCard CTA held until the end card at {END_CARD.from}.
 
 ## How to check your work visually (do this, repeatedly)
-    cd {ruta del proyecto} && bash scripts/still.sh P-<scene> <out.png> --frame=<N> --scale=0.5
+    cd {ruta del repo de videos} && bash scripts/still.sh {tema}-<scene> <out.png> --frame=<N> --scale=0.5
 Run it with the Bash sandbox disabled (headless Chrome needs it); ~3 s per frame. The script
 picks this machine's browser flags and retries once if Chrome does not answer. Frame 0 of
-`P-<scene>` = `SCENES[scene].from` = `rel(…, scene)` frame 0, with captions, signature and
+`{tema}-<scene>` = `SCENES[scene].from` = `rel(…, scene)` frame 0, with captions, signature and
 transitions exactly as in the final. Use `--scale=1` and crop to check small UI text. Write PNGs
 to `{scratchpad}/<your-name>/`. Also run `npx tsc --noEmit` and `npx eslint <your files>`; only
 errors in YOUR files are yours.
 
 ## File ownership
-Write only the files assigned to you. Never edit `src/Root.tsx`, `src/producto/Promo.tsx`,
+Write only the files assigned to you. Never edit `src/Root.tsx`, `src/{tema}/Promo.tsx`,
 `timeline.ts`, `theme.ts`, `brand.tsx` or other agents' files; ask in your final report.
 ```

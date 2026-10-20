@@ -1,10 +1,11 @@
 // Contact sheet of frames from the RENDERED MP4, for QA with one image read.
 //   node scripts/qa-sheet.mjs out/<reel>.mp4 general 1 3 5.4 8 12 …     frames at those seconds
 //   node scripts/qa-sheet.mjs out/<reel>.mp4 corte-2 @11.9               12 frames around 11.9 s (30 fps)
-// Extracts each frame with Remotion's ffmpeg into public/qa/<name>/, then renders the P-qa
-// Still to out/qa/<name>.jpg. Inside Claude Code run it with the Bash sandbox disabled.
+// Extracts each frame with Remotion's ffmpeg into public/qa/<name>/, then renders the <tema>-qa
+// Still (the reel in .reel) to out/qa/<name>.jpg. Inside Claude Code run it with the Bash sandbox disabled.
 import { execFileSync } from "node:child_process";
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { currentReel } from "./reel.mjs";
 
 const FPS = 30;
 const [mp4, name, ...marks] = process.argv.slice(2);
@@ -36,5 +37,5 @@ const tiles = frames.map((f, i) => {
 const props = `out/qa/${name}.json`;
 writeFileSync(props, JSON.stringify({ tiles, cols: 6 }));
 // still.sh adds this machine's browser flags and retries once.
-execFileSync("bash", ["scripts/still.sh", "P-qa", `out/qa/${name}.jpg`, `--props=${props}`, "--image-format=jpeg"], { stdio: "inherit" });
+execFileSync("bash", ["scripts/still.sh", `${currentReel()}-qa`, `out/qa/${name}.jpg`, `--props=${props}`, "--image-format=jpeg"], { stdio: "inherit" });
 console.log(`out/qa/${name}.jpg (${tiles.length} cuadros)`);

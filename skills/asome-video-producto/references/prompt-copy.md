@@ -2,7 +2,10 @@
 
 Three writers draft from different angles, then one editor scores, picks and polishes. It needs
 only the approved script and the platform truth table, so launch it as soon as Fase 2 returns.
-The editor's answer is saved as `<proyecto>/copy.md`; `render-producto.sh` ships it.
+The editor's answer opens the package file `docs/{tema}/<AAAAMMDD>_copy_{tema}.md`: the
+other sections (cover, when to post, Instagram settings, checklist) follow
+`../asome-video/references/copy-instagram.md` (its rules apply here too; load the `social` skill
+first when it is available). `render-producto.sh` ships the file.
 
 ## CONTEXT block
 
@@ -13,16 +16,18 @@ proporcionalmente su estructura".
 The reel ({N} s, voiceover) presents {Producto}, {tipo de producto} that ASOME BUILT FOR A CLIENT
 (it is the client's product, not ASOME's). It sells both sides: {rol A} ({lo que dice el guion})
 and {rol B} ({lo que dice el guion}). Closing line: "{línea de cierre del guion}".
-Read: {proyecto}/guion.txt (exact voiceover), {proyecto}/brief.md, and this product truth table:
+Read: {repo}/docs/{tema}/guion.txt (exact voiceover), {repo}/docs/{tema}/brief.md, and this product truth table:
 {tabla de verdad de plataformas de Fase 2}.
 Hard rules: Spanish rioplatense with voseo, like the voiceover. No invented metrics, results,
 testimonials or client names ({"el cliente no se nombra" | "se puede nombrar a {cliente}"}).
 {Producto} is the client's product; ASOME built it. Every claim must be backed by the guion or
 the truth table: if the app does not do something automatically, do not say it does. 0–3 emoji
 at most (prefer none), no hype clichés ("revolucionario", "game changer"), no AI filler. CTA
-consistent with the reel: escribinos por WhatsApp / mensaje directo. Hashtags: 8–15, Spanish
-first, niche ({rubro del cliente}) plus business/software (software a medida, SaaS,
-transformación digital), no banned or spammy tags.
+consistent with the reel: escribinos por WhatsApp / mensaje directo. Hashtags: 8–15 in priority
+order (the first 5 must stand alone: Instagram may cap the count), Spanish first, niche ({rubro
+del cliente}) plus business/software (software a medida, SaaS, transformación digital), no
+banned or spammy tags. No AI tells: no "no es X, es Y", no "sin X, sin Y, sin Z", no
+self-answered questions or colon reveals, no em dashes, no broetry, no engagement bait.
 Deliver: (1) caption: a hook that works in the first 125 characters (before "más"), then a
 short, scannable body, then the CTA; 600–1200 characters; (2) hashtags; (3) first comment, 1–2
 lines (a good place for "las pantallas son de {Producto}, con datos de ejemplo"); (4) cover
@@ -52,8 +57,9 @@ Score each (hook strength in the 125-char preview, clarity for a scroller, fidel
 reel, honesty, ASOME voice, CTA), pick the winner and polish it, grafting the best lines of the
 others. Verify every factual claim against the guion and the truth table; remove anything not
 supported. Count characters.
-Return the FINAL package as clean Markdown ready to paste, in Spanish, with exactly these
-sections: "## Caption" (ready to paste, hashtags NOT included), "## Hashtags" (one line),
-"## Primer comentario", "## Texto alternativo", "## Notas" (preview character count, why this
-angle won, one alternative hook line, what to confirm before publishing). Nothing outside them.
+Return the FINAL copy as clean Markdown ready to paste, in Spanish, with exactly these
+sections: "## Caption" (ready to paste, hashtags NOT included), "## Hashtags" (one line, in
+priority order), "## Primer comentario", "## Texto alternativo", "## Portada" (the cover check),
+"## Notas" (preview and caption character counts, number of hashtags, why this angle won, one
+alternative hook line, what to confirm before publishing). Nothing outside them.
 ```

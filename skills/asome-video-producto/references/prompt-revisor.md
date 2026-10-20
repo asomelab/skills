@@ -11,8 +11,8 @@ they verified on real frames.
 ```text
 {COMMON block from prompt-escena.md}
 
-You are an ADVERSARIAL REVIEWER for scene "{id}" (src/producto/scenes/{Archivo}.tsx,
-composition P-{id}). Builder report:
+You are an ADVERSARIAL REVIEWER for scene "{id}" (src/{tema}/scenes/{Archivo}.tsx,
+composition {tema}-{id}). Builder report:
 {informe del builder}
 
 Render stills yourself into {scratchpad}/review-{id}/: frame 0, every BEAT of the scene and 6
@@ -40,8 +40,8 @@ Schema for the Workflow tool: `{ issues: [{ frame, element, problem, fix, severi
 
 ```text
 You are auditing a finished Instagram reel (1080x1920, 30 fps, {N} s): {ruta del mp4}.
-Context and rules: {proyecto}/brief.md, {SKILL_DIR}/references/brand-producto.md, the script
-{proyecto}/guion.txt and the word timings src/producto/voz-words.json. Scene windows (s):
+Context and rules: {repo}/docs/{tema}/brief.md, {SKILL_DIR}/references/brand-producto.md, the script
+{repo}/docs/{tema}/guion.txt and the word timings src/{tema}/voz-words.json. Scene windows (s):
 {hook a–b, reveal a–b, sideA a–b, sideB a–b, close a–b, end card a–b}.
 Tools: contact sheets with `node scripts/qa-sheet.mjs <mp4> <nombre> <segundos | @segundos>…`
 (run from the project, Bash sandbox disabled; @T = 12 frames around T at 30 fps), then Read

@@ -1,5 +1,6 @@
 import { loadFont } from "@remotion/fonts";
 import { staticFile } from "remotion";
+import { REEL } from "./id";
 
 // The CLIENT product's look. It lives only inside device screens; the reel canvas around it
 // is ASOME (../brand.tsx). Fill it in Fase 2 from the client repo: design tokens file, CSS
@@ -33,16 +34,16 @@ export const pFont = {
   body: "Producto Body, system-ui, sans-serif",
 } as const;
 
-// Font files copied from the client repo into public/producto/fonts/ (never into the skills
+// Font files copied from the client repo into public/<tema>/fonts/ (never into the skills
 // repo). Example: ["700", "Brand-Bold.ttf"]. Empty = system fallback.
 const HEADING_FILES: ReadonlyArray<readonly [string, string]> = [];
 const BODY_FILES: ReadonlyArray<readonly [string, string]> = [];
 
 for (const [weight, file] of HEADING_FILES) {
-  loadFont({ family: "Producto Heading", url: staticFile(`producto/fonts/${file}`), weight });
+  loadFont({ family: "Producto Heading", url: staticFile(`${REEL}/fonts/${file}`), weight });
 }
 for (const [weight, file] of BODY_FILES) {
-  loadFont({ family: "Producto Body", url: staticFile(`producto/fonts/${file}`), weight });
+  loadFont({ family: "Producto Body", url: staticFile(`${REEL}/fonts/${file}`), weight });
 }
 
 // Type scale (px) and radii from the client's tokens, at native app size.
@@ -56,8 +57,8 @@ export const pType = {
 
 export const pRadius = { sm: 6, md: 10, lg: 16, pill: 999 } as const;
 
-// Logos and icons copied from the client repo into public/producto/ (staticFile paths).
+// Logos and icons copied from the client repo into public/<tema>/ (staticFile paths).
 export const pAsset = {
-  logo: "producto/logo.png",
-  appIcon: "producto/icon.png",
+  logo: `${REEL}/logo.png`,
+  appIcon: `${REEL}/icon.png`,
 } as const;

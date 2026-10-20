@@ -14,16 +14,19 @@ cliente, con la marca de ASOME:
   animadas al ritmo de la voz.
 - Voz en off con inteligencia artificial, subtítulos de marca, música y efectos suaves.
 - La portada del reel.
-- El texto para publicar: caption, hashtags, primer comentario y texto alternativo.
+- El paquete para publicar: caption, hashtags, primer comentario, texto alternativo, cuándo
+  publicar, qué tocar en Instagram paso a paso y una lista final para tildar.
 - El archivo de subtítulos (SRT), el guion y la voz por separado.
 
 Todo queda en tu carpeta Descargas y, si querés, en el Drive de ASOME
-(ASOME/marketing/reels/<fecha> <tema>/).
+(ASOME/marketing/reels/<fecha> <tema>/). El código del video se guarda en el repositorio
+privado de videos de ASOME en GitHub, para rehacerlo o sacar otra versión.
 
 ## Qué necesitás
 
-- Lo mismo que para editar un reel con la skill asome-video (Mac, Claude Code, la tipografía
-  Maax del Drive). Si nunca la usaste, Claude la instala primero: 15 a 30 minutos la primera vez.
+- Lo mismo que para editar un reel con la skill asome-video (Mac, Claude Code, GitHub con
+  acceso a `asomelab/videos`, Google Drive para escritorio). Si nunca la usaste, Claude la
+  prepara primero: 15 a 30 minutos la primera vez.
 - **El código del producto en esta compu** (la carpeta del repositorio). Las pantallas salen de
   ahí.
 - **Una cuenta de ElevenLabs** con una clave de API (permisos «Text to Speech» y «Voices:
@@ -61,10 +64,14 @@ rehacer las escenas).
 
 ## Cómo subirlo a Instagram
 
-Seguí "Cómo subirlo a Instagram" de la guía de asome-video (subir el video, poner la portada).
-Además:
+Abrí el archivo `…_copy_….md` de la carpeta: tiene todo en orden y listo para pegar. Seguí su
+sección "Configuración en Instagram" (es la misma que en la guía de asome-video):
 
-- Pegá el caption de `copy.md` (sección Caption) y, al final, los hashtags.
-- Publicá el primer comentario apenas salga el reel.
-- En la configuración avanzada de la publicación, pegá el texto alternativo.
-- Los subtítulos ya están en el video. El archivo SRT sirve para YouTube, LinkedIn o Facebook.
+- Subí el video `…_reel_…` y poné la portada desde la galería.
+- No agregues música de Instagram: el video ya trae voz y música.
+- Pegá el caption y, al final, los hashtags.
+- Los subtítulos ya están en el video: dejá apagados los automáticos de Instagram.
+- Pegá el texto alternativo en la configuración avanzada, si la app te lo ofrece.
+- Apenas sale el reel, publicá el primer comentario y fijalo.
+- No etiquetes ni invites como colaborador al cliente si no dio permiso para nombrarlo.
+- El archivo SRT sirve para YouTube, LinkedIn o Facebook.

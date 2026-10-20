@@ -1,6 +1,6 @@
 # Prompt: scene builder (Fase 3, one agent per scene, in parallel)
 
-One agent per file in `src/producto/scenes/`. Hook and Close need no client UI, so they start
+One agent per file in `src/{tema}/scenes/`. Hook and Close need no client UI, so they start
 on the first pass of `brief.md` (written right after the voice); Reveal, SideA and SideB start
 on the second pass, when the Fase 2 screen agents are done. Each builder is followed by ONE adversarial review (`prompt-revisor.md`) and a fix
 pass only if the review returns high or medium issues.
@@ -8,8 +8,8 @@ pass only if the review returns high or medium issues.
 ## COMMON block (same for every scene)
 
 ```text
-Read {proyecto}/brief.md completely (its rules are binding), then the files it lists: the
-screen components in src/producto/ui/ (read their source), ui/Kit.tsx, ui/Devices.tsx,
+Read {repo}/docs/{tema}/brief.md completely (its rules are binding), then the files it lists: the
+screen components in src/{tema}/ui/ (read their source), ui/Kit.tsx, ui/Devices.tsx,
 timeline.ts, Promo.tsx (the shell, read only), src/brand.tsx, src/IconCard.tsx,
 src/GrowthPlate.tsx, and {SKILL_DIR}/references/brand-producto.md.
 Honesty: {tabla de verdad de plataformas de Fase 2, en 3-6 líneas}. All data is invented
@@ -19,11 +19,11 @@ rel(word("palabra", SCENES.<id>.from), "<id>") gives the frame of each word.
 Hand-offs (sideA, sideB and close slide in over 12 frames that END on their `from`):
 - reveal, sideA, sideB: your LAST 12 frames (sceneFrames(id)-12 … sceneFrames(id)-1) are being
   covered by the next scene's slide. Land your last beat (summary, pull-back) before them, then hold.
-- sideA, sideB, close: you are on screen from f = -12 (your own slide-in). Your P-window does not
-  show it: it is the last 12 frames of the PREVIOUS scene's window (P-reveal for sideA, P-sideA
-  for sideB, P-sideB for close). Render those to check it.
+- sideA, sideB, close: you are on screen from f = -12 (your own slide-in). Your scene window does not
+  show it: it is the last 12 frames of the PREVIOUS scene's window ({tema}-reveal for sideA, {tema}-sideA
+  for sideB, {tema}-sideB for close). Render those to check it.
 - hook cuts to reveal. The close ends under the end-card sheet that rises over 15 frames from
-  END_CARD.from: check that in the Promo composition.
+  END_CARD.from: check that in the {tema} composition.
 The scene must look complete and intentional at EVERY frame, including all of the above.
 Camera, cursor, scroll, nav: one keyframe list each, `track(f, KEYS, mix)` from ui/Kit
 (`mixCamera` for cameras, `lerpPt` for cursor/touch paths, `lerp` for numbers), with cameras on
@@ -46,14 +46,14 @@ SFX: <Sfx scene="<id>" at={frame} src="audio/tick.wav" volume={0.2} /> from ui/K
 YOUR SCENE: {storyboard de la escena, copiado del brief, con los tiempos de cada beat}.
 {Notas específicas: dispositivo y ancho, qué pantallas de ui/ usar, cámara por beat, qué título.}
 
-You own ONLY {proyecto}/src/producto/scenes/{Archivo}.tsx (export const {Export}: React.FC, no
-props) and optional helpers under src/producto/scenes/{id}/. Replace the stub. If the file
+You own ONLY {repo}/src/{tema}/scenes/{Archivo}.tsx (export const {Export}: React.FC, no
+props) and optional helpers under src/{tema}/scenes/{id}/. Replace the stub. If the file
 already holds partial work from an interrupted run, read it first and finish it instead of
 starting over.
-Render P-{id} stills (frame 0 = scene start, with captions/signature/transitions) into
+Render {tema}-{id} stills (frame 0 = scene start, with captions/signature/transitions) into
 {scratchpad}/scene-{id}/ at every beat and in between, LOOK at them, and iterate: at least 3
 render -> look -> fix loops; check small UI text at --scale=1 with a crop.
-  bash scripts/still.sh P-{id} {scratchpad}/scene-{id}/f<N>.png --frame=<N> --scale=0.5
+  bash scripts/still.sh {tema}-{id} {scratchpad}/scene-{id}/f<N>.png --frame=<N> --scale=0.5
 (from the project root, Bash with the sandbox disabled, ~3 s per still.) npx tsc --noEmit and npx eslint on your files
 must pass.
 Final answer: what the scene does beat by beat (frame numbers), what you verified, the paths of

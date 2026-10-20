@@ -10,6 +10,7 @@ import { HookScene } from "./scenes/Hook";
 import { RevealScene } from "./scenes/Reveal";
 import { SideAScene } from "./scenes/SideA";
 import { SideBScene } from "./scenes/SideB";
+import { REEL } from "./id";
 import "./theme";
 import { CAPTIONS_FROM, END_CARD, ENTRANCE, FPS, lead, MOVE, SCENES, type SceneId, sceneFrames, TOTAL_FRAMES, WORDS } from "./timeline";
 
@@ -24,8 +25,8 @@ const END_CARD_TEXT = {
   highlight: "no tu estructura.",
   action: "Escribinos por WhatsApp",
 };
-const VOICE = "producto/voz.mp3";
-const MUSIC = "audio/promo-beat.wav"; // scripts/make-beat.mjs
+const VOICE = `${REEL}/voz.mp3`; // scripts/tts-elevenlabs.mjs
+const MUSIC = `${REEL}/beat.wav`; // scripts/make-beat.mjs
 
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 
@@ -73,7 +74,7 @@ const SceneSlot: React.FC<{ readonly id: SceneId }> = ({ id }) => {
 
 export const Promo: React.FC = () => {
   const frame = useCurrentFrame();
-  // Never useVideoConfig().durationInFrames: the P-<scene> windows mount this with a shorter one.
+  // Never useVideoConfig().durationInFrames: the <tema>-<scene> windows mount this with a shorter one.
   const total = TOTAL_FRAMES;
   const endFrom = Math.round(END_CARD.from * FPS);
 

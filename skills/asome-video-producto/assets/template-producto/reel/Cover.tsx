@@ -6,7 +6,7 @@ import "./theme";
 
 // Reel cover (9:16): the reveal's settled frame ("CASO · <PRODUCTO> / Lo construimos en ASOME",
 // devices, support line) without captions, plus the ASOME signature. Set SETTLED to the reveal
-// frame where every element has landed and before anything leaves; check it in P-reveal.
+// frame where every element has landed and before anything leaves; check it in <tema>-reveal.
 // The 4:5 profile grid crops y 285-1635: keep the title inside it.
 const SETTLED = 170;
 

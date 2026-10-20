@@ -1,42 +1,37 @@
 #!/bin/bash
-# Adds the product-reel scaffold (assets/template-producto) to a project created by asome-video:
-# src/producto/ (shell, timeline, theme, devices, scene stubs, cover, QA sheet), the voice/music/
-# QA/render scripts, and <ProductoCompositions /> in src/Root.tsx. Then generates a first beat.
-#   bash add-producto.sh ~/Documents/asome-videos/20261020_caso-plataforma-pedidos
-# Exit codes: 0 ready (or already there), 2 not an asome-video project.
+# Creates a product reel in the ASOME videos repo: runs asome-video's new-reel.sh with this
+# skill's skeleton (assets/template-producto/reel -> src/<tema>/: shell, timeline, theme, devices,
+# scene stubs, cover, QA sheet, compositions <tema>, <tema>-<scene>, <tema>-portada, <tema>-qa),
+# copies the voice/music/QA/render scripts the repo lacks into scripts/, creates
+# public/<tema>/fonts and docs/<tema>/, and generates a first beat.
+#   bash add-producto.sh caso-plataforma-pedidos
+# Exit codes: those of new-reel.sh (0 ready, 1 usage, 2 repo folder busy, 3 Maax missing),
+# 4 asome-video is not installed next to this skill.
 set -euo pipefail
 here=$(cd "$(dirname "$0")" && pwd)
-dest="${1:?Uso: add-producto.sh <carpeta del proyecto de asome-video>}"
-cd "$dest"
-
-if ! grep -q '"name": "asome-video"' package.json 2>/dev/null || [ ! -f src/brand.tsx ]; then
-  echo "En $dest no hay un proyecto de asome-video: crealo primero con su new-project.sh." >&2
-  exit 2
-fi
-if [ -d src/producto ]; then
-  echo "El proyecto ya tiene src/producto: se deja como está."
-  exit 0
+tema="${1:?Uso: add-producto.sh <tema-en-minusculas-con-guiones>}"
+video_skill="$here/../../asome-video"
+if [ ! -f "$video_skill/scripts/new-reel.sh" ]; then
+  echo "Falta la skill asome-video (instalala primero: npx skills add asomelab/skills)." >&2
+  exit 4
 fi
 
-cp -R "$here/../assets/template-producto/." .
-chmod +x scripts/*.sh
-mkdir -p public/producto/fonts out
+status=0
+bash "$video_skill/scripts/new-reel.sh" "$tema" "$here/../assets/template-producto/reel" || status=$?
+[ "$status" -eq 0 ] || [ "$status" -eq 3 ] || exit "$status"
 
-node -e '
-const fs = require("fs");
-const f = "src/Root.tsx";
-let s = fs.readFileSync(f, "utf8");
-if (!s.includes("ProductoCompositions")) {
-  const i = s.lastIndexOf("</>");
-  if (i === -1) throw new Error("src/Root.tsx: no encuentro el cierre </> del RemotionRoot");
-  s = `import { ProductoCompositions } from "./producto/Compositions";\n` + s.slice(0, i) + "  <ProductoCompositions />\n    " + s.slice(i);
-  fs.writeFileSync(f, s);
-}'
-
-# Client assets, the voice and QA frames stay on this machine.
-for line in "public/producto" "public/qa"; do
-  grep -qxF "$line" .gitignore 2>/dev/null || echo "$line" >> .gitignore
+cd "${ASOME_VIDEOS_DIR:-$HOME/Documents/asome-videos/videos}"
+for f in "$here/../assets/template-producto/scripts/"*; do
+  name=$(basename "$f")
+  if [ ! -e "scripts/$name" ]; then
+    cp "$f" "scripts/$name"
+  elif ! cmp -s "$f" "scripts/$name"; then
+    echo "DIFIERE scripts/$name"
+  fi
 done
+chmod +x scripts/*.sh
+mkdir -p "public/$tema/fonts" "docs/$tema" out
 
 node scripts/make-beat.mjs >/dev/null
-echo "Listo: src/producto y scripts del reel de producto en $dest"
+echo "Listo: reel de producto src/$tema (docs/$tema para guion, brief y copy)"
+exit "$status"

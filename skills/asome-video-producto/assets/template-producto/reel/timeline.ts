@@ -1,6 +1,6 @@
 import words from "./voz-words.json";
 
-// Every time here is ABSOLUTE seconds in the voiceover (public/producto/voz.mp3, word timings
+// Every time here is ABSOLUTE seconds in the voiceover (public/<tema>/voz.mp3, word timings
 // in ./voz-words.json, both written by scripts/tts-elevenlabs.mjs). Scenes render inside a
 // <Sequence> of the shell; inside a scene, `useSceneFrame(id)` (ui/Kit.tsx) gives the frame on
 // the same clock as rel(BEATS.x, id). Fill SCENES from the per-line times the TTS script prints.

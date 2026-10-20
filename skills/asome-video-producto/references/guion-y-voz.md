@@ -2,7 +2,7 @@
 
 ## Structure: five lines, five scenes
 
-Write `guion.txt` in the project root with **one line per scene**. The TTS script prints the
+Write `docs/<tema>/guion.txt` in the videos repo with **one line per scene**. The TTS script prints the
 start and end of each line, and those are the `SCENES` of `timeline.ts`.
 
 | # | Scene | Job | Words | ~Seconds |
@@ -95,7 +95,7 @@ the new one themselves.
 
 ```bash
 node scripts/tts-elevenlabs.mjs voces                          # premade voices: name, id, accent
-node scripts/tts-elevenlabs.mjs muestra guion.txt <id1> <id2> <id3>   # first line, out/voz-pruebas/
+node scripts/tts-elevenlabs.mjs muestra docs/<tema>/guion.txt <id1> <id2> <id3>   # first line, out/voz-pruebas/
 ```
 
 Propose three (warm, clear, neutral Spanish works; the first reel used the premade "Sarah",
@@ -107,22 +107,22 @@ key.
 **Generating:**
 
 ```bash
-node scripts/tts-elevenlabs.mjs generar guion.txt <id>
+node scripts/tts-elevenlabs.mjs generar docs/<tema>/guion.txt <id>
 ```
 
-Writes `public/producto/voz.mp3`, `src/producto/voz-words.json`, `out/voz-alignment.json`,
-`out/voz.srt`, and prints `línea N: a–b s` for each line. Then in `timeline.ts`: each scene's
+Writes `public/<tema>/voz.mp3`, `src/<tema>/voz-words.json`, `out/<tema>/voz-alignment.json`,
+`out/<tema>/voz.srt`, and prints `línea N: a–b s` for each line. Then in `timeline.ts`: each scene's
 `from` = its line's start (the hook keeps 0), `to` = the next line's start; `close.to` = the
 last word's end. Add the `BEATS` with `word("palabra", SCENES.x.from)`.
 
 Listen to it (or have the user listen) before building: a mispronounced name or a strange
 pause is fixed now by regenerating, not later. A product name the voice mispronounces can be
 written phonetically in the TTS text; then fix that word's `text` in `voz-words.json` (times do
-not change) and rebuild the SRT: `node scripts/words-to-srt.mjs src/producto/voz-words.json out/voz.srt`.
+not change) and rebuild the SRT: `node scripts/words-to-srt.mjs src/<tema>/voz-words.json out/<tema>/voz.srt`.
 
 **Own voice instead of AI:** record the whole script in one quiet take, save it as
-`public/producto/voz.m4a`, point `VOICE` in `Promo.tsx` to it, transcribe it with asome-video's
-`npm run transcribe -- public/producto/voz.m4a es`, fix the words Whisper got wrong, and convert
+`public/<tema>/voz.m4a`, point `VOICE` in `Promo.tsx` to it, transcribe it with asome-video's
+`npm run transcribe -- public/<tema>/voz.m4a es`, fix the words Whisper got wrong, and convert
 `transcript.json` to the words file:
-`node -e 'const t=require("./transcript.json");require("fs").writeFileSync("src/producto/voz-words.json",JSON.stringify(t.map(c=>({text:c.text.trim(),start:c.startMs/1000,end:c.endMs/1000}))))'`
-then `node scripts/words-to-srt.mjs src/producto/voz-words.json out/voz.srt`.
+`node -e 'const t=require("./transcript.json");require("fs").writeFileSync("src/<tema>/voz-words.json",JSON.stringify(t.map(c=>({text:c.text.trim(),start:c.startMs/1000,end:c.endMs/1000}))))'`
+then `node scripts/words-to-srt.mjs src/<tema>/voz-words.json out/<tema>/voz.srt`.

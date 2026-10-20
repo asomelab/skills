@@ -5,14 +5,15 @@
 // argument, never write it to a file, never print it.
 //
 //   node scripts/tts-elevenlabs.mjs voces                       premade voices (name, id, accent)
-//   node scripts/tts-elevenlabs.mjs muestra guion.txt <id> [<id>…]   first line of the script per voice
-//   node scripts/tts-elevenlabs.mjs generar guion.txt <id>      the full voiceover
+//   node scripts/tts-elevenlabs.mjs muestra docs/<tema>/guion.txt <id> [<id>…]   first line per voice
+//   node scripts/tts-elevenlabs.mjs generar docs/<tema>/guion.txt <id>      the full voiceover
 //
-// `generar` writes public/producto/voz.mp3, src/producto/voz-words.json, out/voz-alignment.json
-// and out/voz.srt, and prints when each line of the script starts and ends (= SCENES).
+// `generar` writes, for the reel in .reel ($REEL): public/<tema>/voz.mp3, src/<tema>/voz-words.json,
+// out/<tema>/voz-alignment.json and out/<tema>/voz.srt, and prints when each line of the script starts and ends (= SCENES).
 // Options: --model eleven_multilingual_v2 (default) · --lang es (default; --lang "" to omit).
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
+import { currentReel } from "./reel.mjs";
 import { wordsToSrt } from "./words-to-srt.mjs";
 
 const API = "https://api.elevenlabs.io/v1";
@@ -147,12 +148,13 @@ if (cmd === "voces") {
   const lines = readScript(file);
   const r = await speak(voice, lines.join("\n"));
   const words = alignmentToWords(r.alignment);
-  write("public/producto/voz.mp3", Buffer.from(r.audio_base64, "base64"));
-  write("out/voz-alignment.json", JSON.stringify(r.alignment));
-  write("src/producto/voz-words.json", JSON.stringify(words, null, 1) + "\n");
-  write("out/voz.srt", wordsToSrt(words));
+  const reel = currentReel();
+  write(`public/${reel}/voz.mp3`, Buffer.from(r.audio_base64, "base64"));
+  write(`out/${reel}/voz-alignment.json`, JSON.stringify(r.alignment));
+  write(`src/${reel}/voz-words.json`, JSON.stringify(words, null, 1) + "\n");
+  write(`out/${reel}/voz.srt`, wordsToSrt(words));
   console.log(`${words.length} palabras, ${words[words.length - 1].end.toFixed(2)} s de voz`);
-  console.log("public/producto/voz.mp3 · src/producto/voz-words.json · out/voz-alignment.json · out/voz.srt\n");
+  console.log(`public/${reel}/voz.mp3 · src/${reel}/voz-words.json · out/${reel}/voz-alignment.json · out/${reel}/voz.srt\n`);
   // Each script line = one scene: its first and last word times go into SCENES (timeline.ts).
   let k = 0;
   lines.forEach((line, i) => {

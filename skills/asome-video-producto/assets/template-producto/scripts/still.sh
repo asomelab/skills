@@ -2,7 +2,7 @@
 # One Remotion still with this machine's browser flags (scripts/browser.sh), retried once: a cold
 # start sometimes gets "Visited .../index.html but got no response". Paths are relative to the
 # project root (or absolute); extra arguments go straight to `remotion still`.
-#   bash scripts/still.sh P-sideA out/check/f30.png --frame=30 --scale=0.5
+#   bash scripts/still.sh <tema>-sideA out/check/f30.png --frame=30 --scale=0.5
 # Inside Claude Code run it with the Bash sandbox disabled (Chrome needs it).
 set -euo pipefail
 cd "$(dirname "$0")/.."

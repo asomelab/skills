@@ -4,19 +4,20 @@
 //
 //   node scripts/make-beat.mjs --drop 5.5 --lift 11.9 --close 35.5 --build 43.9 --hit 46.6
 //
-// Times are absolute seconds from src/producto/timeline.ts:
+// Times are absolute seconds from src/<tema>/timeline.ts:
 //   --drop   full beat comes in (SCENES.reveal.from)
 //   --lift   open hats + bass 8ths, the full groove (SCENES.sideA.from)
 //   --close  hats out, calmer under the ASOME message (SCENES.close.from)
 //   --build  16th hats + riser into the hit (onset of "¿Tenés un proyecto así?")
 //   --hit    final chord + kick (END_CARD.from)
 //   --dur    file length (default hit + 3.4, the end card)   --bpm target tempo (default 118)
-//   --seed   noise seed (default 118)   --out  default public/audio/promo-beat.wav
+//   --seed   noise seed (default 118)   --out  default public/<tema>/beat.wav (the reel in .reel)
 // The tempo is nudged so drop -> hit is a whole number of bars. A minor (Am7-Fmaj7-C-G, one
 // chord per bar), no melody, every tonal layer low-passed: 1-4 kHz stays free for the voice.
 // ponytail: synthesized placeholder; drop a licensed track at the same path if one is chosen.
 import { mkdirSync, statSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
+import { currentReel } from "./reel.mjs";
 
 const arg = (name, fallback) => {
   const i = process.argv.indexOf(`--${name}`);
@@ -34,7 +35,7 @@ const BUILD = num("build", 43.9);
 const HIT = num("hit", 46.6);
 const DUR = num("dur", HIT + 3.4);
 const BPM = num("bpm", 118);
-const OUT = arg("out", "public/audio/promo-beat.wav");
+const OUT = arg("out", null) ?? `public/${currentReel()}/beat.wav`;
 if (!(DROP < LIFT && LIFT <= CLOSE && CLOSE <= BUILD && BUILD < HIT && HIT < DUR)) {
   throw new Error("expected drop < lift <= close <= build < hit < dur");
 }
